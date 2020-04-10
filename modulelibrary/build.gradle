@@ -1,0 +1,50 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 3
+        versionName "1.2.9"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+def jarName="AiLinkBleParsingLibrary.jar"
+task makeJar(type: Jar) {
+    delete 'build/libs/'+jarName
+    from zipTree("build/intermediates/packaged-classes/release/classes.jar")
+    from fileTree(dir: 'src/main/java') //需要保留的资源文件,源码等
+    archiveName = jarName
+    destinationDir = file('build/libs')
+}
+makeJar.dependsOn(build)
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'com.github.inet2018:AILinkSdkRepositoryAndroid:1.2.7'
+
+}
