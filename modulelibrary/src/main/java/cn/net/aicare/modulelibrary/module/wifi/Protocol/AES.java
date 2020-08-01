@@ -2,11 +2,7 @@ package cn.net.aicare.modulelibrary.module.wifi.Protocol;
 
 import android.util.Base64;
 
-import java.security.SecureRandom;
-
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -15,7 +11,6 @@ import javax.crypto.spec.SecretKeySpec;
 public class AES {
 
     private final static String HEX = "0123456789ABCDEF";
-    private final static int JELLY_BEAN_4_2 = 17;
     /**
      * 加密
      *
@@ -43,28 +38,7 @@ public class AES {
         return new String(result);
     }
 
-    /**
-     * 获取128位的加密密钥
-     * @param seed
-     * @return
-     * @throws Exception
-     */
-    private static byte[] getRawKey(byte[] seed) throws Exception {
-        KeyGenerator kgen = KeyGenerator.getInstance("AES");
-        SecureRandom sr = null;
-        // 在4.2以上版本中，SecureRandom获取方式发生了改变
-        if (android.os.Build.VERSION.SDK_INT >= JELLY_BEAN_4_2) {
-            sr = SecureRandom.getInstance("SHA1PRNG", "Crypto");
-        } else {
-            sr = SecureRandom.getInstance("SHA1PRNG");
-        }
-        sr.setSeed(seed);
-        // 256 bits or 128 bits,192bits
-        kgen.init(128, sr);
-        SecretKey skey = kgen.generateKey();
-        byte[] raw = skey.getEncoded();
-        return raw;
-    }
+
     /**
      * 真正的加密过程
      * @param key
