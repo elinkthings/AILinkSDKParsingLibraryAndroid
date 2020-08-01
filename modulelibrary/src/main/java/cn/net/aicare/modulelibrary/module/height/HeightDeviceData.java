@@ -275,8 +275,7 @@ public class HeightDeviceData extends BaseBleDeviceData {
          * @param decimalWeight 小数位
          * @param weightUnit    体重单位
          */
-        default void height(int height, int decimalHeight, byte heightUnit, int weight,
-                            int decimalWeight, byte weightUnit){}
+        default void height(int height, int decimalHeight, byte heightUnit, int weight, int decimalWeight, byte weightUnit){}
 
         /**
          * 设置单位返回<br>

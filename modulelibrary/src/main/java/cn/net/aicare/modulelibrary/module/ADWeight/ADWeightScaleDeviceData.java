@@ -328,7 +328,7 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        if (mType == type || type == CmdConfig.GET_BODY_FAT) {
+        if (mType == type) {
             if (hex == null) {
                 BleLog.i(TAG, "接收到的数据:null");
                 return;
@@ -337,6 +337,14 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
             BleLog.i(TAG, "接收到的数据:" + data);
             //校验解析
             dataCheck(hex);
+        }
+
+    }
+
+    @Override
+    public void onNotifyDataA6(byte[] data) {
+        if (data[0]== CmdConfig.GET_BODY_FAT){
+            dataCheckA6(data);
         }
 
     }
@@ -403,9 +411,7 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
 
             //----------------a6-------------
             //
-            case CmdConfig.GET_BODY_FAT:
-                dataCheckA6(data);
-                break;
+
 
 
             default:

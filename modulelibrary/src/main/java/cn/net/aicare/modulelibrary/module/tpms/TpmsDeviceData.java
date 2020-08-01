@@ -207,6 +207,17 @@ public class TpmsDeviceData extends BaseBleDeviceData {
 
     }
 
+    @Override
+    public void onNotifyDataA6(byte[] data) {
+        switch (data[0]){
+
+            case CmdConfig.GET_DEVICE_INFO:
+                deviceInfo(data);
+                break;
+
+        }
+    }
+
 
     //----------------解析数据------
 
@@ -236,9 +247,7 @@ public class TpmsDeviceData extends BaseBleDeviceData {
             case TpmsBleConfig.GET_UNIT:
                 getTpmsSetting(data);
                 break;
-            case CmdConfig.GET_DEVICE_INFO:
-                deviceInfo(data);
-                break;
+
         }
     }
 
@@ -354,8 +363,7 @@ public class TpmsDeviceData extends BaseBleDeviceData {
         /**
          * tpms 数据
          */
-        void onTpmsData(int index, int pressure, int pressureUnit, int pressureDecimal,
-                        float battery, int tem, int temUnit, int temDecimal, int status);
+        void onTpmsData(int index, int pressure, int pressureUnit, int pressureDecimal, float battery, int tem, int temUnit, int temDecimal, int status);
 
         /**
          * 其他数据

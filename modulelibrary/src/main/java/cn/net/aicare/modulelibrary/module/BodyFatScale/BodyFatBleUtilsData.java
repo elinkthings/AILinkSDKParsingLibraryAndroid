@@ -26,8 +26,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 //    private OnWifiInfoListener onWifiInfoListener;
 
 
-    private BodyFatBleUtilsData(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback,
-                                BleBodyFatWiFiCallback bleBodyFatWiFiCallback) {
+    private BodyFatBleUtilsData(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback, BleBodyFatWiFiCallback bleBodyFatWiFiCallback) {
         super(bleDevice);
         mBleDevice = bleDevice;
         this.mBleBodyFatCallback = bleBodyFatCallback;
@@ -94,8 +93,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
      * @param bleBodyFatCallback     {@link BleBodyFatCallback} 体脂秤接口回调
      * @param bleBodyFatWiFiCallback {@link BleBodyFatWiFiCallback} 体脂秤关于wifi部分接口回调
      */
-    public static void init(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback,
-                            BleBodyFatWiFiCallback bleBodyFatWiFiCallback) {
+    public static void init(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback, BleBodyFatWiFiCallback bleBodyFatWiFiCallback) {
 
         bodyfatble = new BodyFatBleUtilsData(bleDevice, bleBodyFatCallback, bleBodyFatWiFiCallback);
     }
@@ -147,9 +145,8 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             case BodyFatDataUtil.WEIGHT_RESULT:
 
                 if (mBleBodyFatCallback != null) {
-                    mBleBodyFatCallback.onWeightData(cmd, BodyFatDataUtil.getInstance().getWeight(hex),
-                            BodyFatDataUtil.getInstance().getWeightUnit(hex),
-                            BodyFatDataUtil.getInstance().getWeightPoint(hex));
+                    mBleBodyFatCallback
+                            .onWeightData(cmd, BodyFatDataUtil.getInstance().getWeight(hex), BodyFatDataUtil.getInstance().getWeightUnit(hex), BodyFatDataUtil.getInstance().getWeightPoint(hex));
                 }
 
                 break;
@@ -163,9 +160,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             //阻抗有算法位
             case BodyFatDataUtil.IMPEDANCE_SUCCESS:
                 if (mBleBodyFatCallback != null)
-                    mBleBodyFatCallback
-                            .onAdc(BodyFatDataUtil.getInstance().getImpedance(hex), BodyFatDataUtil
-                                    .getInstance().getArithmetic(hex));
+                    mBleBodyFatCallback.onAdc(BodyFatDataUtil.getInstance().getImpedance(hex), BodyFatDataUtil.getInstance().getArithmetic(hex));
 
                 break;
             //心率
@@ -185,19 +180,15 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
                     bodyFatRecord = null;
                 }
                 break;
-            case BodyFatDataUtil.SCALE_SPECIFIC_INTERACTION:
-                A6Order(hex);
-                break;
+
 
             case BodyFatDataUtil.SET_UNIT_CALLBAKC:
                 if (mBleBodyFatCallback != null)
-                    mBleBodyFatCallback
-                            .setUnitCallback(BodyFatDataUtil.getInstance().setUnitCallback(hex));
+                    mBleBodyFatCallback.setUnitCallback(BodyFatDataUtil.getInstance().setUnitCallback(hex));
                 break;
             case BodyFatDataUtil.MUC_REQUEST_USER_INFO:
                 if (mBleBodyFatCallback != null)
-                    mBleBodyFatCallback.requestUserData(BodyFatDataUtil.getInstance()
-                            .requestUserDataCallback(hex));
+                    mBleBodyFatCallback.requestUserData(BodyFatDataUtil.getInstance().requestUserDataCallback(hex));
                 break;
             case BodyFatDataUtil.ERROR_CODE:
                 if (hex.length > 2) {
@@ -213,6 +204,13 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
     }
 
 
+    @Override
+    public void onNotifyDataA6(byte[] hex) {
+        if (hex[0] == BodyFatDataUtil.SCALE_SPECIFIC_INTERACTION) {
+            A6Order(hex);
+        }
+    }
+
     private AppHistoryRecordBean appHistoryRecordBean;
     private McuHistoryRecordBean mcuHistoryRecordBean;
 
@@ -222,19 +220,18 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             //同步历史数据回调
             case BodyFatDataUtil.RE_SYN_HISTORY_CALLBACK:
                 if (mBleBodyFatCallback != null)
-                    mBleBodyFatCallback.requestSynHistoryCallback(BodyFatDataUtil.getInstance()
-                            .requestSynHistoryCallback(bytes));
+                    mBleBodyFatCallback.requestSynHistoryCallback(BodyFatDataUtil.getInstance().requestSynHistoryCallback(bytes));
 
                 break;
             //更新用户回复
             case BodyFatDataUtil.UPDATE_USER_CALLBACK:
                 if (mBleBodyFatCallback != null)
-                    mBleBodyFatCallback.updateUserCallback(BodyFatDataUtil.getInstance()
-                            .updateUserCallback(bytes));
+                    mBleBodyFatCallback.updateUserCallback(BodyFatDataUtil.getInstance().updateUserCallback(bytes));
 
                 break;
             case BodyFatDataUtil.REQUEST_SYN_TIME:
-                if (mBleBodyFatCallback != null) mBleBodyFatCallback.requestSynTime();
+                if (mBleBodyFatCallback != null)
+                    mBleBodyFatCallback.requestSynTime();
                 break;
 
 //            case BodyFatDataUtil.SET_SYSTIME_RESULT:
@@ -247,8 +244,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             case BodyFatDataUtil.MCU_HISTORY_RECORD:
                 if (mcuHistoryRecordBean == null)
                     mcuHistoryRecordBean = new McuHistoryRecordBean();
-                mcuHistoryRecordBean = BodyFatDataUtil.getInstance()
-                        .getMcuHistoryRecord(bytes, mcuHistoryRecordBean);
+                mcuHistoryRecordBean = BodyFatDataUtil.getInstance().getMcuHistoryRecord(bytes, mcuHistoryRecordBean);
                 if (bytes[2] == 0x03) {
                     //
                     if (mBleBodyFatCallback != null)
@@ -261,8 +257,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             case BodyFatDataUtil.APP_HISTORY_RECORD:
                 if (appHistoryRecordBean == null)
                     appHistoryRecordBean = new AppHistoryRecordBean();
-                appHistoryRecordBean = BodyFatDataUtil.getInstance()
-                        .getAppHistoryRecord(bytes, appHistoryRecordBean);
+                appHistoryRecordBean = BodyFatDataUtil.getInstance().getAppHistoryRecord(bytes, appHistoryRecordBean);
                 if (bytes[2] == 0x02) {
                     //app算的历史数据
                     if (mBleBodyFatCallback != null)
@@ -525,7 +520,8 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
          * @param blestatus  蓝牙状态 0 无连接 1：已连接 2：配对完成
          *                   Bluetooth status0 No connection 1: Connected 2: Pairing completed
          * @param wifistatus wifi状态 0：没连接热点；1：尝试连接热点，但是失败，连接时密码错误、热点信号不好、主动断开都会是这个状态；2：连接的热点无网络或者信号不好；3：成功连接上热点；4：有热点信息，还没连接
-         *                   wifi status 0: No hotspot connection; 1: Attempt to connect to the hotspot, but failure, wrong password when connecting, bad hotspot signal, active disconnection will be this state; 2: No connection to the hotspot or signal ; 3: Successfully connected to the hotspot; 4: There is hotspot information, not connected yet
+         *                   wifi status 0: No hotspot connection; 1: Attempt to connect to the hotspot, but failure, wrong password when connecting, bad hotspot signal, active disconnection will
+         *                   be this state; 2: No connection to the hotspot or signal ; 3: Successfully connected to the hotspot; 4: There is hotspot information, not connected yet
          * @param workstatus 工作状态 0：唤醒 1：进入休眠 2：模块准备就绪
          *                   working status 0: wake up 1: go to sleep 2: module is ready
          */
@@ -580,26 +576,28 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
         /**
          * 扫描wifi结束
          * End of scanning wifi
-
+         *
          * @param wifiNum 扫描的的wifi数量 The number of wifi scanned
          */
         void OnWifiScanFinish(int wifiNum);
 
         /**
          * 设置wifimac ,密码和连接或断开的回调
-         *Set callback for wifimac, password and connection or disconnection
+         * Set callback for wifimac, password and connection or disconnection
+         *
          * @param type   设置的类型 0x84 设置 wifimac 0x86 设置wifi密码 0x88 断开或者连接
          *               ype Set type 0x84 Set wifimac 0x86 Set wifi password 0x88 Disconnect or connect
          * @param status {@link BodyFatDataUtil#STATUS_SUCCESS} 0x00：成功 0x01：失败 0x02：不支持
-         *                                                     0x00: success 0x01: failure 0x02: not supported
+         *               0x00: success 0x01: failure 0x02: not supported
          */
         void OnSetWifiNameOrPwdOrConnectCallback(int type, int status);
 
         /**
          * 获取已设置的wifi的Mac
-         *Get Mac with wifi set
+         * Get Mac with wifi set
+         *
          * @param mac wifiMac地址
-         *             wifiMac address
+         *            wifiMac address
          */
         void getSelectWifiMac(String mac);
 
@@ -614,6 +612,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
         /**
          * 获取到did号
          * Get did
+         *
          * @param did did
          */
         void getDid(long did);
