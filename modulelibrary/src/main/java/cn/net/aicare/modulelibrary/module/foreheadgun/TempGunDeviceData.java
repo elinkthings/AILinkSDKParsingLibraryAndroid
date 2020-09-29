@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.foreheadgun;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
@@ -22,7 +21,7 @@ public class TempGunDeviceData extends BaseBleDeviceData {
     private String TAG = TempGunDeviceData.class.getName();
 
     private onNotifyData mOnNotifyData;
-    private int mType = BleDeviceConfig.INFRARED_THERMOMETER;
+    private int mType = TempGunBleConfig.INFRARED_THERMOMETER;
     private byte[] CID;
     /**
      * 设置单位成功
@@ -87,7 +86,7 @@ public class TempGunDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        if (mType == type||type== BleDeviceConfig.DEVICE_ALL) {
+        if (mType == type) {
             String data = BleStrUtils.byte2HexStr(hex);
             BleLog.i(TAG, "接收到的数据:" + data);
 

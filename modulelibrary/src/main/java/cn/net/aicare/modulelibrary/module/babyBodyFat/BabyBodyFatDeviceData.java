@@ -1,4 +1,4 @@
-package cn.net.aicare.modulelibrary.module.babyscale;
+package cn.net.aicare.modulelibrary.module.babyBodyFat;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -15,27 +15,28 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 /**
  * xing<br>
- * 2019/5/11<br>
- * 婴儿秤(Baby scale)
+ * 2020/08/07<br>
+ * 婴儿体脂两用秤
  */
-public class BabyDeviceData extends BaseBleDeviceData {
-    private String TAG = BabyDeviceData.class.getName();
+public class BabyBodyFatDeviceData extends BaseBleDeviceData {
+    private String TAG = BabyBodyFatDeviceData.class.getName();
 
     private onNotifyData mOnNotifyData;
     private byte[] CID;
-    private int mType = BabyBleConfig.BABY_SCALE;
+    private int mType = BabyBodyFatBleConfig.BABY_BODY_FAT;
     private static BleDevice mBleDevice = null;
-    private static BabyDeviceData mBabyDevice = null;
+    private static BabyBodyFatDeviceData mBabyDevice = null;
+    private Object mImpedance;
 
-    public static BabyDeviceData getInstance(BleDevice bleDevice) {
+    public static BabyBodyFatDeviceData getInstance(BleDevice bleDevice) {
         synchronized (BleDevice.class) {
             if (mBleDevice == bleDevice) {
                 if (mBabyDevice == null) {
-                    mBabyDevice = new BabyDeviceData(bleDevice);
+                    mBabyDevice = new BabyBodyFatDeviceData(bleDevice);
 
                 }
             } else {
-                mBabyDevice = new BabyDeviceData(bleDevice);
+                mBabyDevice = new BabyBodyFatDeviceData(bleDevice);
             }
         }
         return mBabyDevice;
@@ -56,14 +57,14 @@ public class BabyDeviceData extends BaseBleDeviceData {
             mBleDevice.disconnect();
     }
 
-    private BabyDeviceData(BleDevice bleDevice) {
+    private BabyBodyFatDeviceData(BleDevice bleDevice) {
         super(bleDevice);
         mBleDevice = bleDevice;
         init();
     }
 
     private void init() {
-        //TODO 可进行婴儿秤特有的初始化操作
+
         CID = new byte[2];
         CID[0] = (byte) ((mType >> 8) & 0xff);
         CID[1] = (byte) (mType);
@@ -76,13 +77,14 @@ public class BabyDeviceData extends BaseBleDeviceData {
     /**
      * 设置单位
      * Set unit
+     *
      * @param unitHeight 身高(height)
      * @param unitWeight 体重(weight)
      */
     public void setUnit(int unitHeight, int unitWeight) {
         SendMcuBean sendMcuBean = new SendMcuBean();
         byte[] data = new byte[3];
-        data[0] = BabyBleConfig.SET_UNIT;
+        data[0] = BabyBodyFatBleConfig.SET_UNIT;
         data[1] = (byte) unitHeight;
         data[2] = (byte) unitWeight;
         sendMcuBean.setHex(CID, data);
@@ -106,7 +108,7 @@ public class BabyDeviceData extends BaseBleDeviceData {
     public void setCmd(byte type) {
         SendMcuBean sendMcuBean = new SendMcuBean();
         byte[] data = new byte[2];
-        data[0] = BabyBleConfig.SET_CMD;
+        data[0] = BabyBodyFatBleConfig.SET_CMD;
         data[1] = type;
         sendMcuBean.setHex(CID, data);
         sendData(sendMcuBean);
@@ -125,12 +127,27 @@ public class BabyDeviceData extends BaseBleDeviceData {
             BleLog.i(TAG, "接收到的数据:" + data);
             //校验解析
             dataCheck(hex);
+        }else {
+            runOnMainThread(() -> {
+                if (mOnNotifyData != null) {
+                    mOnNotifyData.onData(hex, mType);
+                }
+            });
         }
     }
 
+    @Override
+    public void onNotifyDataA6(byte[] hex) {
 
+
+    }
 
     //----------------解析数据------
+
+    /**
+     * 步骤
+     */
+    private int mStep = 0;
 
     /**
      * 校验解析数据
@@ -142,27 +159,75 @@ public class BabyDeviceData extends BaseBleDeviceData {
             return;
         switch (data[0]) {
             //稳定重量
-            case BabyBleConfig.GET_WEIGHT:
+            case BabyBodyFatBleConfig.GET_WEIGHT:
+                mStep = 1;
                 getWeight(data);
                 break;
             //实时重量
-            case BabyBleConfig.GET_WEIGHT_NOW:
+            case BabyBodyFatBleConfig.GET_WEIGHT_NOW:
+                mStep = 0;
                 getWeightNow(data);
                 break;
-            //身高
-            case BabyBleConfig.GET_HEIGHT:
+            //身高稳定
+            case BabyBodyFatBleConfig.GET_HEIGHT:
                 getHeight(data);
                 break;
+            //身高实时
+            case BabyBodyFatBleConfig.GET_HEIGHT_NOW:
+                getHeightNow(data);
+                break;
+            //测阻抗中
+            case BabyBodyFatBleConfig.GET_IMPEDANCE_TESTING:
+                mStep = 3;
+                runOnMainThread(() -> {
+                    if (mOnNotifyData != null) {
+                        mOnNotifyData.onImpedanceTesting();
+                    }
+                });
+                break;
+            //测阻抗成功，带上阻抗数据
+            case BabyBodyFatBleConfig.GET_IMPEDANCE_SUCCESS_DATA:
+                mStep = 4;
+                getImpedance(data);
+                break;
+            //测阻抗成功，带上阻抗数据，并使用 APP 算法(APP 会根
+            //据 byte7 的算法标识进行计算)
+            case BabyBodyFatBleConfig.GET_IMPEDANCE_SUCCESS:
+                mStep = 4;
+                getImpedanceAlgorithm(data);
+                break;
+            //测阻抗失败
+            case BabyBodyFatBleConfig.GET_IMPEDANCE_FAIL:
+                mStep = 4;
+                runOnMainThread(() -> {
+                    if (mOnNotifyData != null) {
+                        mOnNotifyData.onImpedanceFailure();
+                    }
+                });
+                break;
+            //测量完成
+            case BabyBodyFatBleConfig.GET_TEST_FINISH:
+                if (mStep < 4) {
+                    BleLog.i("步骤可能有误");
+                }
+                runOnMainThread(() -> {
+                    if (mOnNotifyData != null) {
+                        mOnNotifyData.onMeasurementCompleted();
+                    }
+                });
+
+                break;
+
             //控制指令,0去皮,1锁定
-            case BabyBleConfig.GET_CMD:
+            case BabyBodyFatBleConfig.GET_CMD:
                 getCmd(data);
                 break;
             //获取单位
-            case BabyBleConfig.GET_UNIT:
+            case BabyBodyFatBleConfig.GET_UNIT:
                 getUnit(data);
                 break;
             //返回错误信息
-            case BabyBleConfig.GET_ERR:
+            case BabyBodyFatBleConfig.GET_ERR:
                 getErr(data);
                 break;
             default:
@@ -182,41 +247,20 @@ public class BabyDeviceData extends BaseBleDeviceData {
      * 稳定重量
      */
     private void getWeight(byte[] data) {
-        int weight = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
-        boolean negative = ((data[4] >> 4) & 0x01) == 1;//是否为负数
-        weight=negative?-weight:weight;
-        int decimal = BleStrUtils.getBits(data[4], 0, 4);//从0开始,取4个bit
-        byte unit = data[3];
-        String unitStr = "kg";
-        switch (unit) {
-            case BabyBleConfig.BABY_KG:
-                unitStr = "kg";
-                break;
-            case BabyBleConfig.BABY_FG:
-                unitStr = "斤";
-                break;
-            case BabyBleConfig.BABY_LB:
-                unitStr = "lb:oz";
-                break;
-            case BabyBleConfig.BABY_OZ:
-                unitStr = "oz";
-                break;
-            case BabyBleConfig.BABY_ST:
-                unitStr = "st:lb";
-                break;
-            case BabyBleConfig.BABY_G:
-                unitStr = "g";
-                break;
-            case BabyBleConfig.BABY_LB_LB:
-                unitStr = "LB";
-                break;
-
+        if (data.length < 5) {
+            BleLog.e("稳定重量异常");
+            return;
         }
-
+        int weight = ((data[1] & 0xff) << 16) + ((data[2] & 0xff) << 8) + (data[3] & 0xff);
+        byte unit = data[4];
+        boolean negative = ((data[5] >> 4) & 0x01) == 1;//是否为负数
+        weight = negative ? -weight : weight;
+        int decimal = BleStrUtils.getBits(data[4], 0, 4);//从0开始,取4个bit
+        boolean stableStatus = true;
         int finalWeight = weight;
         runOnMainThread(() -> {
             if (mOnNotifyData != null) {
-                mOnNotifyData.getWeight(finalWeight, decimal, unit);
+                mOnNotifyData.onWeight(finalWeight, decimal, unit, stableStatus);
             }
         });
     }
@@ -225,73 +269,92 @@ public class BabyDeviceData extends BaseBleDeviceData {
      * 实时重量
      */
     private void getWeightNow(byte[] data) {
-        int weight = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
-        boolean negative = ((data[4] >> 4) & 0x01) == 1;//是否为负数
-        weight=negative?-weight:weight;
-        int decimal = BleStrUtils.getBits(data[4], 0, 4);//从0开始,取4个bit
-        byte unit = data[3];
-        String unitStr = "未知";
-        switch (unit) {
-            case BabyBleConfig.BABY_KG:
-                unitStr = "kg";
-                break;
-            case BabyBleConfig.BABY_FG:
-                unitStr = "斤";
-                break;
-            case BabyBleConfig.BABY_LB:
-                unitStr = "lb:oz";
-                break;
-            case BabyBleConfig.BABY_OZ:
-                unitStr = "oz";
-                break;
-            case BabyBleConfig.BABY_ST:
-                unitStr = "st:lb";
-                break;
-            case BabyBleConfig.BABY_G:
-                unitStr = "g";
-                break;
-            case BabyBleConfig.BABY_LB_LB:
-                unitStr = "LB";
-                break;
-
+        if (data.length < 5) {
+            BleLog.e("实时重量异常");
+            return;
         }
-        BleLog.i(TAG, "实时重量:" + weight + unitStr + "||decimal=" + decimal);
+        int weight = ((data[1] & 0xff) << 16) + ((data[2] & 0xff) << 8) + (data[3] & 0xff);
+        byte unit = data[4];
+        boolean negative = ((data[5] >> 4) & 0x01) == 1;//是否为负数
+        weight = negative ? -weight : weight;
+        int decimal = BleStrUtils.getBits(data[4], 0, 4);//从0开始,取4个bit
         int finalWeight = weight;
+        boolean stableStatus = false;
         runOnMainThread(() -> {
             if (mOnNotifyData != null) {
-                mOnNotifyData.getWeightNow(finalWeight, decimal, unit);
+                mOnNotifyData.onWeight(finalWeight, decimal, unit, stableStatus);
             }
         });
 
     }
 
     /**
-     * 身高
+     * 身高稳定数据
      */
     private void getHeight(byte[] data) {
+        if (data.length < 5) {
+            BleLog.e("稳定身高异常");
+            return;
+        }
         int height = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
-        int decimal = data[4];
         byte unit = data[3];
+        int decimal = data[4];
+        boolean stableStatus = true;
         runOnMainThread(() -> {
             if (mOnNotifyData != null) {
-                mOnNotifyData.getHeight(height, decimal, unit);
+                mOnNotifyData.onHeight(height, decimal, unit, stableStatus);
             }
         });
-        String unitStr = "cm";
-        switch (unit) {
-            case BabyBleConfig.BABY_CM:
-                unitStr = "cm";
-                break;
-            case BabyBleConfig.BABY_INCH:
-                unitStr = "inch";
-                break;
-            case BabyBleConfig.BABY_FEET:
-                unitStr = "foot";
-                break;
-        }
-
-        BleLog.i(TAG, "身高:" + height + unitStr);
     }
+
+    /**
+     * 身高实时数据
+     */
+    private void getHeightNow(byte[] data) {
+        if (data.length < 5) {
+            BleLog.e("实时身高异常");
+            return;
+        }
+        int height = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
+        byte unit = data[3];
+        int decimal = data[4];
+        boolean stableStatus = false;
+        runOnMainThread(() -> {
+            if (mOnNotifyData != null) {
+                mOnNotifyData.onHeight(height, decimal, unit, stableStatus);
+            }
+        });
+    }
+
+
+    /**
+     * 阻抗测量成功
+     */
+    public void getImpedance(byte[] data) {
+        //阻抗
+        int adc= ((data[1] & 0xff) << 8) + (data[2] & 0xff);
+        int algorithm=(data[3] & 0xff);
+        runOnMainThread(() -> {
+            if (mOnNotifyData != null) {
+                mOnNotifyData.onImpedanceSuccess(false,adc, algorithm);
+            }
+        });
+    }
+
+    /**
+     * 阻抗测量成功,并用算法计算
+     */
+    public void getImpedanceAlgorithm(byte[] data) {
+        //阻抗
+        int adc= ((data[1] & 0xff) << 8) + (data[2] & 0xff);
+        int algorithm=(data[3] & 0xff);
+        runOnMainThread(() -> {
+            if (mOnNotifyData != null) {
+                mOnNotifyData.onImpedanceSuccess(true,adc, algorithm);
+            }
+        });
+    }
+
 
 
     /**
@@ -361,18 +424,7 @@ public class BabyDeviceData extends BaseBleDeviceData {
      * @param status 状态
      */
     private void getHold(byte status) {
-        switch (status) {
-            case 0:
-                BleLog.i(TAG, "去皮成功");
-                break;
-            case 1:
-                BleLog.i(TAG, "去皮失败");
 
-                break;
-            case 2:
-                BleLog.i(TAG, "不支持");
-                break;
-        }
         runOnMainThread(() -> {
             if (mOnNotifyData != null) {
                 mOnNotifyData.getHold(status);
@@ -386,14 +438,7 @@ public class BabyDeviceData extends BaseBleDeviceData {
      */
     private void getErr(byte[] data) {
         byte status = data[1];
-        String statusStr = "";
-        if (status == 0) {
-            statusStr = "超重";
-        } else if (status == 1) {
-            statusStr = "称重抓 0 期间，重量不稳定";
-        } else if (status == 2) {
-            statusStr = "称重抓 0 失败";
-        }
+
 
         runOnMainThread(() -> {
             if (mOnNotifyData != null) {
@@ -401,7 +446,6 @@ public class BabyDeviceData extends BaseBleDeviceData {
             }
         });
 
-        BleLog.i(TAG, statusStr);
     }
 
     //----------------解析数据------
@@ -417,6 +461,8 @@ public class BabyDeviceData extends BaseBleDeviceData {
     }
 
 
+
+
     public interface onNotifyData {
         /**
          * 不能识别的透传数据
@@ -426,7 +472,7 @@ public class BabyDeviceData extends BaseBleDeviceData {
         }
 
         /**
-         * 稳定体重(Stabilize weight)
+         * 体重(Stabilize weight)
          * 0：kg
          * 1：斤
          * 2：lb
@@ -434,28 +480,14 @@ public class BabyDeviceData extends BaseBleDeviceData {
          * 4：st
          * 5：g
          *
-         * @param weight  原始数据(Raw data)
-         * @param decimal 小数点位(Decimal point)
-         * @param unit    单位(unit)
+         * @param weight       原始数据(Raw data)
+         * @param decimal      小数点位(Decimal point)
+         * @param unit         单位(unit)
+         * @param stableStatus 是否稳定状态
          */
-        default void getWeight(int weight, int decimal, byte unit) {
+        default void onWeight(int weight, int decimal, byte unit, boolean stableStatus) {
         }
 
-        /**
-         * 实时体重(Real-time weight)
-         * 0：kg
-         * 1：斤
-         * 2：lb
-         * 3：oz
-         * 4：st
-         * 5：g
-         *
-         * @param weight  原始数据(Raw data)
-         * @param decimal 小数点位(Decimal point)
-         * @param unit    单位(unit)
-         */
-        default void getWeightNow(int weight, int decimal, byte unit) {
-        }
 
         /**
          * 身高(height)
@@ -463,11 +495,42 @@ public class BabyDeviceData extends BaseBleDeviceData {
          * 1：inch
          * 2：ft-in
          *
-         * @param height  原始数据(Raw data)
-         * @param decimal 小数点位(Decimal point)
-         * @param unit    单位(unit)
+         * @param height       原始数据(Raw data)
+         * @param decimal      小数点位(Decimal point)
+         * @param unit         单位(unit)
+         * @param stableStatus 是否稳定状态
          */
-        default void getHeight(int height, int decimal, byte unit) {
+        default void onHeight(int height, int decimal, byte unit, boolean stableStatus) {
+        }
+
+
+        /**
+         * 阻抗测量中
+         */
+        default void onImpedanceTesting() {
+        }
+
+        /**
+         * 阻抗测量成功
+         *
+         * @param appAlgorithm 是否使用app算法
+         * @param adc         阻抗值（精度为 1Ω）
+         * @param algorithmId 体脂算法标识（如果使用 MCU 算法，则该值为 0，使用 APP
+         *                    算法，则为 1~255）
+         */
+        default void onImpedanceSuccess(boolean appAlgorithm, int adc, int algorithmId) {
+        }
+
+        /**
+         * 阻抗测量失败
+         */
+        default void onImpedanceFailure() {
+        }
+
+        /**
+         * 测量完成
+         */
+        default void onMeasurementCompleted() {
         }
 
         /**
@@ -475,7 +538,7 @@ public class BabyDeviceData extends BaseBleDeviceData {
          * 0：设置成功<br>
          * 1：设置失败<br>
          * 2：不支持设置<br>
-         *
+         * <p>
          * Set unit back <br>
          * 0: set successfully <br>
          * 1: Setting failed <br>
@@ -489,12 +552,11 @@ public class BabyDeviceData extends BaseBleDeviceData {
          * 0：设置成功<br>
          * 1：设置失败<br>
          * 2：不支持设置<br>
-         *
+         * <p>
          * Tare Tare <br>
          * 0: set successfully <br>
          * 1: Setting failed <br>
          * 2: Setting is not supported <br>
-         *
          */
         default void getTare(byte status) {
         }
@@ -504,12 +566,11 @@ public class BabyDeviceData extends BaseBleDeviceData {
          * 0：设置成功<br>
          * 1：设置失败<br>
          * 2：不支持设置<br>
-         *
+         * <p>
          * Lock Hold <br>
          * 0: set successfully <br>
          * 1: Setting failed <br>
          * 2: Setting is not supported <br>
-         *
          */
         default void getHold(byte status) {
         }
@@ -519,12 +580,11 @@ public class BabyDeviceData extends BaseBleDeviceData {
          * 0：超重<br>
          * 1：称重抓 0 期间，重量不稳定<br>
          * 2：称重抓 0 失败<br>
-         *
+         * <p>
          * Wrong instruction
          * 0: Overweight <br>
          * 1: During weighing grab 0, the weight is unstable <br>
          * 2: Weighing grab 0 failed <br>
-         *
          */
         default void getErr(byte status) {
         }

@@ -11,7 +11,10 @@ import androidx.annotation.IntDef;
  * 体脂称配置
  */
 public class ADWeightScaleBleConfig {
-
+    /**
+     * 体重体脂称(Body fat scale)艾迪
+     */
+    public final static int WEIGHT_BODY_FAT_SCALE_AD =0x100E;
     /**
      * 实时重量
      */

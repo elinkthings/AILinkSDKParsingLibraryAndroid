@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.ADWeight;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -30,7 +29,7 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
 
     private onNotifyData mOnNotifyData;
     private byte[] CID;
-    private int mType = BleDeviceConfig.WEIGHT_BODY_FAT_SCALE_AD;
+    private int mType = ADWeightScaleBleConfig.WEIGHT_BODY_FAT_SCALE_AD;
     private static BleDevice mBleDevice = null;
     private static ADWeightScaleDeviceData mDevice = null;
 

@@ -1,7 +1,6 @@
 package cn.net.aicare.modulelibrary.module.BloodGlucose;
 
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
@@ -13,7 +12,7 @@ import java.util.List;
 public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
 
     private BloodGlucoseCallback mBloodGlucoseCallback;
-
+    private int cid=BloodGlucoseUtil.BLOOD_GLUCOSE;
     public BloodGlucoseBleDeviceData(BleDevice bleDevice) {
         super(bleDevice);
         bleDevice.setOnBleVersionListener(new OnBleVersionListener() {
@@ -84,9 +83,9 @@ public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
 
         SendMcuBean smb = new SendMcuBean();
         byte[] bytes=new byte[2];
-        bytes[0]= BloodGlucoseUtil.SET_UNIT;
+        bytes[0]=BloodGlucoseUtil.SET_UNIT;
         bytes[1]= (byte) unit;
-        smb.setHex(BleDeviceConfig.BLOOD_GLUCOSE,bytes);
+        smb.setHex(cid,bytes);
         sendData(smb);
     }
 
@@ -94,9 +93,9 @@ public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
     public void queryStatus(){
         SendMcuBean smb = new SendMcuBean();
         byte[] bytes=new byte[2];
-        bytes[0]= BloodGlucoseUtil.CHECK_STATUS;
+        bytes[0]=BloodGlucoseUtil.CHECK_STATUS;
         bytes[1]= 0x01;
-        smb.setHex(BleDeviceConfig.BLOOD_GLUCOSE,bytes);
+        smb.setHex(cid,bytes);
         sendData(smb);
     }
 

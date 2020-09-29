@@ -7,6 +7,11 @@ package cn.net.aicare.modulelibrary.module.foreheadgun;
  */
 public class TempGunBleConfig {
 
+    /**
+     * 额温枪(Forehead gun)
+     */
+    public final static int INFRARED_THERMOMETER =0x02;
+
     public static final int DIY=-1;
     /**
      * 稳定温度(额温)

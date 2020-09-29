@@ -1,7 +1,10 @@
 package cn.net.aicare.modulelibrary.module.EightBodyfatscale;
 
 public class EightBodyfatUtil {
-
+    /**
+     * wifi+ble体脂秤(wifi + ble body fat scale)
+     */
+    public final static int WEIGHT_BODY_FAT_SCALE_WIFI_BLE=0x11;
 
     /**
      * 称量体重
@@ -43,22 +46,22 @@ public class EightBodyfatUtil {
     /**
      * 测量心率
      */
-    public static final int HEARTRATE=0x03;
+    public static final int HEART_RATE =0x03;
 
     /**
      * 心率测量中
      */
-    public static final int HEARTRATE_MEASUREMENT=0x01;
+    public static final int HEART_RATE_MEASUREMENT =0x01;
 
     /**
      * 心率测量成功
      */
-    public static final int HEARTRATE_SUCCESS=0x02;
+    public static final int HEART_RATE_SUCCESS =0x02;
 
     /**
      * 心率测量失败
      */
-    public static final int HEARTRATE_FAILED=0x03;
+    public static final int HEART_RATE_FAILED =0x03;
 
 
 
@@ -71,12 +74,12 @@ public class EightBodyfatUtil {
     /**
      * 测量完成
      */
-    public static final int MEASUREMENTED=0x0f;
+    public static final int MEASUREMENT_END =0x0f;
 
     /**
      * MCU回复操作结果
      */
-    public static final int MUCCALLBACK_RESULT=0x82;
+    public static final int MUC_CALL_BACK_RESULT =0x82;
 
     /**
      * APP下发命令
@@ -87,15 +90,15 @@ public class EightBodyfatUtil {
     /**
      * 校准
      */
-    public static final int APPCMD_CALIIBRATION=0x01;
+    public static final int APP_CMD_CALIBRATION =0x01;
     /**
      * 切换温度单位
      */
-    public static final int APPCMD_TEMP_UNIT=0x02;
+    public static final int APP_CMD_TEMP_UNIT =0x02;
     /**
      * 切换体重单位
      */
-    public static final int APPCMD_WEIGHT_UNIT=0x03;
+    public static final int APP_CMD_WEIGHT_UNIT =0x03;
 
     /**
      * MCU回复操作结果

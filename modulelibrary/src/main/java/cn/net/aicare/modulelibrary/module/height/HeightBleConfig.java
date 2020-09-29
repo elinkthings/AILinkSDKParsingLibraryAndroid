@@ -6,7 +6,10 @@ package cn.net.aicare.modulelibrary.module.height;
  * 身高仪指令
  */
 public class HeightBleConfig {
-
+    /**
+     * 身高仪(Height gauge)
+     */
+    public final static int HEIGHT_METER =0x05;
     /**
      * 稳定
      */

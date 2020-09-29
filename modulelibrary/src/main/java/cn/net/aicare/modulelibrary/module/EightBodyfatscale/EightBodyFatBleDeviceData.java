@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.EightBodyfatscale;
 import android.util.Log;
 
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendBleBean;
@@ -16,7 +15,7 @@ import java.util.List;
 public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
     private EightBodyFatCallback mEightBodyFatCallback;
-
+    private int cid=EightBodyfatUtil.WEIGHT_BODY_FAT_SCALE_WIFI_BLE;
     public EightBodyFatBleDeviceData(BleDevice bleDevice) {
         super(bleDevice);
         bleDevice.setOnBleVersionListener(new OnBleVersionListener() {
@@ -44,7 +43,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
     public void onNotifyData(byte[] hex, int type) {
         Log.e("八级秤", BleStrUtils.byte2HexStr(hex));
         if (mEightBodyFatCallback!=null){
-            mEightBodyFatCallback.showdata(BleStrUtils.byte2HexStr(hex));
+            mEightBodyFatCallback.showData(BleStrUtils.byte2HexStr(hex));
         }
         int cmd = hex[0] & 0xff;
         int status = hex[1] & 0xff;
@@ -64,17 +63,17 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
                 }
                 if (status == EightBodyfatUtil.IMPEDANCE_SUCCESS) {
                     if (mEightBodyFatCallback != null) {
-                        mEightBodyFatCallback.onimpedance(getAdc(hex), hex[2] & 0xff, hex[7] & 0xff);
+                        mEightBodyFatCallback.onImpedance(getAdc(hex), hex[2] & 0xff, hex[7] & 0xff);
                     }
                 }
 
 
                 break;
-            case EightBodyfatUtil.HEARTRATE:
+            case EightBodyfatUtil.HEART_RATE:
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, status, -1);
                 }
-                if (EightBodyfatUtil.HEARTRATE_SUCCESS == status) {
+                if (EightBodyfatUtil.HEART_RATE_SUCCESS == status) {
                     if (mEightBodyFatCallback != null) {
                         mEightBodyFatCallback.onHeartRate(hex[2] & 0xff);
                     }
@@ -86,16 +85,16 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
                     mEightBodyFatCallback.onState(cmd, -1, -1);
                 }
                 if (mEightBodyFatCallback != null) {
-                    mEightBodyFatCallback.onTEMP(hex[1] & 0xff, gettemp(hex), gettemoUnit(hex), gettempDecimal(hex));
+                    mEightBodyFatCallback.onTemp(hex[1] & 0xff, getTemp(hex), getTempUnit(hex), getTempDecimal(hex));
                 }
                 break;
-            case EightBodyfatUtil.MEASUREMENTED:
+            case EightBodyfatUtil.MEASUREMENT_END:
                 //测量完成
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, -1, -1);
                 }
                 break;
-            case EightBodyfatUtil.MUCCALLBACK_RESULT:
+            case EightBodyfatUtil.MUC_CALL_BACK_RESULT:
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, status, hex[2] & 0xff);
                 }
@@ -111,21 +110,19 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
     private float getWeight(byte[] hex) {
         if (hex.length >= 6) {
-            int weighthight = (hex[2] & 0xff) << 16 ;
-            int weightmiddle= (hex[3] & 0xff) << 8 ;
-            int weightlow=hex[4]&0xff;
-            int weight=weighthight+weightmiddle+weightlow;
-
-
+            int weightHigh = (hex[2] & 0xff) << 16 ;
+            int weightMiddle= (hex[3] & 0xff) << 8 ;
+            int weightLow=hex[4]&0xff;
+            int weight=weightHigh+weightMiddle+weightLow;
 
 
             int decimal = (hex[5] & 0xf0) >> 4;
             Log.e("八级秤", decimal+"  小数位");
             if (decimal == 1) {
                 Log.e("八级秤", weight+"体重");
-              float myweight=  weight / 10f;
-                Log.e("八级秤", myweight+"体重");
-                return myweight;
+              float myWeight=  weight / 10f;
+                Log.e("八级秤", myWeight+"体重");
+                return myWeight;
             } else if (decimal == 2) {
                 return weight / 100f;
             } else if (decimal == 3) {
@@ -152,21 +149,21 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
     private int getAdc(byte[] hex) {
         if (hex.length >= 9) {
-            int highadc = (hex[3] & 0xff) << 24;
-            int highadc1 = (hex[4] & 0xff) << 16;
-            int lowadc = (hex[5] & 0xff) << 8;
-            int lowadc1 = (hex[6] & 0xff);
+            int highAdc = (hex[3] & 0xff) << 24;
+            int highAdc1 = (hex[4] & 0xff) << 16;
+            int lowAdc = (hex[5] & 0xff) << 8;
+            int lowAdc1 = (hex[6] & 0xff);
 
-            return highadc + highadc1 + lowadc + lowadc1;
+            return highAdc + highAdc1 + lowAdc + lowAdc1;
         } else
             return 0;
     }
 
-    private float gettemp(byte[] hex) {
+    private float getTemp(byte[] hex) {
         if (hex.length >= 5) {
-            int temphight =( hex[2] & 0xff)<<8;
-            int templow=hex[3]&0xff;
-            int temp=temphight+templow;
+            int tempHigh =( hex[2] & 0xff)<<8;
+            int tempLow=hex[3]&0xff;
+            int temp=tempHigh+tempLow;
             int decimal = (hex[4] & 0xf0) >> 4;
             if (decimal == 1)
                 return temp / 10f;
@@ -179,13 +176,13 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         return -1;
     }
 
-    private int gettempDecimal(byte[] hex) {
+    private int getTempDecimal(byte[] hex) {
         if (hex.length >= 5)
             return (hex[4] & 0xf0) >> 4;
         return -1;
     }
 
-    private int gettemoUnit(byte[] hex) {
+    private int getTempUnit(byte[] hex) {
         if (hex.length >= 5)
             return (hex[4] & 0x0f);
         return -1;
@@ -195,62 +192,80 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
     public interface EightBodyFatCallback {
         /**
          * 测量状态
+         * Measurement status
          *
          * @param type      测量的类型
-         * @param typestate 该类型的状态
-         * @param result    //结果
+         *                  Type of measurement
+         * @param typeState 该类型的状态
+         *                  Status of the type
+         * @param result    结果
+         *                  result
          */
-        void onState(int type, int typestate, int result);
+        void onState(int type, int typeState, int result);
 
         /**
          * 体重数据接口
+         * Weight data interface
          *
          * @param state   测量状态 1实时体重 2稳定体重
+         *                Measurement status 1 Real-time weight 2 Stable weight
          * @param weight  体重
+         *                weight
          * @param unit    单位
+         *                unit
          * @param decimal 小数点位
+         *                decimal
          */
         void onWeight(int state, float weight, int unit, int decimal);
 
         /**
          * 阻抗
-         *
+         * impedance
          * @param adc        阻抗
+         *                   impedance
          * @param arithmetic 算法
+         *                   arithmetic
          */
-        void onimpedance(int adc, int part, int arithmetic);
+        void onImpedance(int adc, int part, int arithmetic);
 
         /**
          * 心率
-         *
-         * @param heartrate
+         * heartRate
+         * @param heartRate heartRate
          */
-        void onHeartRate(int heartrate);
+        void onHeartRate(int heartRate);
 
         /**
          * 温度
+         * temperature
          *
          * @param sign    正负
+         *                Positive and negative
          * @param temp    温度
+         *                temperature
          * @param unit    单位
+         *                unit
          * @param decimal 小数点位
+         *                decimal
          */
-        void onTEMP(int sign, float temp, int unit, int decimal);
+        void onTemp(int sign, float temp, int unit, int decimal);
 
         /**
          * 获取到版本号
+         * Get the version number
          * @param version
          */
         void onVersion(String version);
 
         /**
          * 获取到支持的单位列表
+         * Get the list of supported units
          * @param list
          */
-        void onSupportUnit(List<SupportUnitBean> list);
+        void onSupportUnit(List<SupportUnitBean> list );
 
 
-        void showdata(String data);
+        void showData(String data );
 
     }
 
@@ -263,7 +278,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         bytes[1]=0x03;
         bytes[2]= (byte) unit;
         bytes[3]=0;
-        smb.setHex(BleDeviceConfig.EIGHT_BODY_FAT_SCALE,bytes);
+        smb.setHex(cid,bytes);
         sendData(smb);
     }
 
@@ -274,7 +289,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         bytes[1]=0x02;
         bytes[2]= (byte) unit;
         bytes[3]=0;
-        smb.setHex(BleDeviceConfig.EIGHT_BODY_FAT_SCALE,bytes);
+        smb.setHex(cid,bytes);
         sendData(smb);
     }
 
@@ -285,7 +300,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         bytes[1]=0x01;
         bytes[2]= 0;
         bytes[3]=0;
-        smb.setHex(BleDeviceConfig.EIGHT_BODY_FAT_SCALE,bytes);
+        smb.setHex(cid,bytes);
         sendData(smb);
     }
 

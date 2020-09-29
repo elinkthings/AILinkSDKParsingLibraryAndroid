@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.height;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -23,7 +22,7 @@ public class HeightDeviceData extends BaseBleDeviceData {
     private String TAG = HeightDeviceData.class.getName();
 
     private onNotifyData mOnNotifyData;
-    private int mType = BleDeviceConfig.HEIGHT_METER;
+    private int mType = HeightBleConfig.HEIGHT_METER;
     /**
      * 发送数据时标记自己的cid
      */
@@ -75,7 +74,7 @@ public class HeightDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        if (mType == type||type== BleDeviceConfig.DEVICE_ALL) {
+        if (mType == type) {
             String data = BleStrUtils.byte2HexStr(hex);
             BleLog.i(TAG, "接收到的数据:" + data);
             //解析数据
@@ -275,7 +274,8 @@ public class HeightDeviceData extends BaseBleDeviceData {
          * @param decimalWeight 小数位
          * @param weightUnit    体重单位
          */
-        default void height(int height, int decimalHeight, byte heightUnit, int weight, int decimalWeight, byte weightUnit){}
+        default void height(int height, int decimalHeight, byte heightUnit, int weight,
+                            int decimalWeight, byte weightUnit){}
 
         /**
          * 设置单位返回<br>

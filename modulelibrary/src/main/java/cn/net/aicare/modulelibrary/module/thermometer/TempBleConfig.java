@@ -8,6 +8,10 @@ package cn.net.aicare.modulelibrary.module.thermometer;
 public class TempBleConfig {
 
     /**
+     * 体温计(thermometer)
+     */
+    public final static int THERMOMETER =0x03;
+    /**
      * 稳定温度
      */
     public static final byte TEMP = 0x01;

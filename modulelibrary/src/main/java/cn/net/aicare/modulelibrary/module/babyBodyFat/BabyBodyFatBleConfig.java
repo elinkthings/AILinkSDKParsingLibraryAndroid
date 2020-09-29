@@ -1,17 +1,16 @@
-package cn.net.aicare.modulelibrary.module.babyscale;
+package cn.net.aicare.modulelibrary.module.babyBodyFat;
 
 /**
  * xing<br>
  * 2019/5/11<br>
- * 婴儿称指令
+ * 婴儿体质两用秤指令
  */
-public class BabyBleConfig {
-
+public class BabyBodyFatBleConfig {
 
     /**
-     * 婴儿秤(Baby scale)
+     * 婴儿体脂两用秤
      */
-    public final static int BABY_SCALE =0x04;
+    public final static int BABY_BODY_FAT =0x1A;
 
     /**
      * 稳定重量 Stable weight
@@ -21,10 +20,45 @@ public class BabyBleConfig {
      * 实时重量 Change weight
      */
     public static final byte GET_WEIGHT_NOW = 0x02;
+
+
+
+    /**
+     * 测阻抗中  Measuring impedance
+     */
+    public final static int GET_IMPEDANCE_TESTING = 0x04;
+    /**
+     * 测阻抗成功，带上阻抗数据
+     * Successful impedance measurement, bring impedance data
+     */
+    public final static int GET_IMPEDANCE_SUCCESS_DATA = 0x05;
+    /**
+     * 测阻抗失败 Failed to measure impedance
+     */
+    public final static int GET_IMPEDANCE_FAIL = 0x06;
+    /**
+     * 测阻抗成功,带上阻抗数据
+     * Successful impedance measurement, bring impedance data
+     */
+    public final static int GET_IMPEDANCE_SUCCESS = 0x07;
+
+
+
     /**
      * 身长数据 height
      */
-    public static final byte GET_HEIGHT = 0x03;
+    public static final byte GET_HEIGHT = 0x08;
+    /**
+     * 身长数据实时 Change height
+     */
+    public static final byte GET_HEIGHT_NOW = 0x09;
+
+    /**
+     * 测量完成
+     * Measurement completed
+     */
+    public static final byte GET_TEST_FINISH = 0x0A;
+
 
     /**
      * 设置单位 Set unit

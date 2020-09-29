@@ -7,6 +7,7 @@ import android.net.wifi.WifiManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class Information {
     WifiManager wifiManager;
     WifiInfo wifiInfo;
     Integer randomNum;
-    final static int LeadCode = 4,CrcSize = 2;
+    final static int LeadCode = 4, CrcSize = 2;
     byte[] LeadCodeTable;
     //加密后的ssid和password
     byte[] passwordEncrypt;
@@ -41,7 +42,8 @@ public class Information {
     //当前已经连接的网络使用什么加密方式
     int encryption;
     //是否需要加密
-    String mark ="";
+    String mark = "";
+
     public Information(WifiManager wifiManager, String password, String ssid, String key, String mark) throws Exception {
         this.wifiManager = wifiManager;
         wifiInfo = wifiManager.getConnectionInfo();
@@ -54,80 +56,79 @@ public class Information {
         wifiManager.startScan();
         List<ScanResult> scanResults = wifiManager.getScanResults();
         if (scanResults.isEmpty()) {
-            Log.e("debug","get scanResults is Empty");
+            Log.e("debug", "get scanResults is Empty");
         }
         for (ScanResult result : scanResults) {
             if (result.BSSID.equalsIgnoreCase(wifiInfo.getBSSID()) && result.SSID.equalsIgnoreCase(wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1))) {
                 channel = getChannelByFrequency(result.frequency);
-                Log.d("debug","channel:" + channel);
+                Log.d("debug", "channel:" + channel);
                 break;
             }
         }
         if (channel == -1) {
-            Log.e("debug","channel:" + channel);
-            //Log.d("debug","wifiInfo.getFrequency()" + wifiInfo.getFrequency());
-            //channel = getChannelByFrequency(wifiInfo.getFrequency());
+            Log.e("debug", "channel:" + channel);
+
         }
 
-        if (mark.equals("1")){
+        if (mark.equals("1")) {
             ssidEncrypt = AES.encrypt(key, ssid);
-           // Log.e("ssidEncrypt = ", ssidEncrypt + "");
-        //判断是否是不需要密码的AP
+            //判断是否是不需要密码的AP
             if (password.length() == 0) {
                 passwordEncrypt = password.getBytes();
             } else {
                 passwordEncrypt = AES.encrypt(key, password);
-             //   Log.e("passwordEncrypt = ", passwordEncrypt + "");
+
             }
-        }else {
+        } else {
             ssidEncrypt = ssid.getBytes();
             passwordEncrypt = password.getBytes();
         }
         //计算信息长度,准备组装信息
         SsidPawdLength = (passwordEncrypt.length + ssidEncrypt.length);
-        informationSize = SsidPawdLength +(SsidPawdLength % 2) + CrcSize + LeadCode;
+        informationSize = SsidPawdLength + (SsidPawdLength % 2) + CrcSize + LeadCode;
         info = new byte[informationSize];
-        Log.e("info length =",info.length + "");
+        Log.e("info length =", info.length + "");
         //将信息放在一起方便后面进行组装
         //随机数
         randomNum = (int) (Math.random() * 256);
         //确保为偶数,用于加密方式的区别
         randomNum = ((randomNum % 95) + 32) / 2 * 2;
-        if (getCipherType(ssid) == 1){
+        if (getCipherType(ssid) == 1) {
             randomNum = randomNum + 1;
         }
-        Log.d("info randomNum =",randomNum + "");
+        Log.d("info randomNum =", randomNum + "");
         LeadCodeTable = new byte[LeadCode];
         //Lead code
         LeadCodeTable[0] = (byte) (channel & 0xff);
         LeadCodeTable[1] = (byte) (SsidPawdLength & 0xff);
         LeadCodeTable[2] = (byte) (passwordEncrypt.length & 0xff);
         LeadCodeTable[3] = (byte) (randomNum.byteValue() & 0xff);
-        Log.d("info randomNum 1 =",new Integer(LeadCodeTable[3]) + "");
+        Log.d("info randomNum 1 =", new Integer(LeadCodeTable[3]) + "");
         DataPackageSum = (SsidPawdLength + CrcSize);
         DataPackageSum = DataPackageSum / 2 + DataPackageSum % 2 + LeadCode;
-        for(int i = 0; i < LeadCode; i++) {
-                info[i] = LeadCodeTable [i];
+        for (int i = 0; i < LeadCode; i++) {
+            info[i] = LeadCodeTable[i];
         }
         //ssid
         //password + 随机数 +ssid
         //password
-        for (int i = LeadCode ; i < (passwordEncrypt.length + LeadCode ); i++) {
-            info[i] = (byte) (passwordEncrypt[i-LeadCode] & 0xff);
+        for (int i = LeadCode; i < (passwordEncrypt.length + LeadCode); i++) {
+            info[i] = (byte) (passwordEncrypt[i - LeadCode] & 0xff);
         }
         //ssid
-        for (int i = (passwordEncrypt.length + LeadCode ); i < (informationSize - CrcSize - (SsidPawdLength % 2)); i++) {
+        for (int i = (passwordEncrypt.length + LeadCode); i < (informationSize - CrcSize - (SsidPawdLength % 2)); i++) {
             info[i] = (byte) (ssidEncrypt[i - passwordEncrypt.length - LeadCode] & 0xff);
         }
-        if ( (SsidPawdLength % 2) > 0) {
+        if ((SsidPawdLength % 2) > 0) {
             info[informationSize - 3] = 0;
         }
         byte PawdCrc = CRC8.CRC8(password.getBytes());
         byte SsidCrc = CRC8.CRC8(ssid.getBytes());
-        info[informationSize - 2] =(byte) (PawdCrc & 0xff);
-        info[informationSize - 1] =(byte) (SsidCrc & 0xff);
+        info[informationSize - 2] = (byte) (PawdCrc & 0xff);
+        info[informationSize - 1] = (byte) (SsidCrc & 0xff);
     }
-//获取目标Ap当前加密方式
+
+    //获取目标Ap当前加密方式
     public int getCipherType(String ssid) {
         List<ScanResult> list = wifiManager.getScanResults();
         if (list.isEmpty()) {
@@ -150,36 +151,14 @@ public class Information {
                 }
             }
         }
-        /*
-        if (list.isEmpty()) {
-            List<WifiConfiguration> wifiConfigurationlist = wifiManager.getConfiguredNetworks();
-            for (int i = 0; i < wifiConfigurationlist.size(); i++) {
-                //Log.i("WiFi", wifiConfigurationlist.get(i).SSID.toString());
-                if (ssid.equalsIgnoreCase(wifiConfigurationlist.get(i).SSID)) {
-                    Log.d("WiFi", "ssid.equalsIgnoreCase(wifiConfigurationlist.get(i).SSID)");
-                    WifiConfiguration wifiConfiguration = wifiConfigurationlist.get(i);
-                    if (wifiConfiguration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) {
-                        Log.d("WiFi", "CipherType:WPA_PSK");
-                        return 0;
-                    } else if (wifiConfiguration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP)
-                            || wifiConfiguration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.IEEE8021X)) {
-                        Log.d("WiFi", "CipherType:EAP");
-                        return 2;
-                    } else {
-                        if (wifiConfiguration.wepKeys[0] != null) {
-                            Log.d("WiFi", "CipherType:WEP");
-                            return 1;
-                        }
-                    }
-                }
-            }
-        }*/
+
         return -1;
     }
-//通过传入频率值得出当前信道
+
+    //通过传入频率值得出当前信道
     public int getChannelByFrequency(int frequency) {
         int channel = -1;
-        switch(frequency) {
+        switch (frequency) {
             case 2412:
                 channel = 1;
                 break;

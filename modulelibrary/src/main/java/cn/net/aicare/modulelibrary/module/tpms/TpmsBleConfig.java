@@ -6,7 +6,10 @@ package cn.net.aicare.modulelibrary.module.tpms;
  * tpms配置
  */
 public class TpmsBleConfig {
-
+    /**
+     * 连接类型的TPMS(Connection type TPMS)
+     */
+    public final static int TPMS_CONN_DEVICE =0x0D;
 
     /**
      * 设置单位

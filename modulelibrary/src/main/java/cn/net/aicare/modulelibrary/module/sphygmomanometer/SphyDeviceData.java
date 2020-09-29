@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.sphygmomanometer;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -25,7 +24,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
     private String TAG = SphyDeviceData.class.getName();
 
     private onNotifyData mOnNotifyData;
-    private int mType = BleDeviceConfig.BLOOD_PRESSURE;
+    private int mType = SphyBleConfig.BLOOD_PRESSURE;
     private byte[] CID;
     private static BleDevice mBleDevice;
 
@@ -79,7 +78,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        if (mType == type || type == BleDeviceConfig.DEVICE_ALL) {
+        if (mType == type ) {
             BleLog.i(TAG, "接收到的原始数据:" + Arrays.toString(hex));
             String data = BleStrUtils.byte2HexStr(hex);
             BleLog.i(TAG, "接收到的数据:" + data);
@@ -353,7 +352,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
         /**
          * 设置单位返回(Set Unit Return)
          *
-         * @param unit {@link CmdConfig.SETTING_SUCCESS, CmdConfig.SETTING_FAILURE, CmdConfig.SETTING_ERR}
+         * @param unit {@link CmdConfig.SETTING_SUCCESS,CmdConfig.SETTING_FAILURE,CmdConfig.SETTING_ERR}
          */
         void getUnit(int unit);
 

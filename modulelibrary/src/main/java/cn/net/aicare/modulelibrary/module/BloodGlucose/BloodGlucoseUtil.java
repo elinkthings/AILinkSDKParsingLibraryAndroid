@@ -4,6 +4,10 @@ public class BloodGlucoseUtil {
 
 
     /**
+     * 血糖仪
+     */
+    public final static int BLOOD_GLUCOSE=0x1c;
+    /**
      * 查询设备状态
      */
     public static final int CHECK_STATUS = 0x01;

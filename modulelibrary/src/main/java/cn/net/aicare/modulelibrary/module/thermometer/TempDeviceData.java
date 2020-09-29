@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.thermometer;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -25,7 +24,7 @@ public class TempDeviceData extends BaseBleDeviceData {
     private String TAG = TempDeviceData.class.getName();
 
     private onNotifyData mOnNotifyData;
-    private int mType = BleDeviceConfig.THERMOMETER;
+    private int mType = TempBleConfig.THERMOMETER;
     private byte[] CID;
     private static BleDevice mBleDevice = null;
     private static TempDeviceData mDevice = null;
@@ -77,7 +76,7 @@ public class TempDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        if (mType == type||type== BleDeviceConfig.DEVICE_ALL) {
+        if (mType == type) {
             BleLog.i(TAG, "接收到的原始数据:" + Arrays.toString(hex));
             String data = BleStrUtils.byte2HexStr(hex);
             BleLog.i(TAG, "接收到的数据:" + data);

@@ -8,6 +8,12 @@ package cn.net.aicare.modulelibrary.module.sphygmomanometer;
 public class SphyBleConfig {
 
     /**
+     * 血压计(sphygmomanometer)
+     *
+     */
+    public final static int BLOOD_PRESSURE =0x01;
+
+    /**
      * 稳定血压数据(Stabilize blood pressure data)
      */
     public static final byte SPHY = 0x01;

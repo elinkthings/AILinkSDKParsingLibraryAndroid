@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.tpms;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.pingwang.bluetoothlib.config.BleDeviceConfig;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -30,7 +29,7 @@ public class TpmsDeviceData extends BaseBleDeviceData {
     private onTpmsSetting mOnTpmsSetting;
     private onTpmsInfo mTpmsInfo;
     private byte[] CID;
-    private int mType = BleDeviceConfig.TPMS_CONN_DEVICE;
+    private int mType = TpmsBleConfig.TPMS_CONN_DEVICE;
     private static BleDevice mBleDevice = null;
     private static TpmsDeviceData tpmsDevice = null;
 
@@ -197,7 +196,7 @@ public class TpmsDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        if (mType == type||type== BleDeviceConfig.DEVICE_ALL) {
+        if (mType == type) {
             BleLog.i(TAG, "接收到的原始数据:" + Arrays.toString(hex));
             String data = BleStrUtils.byte2HexStr(hex);
             BleLog.i(TAG, "接收到的数据:" + data);

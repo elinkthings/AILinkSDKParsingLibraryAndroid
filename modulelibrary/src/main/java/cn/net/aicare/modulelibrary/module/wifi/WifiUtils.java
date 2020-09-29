@@ -255,8 +255,7 @@ public class WifiUtils {
                     serverDo();
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-//                    mOnWifiEventListener.onEvent(WifiConfig.ERROR_START_RECEIVE_DATA);
-                    //MainActivity.instanll.log("ClientThread InterruptedException");
+
                     break;
                 }
             }
@@ -281,7 +280,7 @@ public class WifiUtils {
                     managerDo();
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    //MainActivity.instanll.log("ClientThread InterruptedException");
+
                     break;
                 }
             }
