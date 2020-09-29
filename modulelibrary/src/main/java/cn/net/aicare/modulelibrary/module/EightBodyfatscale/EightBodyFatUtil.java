@@ -1,6 +1,6 @@
 package cn.net.aicare.modulelibrary.module.EightBodyfatscale;
 
-public class EightBodyfatUtil {
+public class EightBodyFatUtil {
     /**
      * wifi+ble体脂秤(wifi + ble body fat scale)
      */

@@ -20,11 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * wifi+ble牙刷
+ */
 public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
 
     public final static int TOOTHBRUSH_WIFI_BLE = 0x12;
     private BleDevice mBleDevice = null;
-    private volatile static ToothBrushWiFiBleUtilsData bodyfatble = null;
+    private volatile static ToothBrushWiFiBleUtilsData bodyFatBle = null;
 
 
     private ToothBrushWiFiBleUtilsData(BleDevice bleDevice, BleToothBrushCallback bleToothBrushCallback,
@@ -66,7 +69,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     }
 
     public static ToothBrushWiFiBleUtilsData getInstance() {
-        return bodyfatble;
+        return bodyFatBle;
     }
 
     /**
@@ -78,7 +81,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      */
     public static void init(BleDevice bleDevice, BleToothBrushCallback bleCallback, BleToothBrushWiFiCallback bleToothBrushWiFiCallback) {
 
-        bodyfatble = new ToothBrushWiFiBleUtilsData(bleDevice, bleCallback, bleToothBrushWiFiCallback);
+        bodyFatBle = new ToothBrushWiFiBleUtilsData(bleDevice, bleCallback, bleToothBrushWiFiCallback);
     }
 
     /**
@@ -124,9 +127,9 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
                     int highTime = (bytes[1] & 0xff) << 8;
                     int lowTime = bytes[2] & 0xff;
                     int gears = bytes[3] & 0xff;
-                    int gearsfrom = bytes[4] & 0xff;
+                    int gearsFrom = bytes[4] & 0xff;
                     if (bleToothBrushCallback != null)
-                        bleToothBrushCallback.onGetDefaultGearAndDuration(highTime + lowTime, gears, gearsfrom);
+                        bleToothBrushCallback.onGetDefaultGearAndDuration(highTime + lowTime, gears, gearsFrom);
                 }
                 break;
             case ToothBrushBleCmd.SET_TOOTHBRUSH_TIME_GEARS:
@@ -305,10 +308,10 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
         /**
          * 牙刷支持的档位
          *Gear supported by toothbrush
-         * @param staif       一级档位 First gear
+         * @param firstLevel       一级档位 First gear
          * @param secondLevel 二级档位 Second gear
          */
-        void onGetSupportGears(List<Integer> staif, List<Integer> secondLevel);
+        void onGetSupportGears(List<Integer> firstLevel, List<Integer> secondLevel);
 
         /**
          * 获取电量
@@ -412,15 +415,15 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
          * 查询蓝牙和wifi状态
          * Check Bluetooth and wifi status
          *
-         * @param blestatus  蓝牙状态 0 无连接 1：已连接 2：配对完成
+         * @param bleStatus  蓝牙状态 0 无连接 1：已连接 2：配对完成
          *                   Bluetooth status0 No connection 1: Connected 2: Pairing completed
-         * @param wifistatus wifi状态 0：没连接热点；1：尝试连接热点，但是失败，连接时密码错误、热点信号不好、主动断开都会是这个状态；2：连接的热点无网络或者信号不好；3：成功连接上热点；4：有热点信息，还没连接
+         * @param wifiStatus wifi状态 0：没连接热点；1：尝试连接热点，但是失败，连接时密码错误、热点信号不好、主动断开都会是这个状态；2：连接的热点无网络或者信号不好；3：成功连接上热点；4：有热点信息，还没连接
          *                   wifi status 0: No hotspot connection; 1: Attempt to connect to the hotspot, but failure, wrong password when connecting, bad hotspot signal, active disconnection will
          *                   be this state; 2: No connection to the hotspot or signal ; 3: Successfully connected to the hotspot; 4: There is hotspot information, not connected yet
-         * @param workstatus 工作状态 0：唤醒 1：进入休眠 2：模块准备就绪
+         * @param workStatus 工作状态 0：唤醒 1：进入休眠 2：模块准备就绪
          *                   working status 0: wake up 1: go to sleep 2: module is ready
          */
-        void OnBleAndWifiStatus(int blestatus, int wifistatus, int workstatus);
+        void OnBleAndWifiStatus(int bleStatus, int wifiStatus, int workStatus);
 
         /**
          * 扫描wifi状态
@@ -454,10 +457,10 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
          *                   he signal strength of wifi
          * @param type       wifi安全类型 0x00：开放 0x01：WEP 0x02：WPA_PSK 0x03：WPA2_PSK 0x04：WPA_WPA_2_PSK 0x05：WPA2_ENTERPRISE
          *                   wifi security type 0x00: open 0x01: WEP 0x02: WPA_PSK 0x03: WPA2_PSK 0x04: WPA_WPA_2_PSK 0x05: WPA2_ENTERPRISE
-         * @param wifistatus wifi的状态 0x00：陌生wifi 0x01：保存过密码的wifi 0x02：目前连接着的wifi
+         * @param wifiStatus wifi的状态 0x00：陌生wifi 0x01：保存过密码的wifi 0x02：目前连接着的wifi
          *                   wifi status 0x00: unfamiliar wifi 0x01: password saved wifi 0x02: currently connected wifi
          */
-        void OnWifiListInfo(int no, String mac, int db, int type, int wifistatus);
+        void OnWifiListInfo(int no, String mac, int db, int type, int wifiStatus);
 
         /**
          * 当前连接的wifi名称
@@ -539,7 +542,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      * 获取默认模式和时长
      * Get the default mode and duration
      */
-    public void getdefaultGearAndDuration() {
+    public void getDefaultGearAndDuration() {
         byte[] bytes = new byte[1];
         bytes[0] = ToothBrushBleCmd.GET_TOOTHBRUSH_TIME_GEARS;
         sendA7(bytes);
@@ -553,7 +556,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      * @param mac
      * @return
      */
-    public void setWifimac(String mac) {
+    public void setWifiMac(String mac) {
         byte[] bytes = new byte[7];
         bytes[0] = (byte) 0x84;
         String[] s = mac.split(":");
@@ -630,7 +633,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      *Get device id
      * @return
      */
-    public void getDevicedid() {
+    public void getDeviceId() {
         byte[] bytes = new byte[1];
         bytes[0] = (byte) 0x93;
         sendA6(bytes);
@@ -770,15 +773,15 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      * @param toothbrushId 时间搓
      */
     public void requestToken(long toothbrushId) {
-        byte[] timebyte = long2Bytes(toothbrushId); //long 长度8 byte  时间搓是6个byte 所以去后面6位
+        byte[] timeByte = long2Bytes(toothbrushId); //long 长度8 byte  时间搓是6个byte 所以去后面6位
         byte[] bytes = new byte[7];
         bytes[0] = ToothBrushBleCmd.REQUEST_TOKEN;
-        bytes[1] = timebyte[2];
-        bytes[2] = timebyte[3];
-        bytes[3] = timebyte[4];
-        bytes[4] = timebyte[5];
-        bytes[5] = timebyte[6];
-        bytes[6] = timebyte[7];
+        bytes[1] = timeByte[2];
+        bytes[2] = timeByte[3];
+        bytes[3] = timeByte[4];
+        bytes[4] = timeByte[5];
+        bytes[5] = timeByte[6];
+        bytes[6] = timeByte[7];
         sendA6(bytes);
 
     }

@@ -9,6 +9,9 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.List;
 
+/**
+ * 血糖仪
+ */
 public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
 
     private BloodGlucoseCallback mBloodGlucoseCallback;
