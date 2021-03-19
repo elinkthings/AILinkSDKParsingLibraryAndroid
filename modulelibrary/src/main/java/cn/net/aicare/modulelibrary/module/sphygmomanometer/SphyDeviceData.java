@@ -352,7 +352,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
         /**
          * 设置单位返回(Set Unit Return)
          *
-         * @param unit {@link CmdConfig.SETTING_SUCCESS,CmdConfig.SETTING_FAILURE,CmdConfig.SETTING_ERR}
+         * @param unit {@link CmdConfig.SETTING_SUCCESS, CmdConfig.SETTING_FAILURE, CmdConfig.SETTING_ERR}
          */
         void getUnit(int unit);
 
