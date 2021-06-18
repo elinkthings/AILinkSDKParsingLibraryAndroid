@@ -15,7 +15,7 @@ import java.util.List;
 public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
     private EightBodyFatCallback mEightBodyFatCallback;
-    private int cid=EightBodyfatUtil.WEIGHT_BODY_FAT_SCALE_WIFI_BLE;
+    private int cid= EightBodyFatUtil.WEIGHT_BODY_FAT_SCALE_WIFI_BLE;
     public EightBodyFatBleDeviceData(BleDevice bleDevice) {
         super(bleDevice);
         bleDevice.setOnBleVersionListener(new OnBleVersionListener() {
@@ -49,7 +49,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         int status = hex[1] & 0xff;
 
         switch (cmd) {
-            case EightBodyfatUtil.WEIGHING:
+            case EightBodyFatUtil.WEIGHING:
 
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onWeight(status, getWeight(hex),  getUnit(hex),getDecimal(hex));
@@ -57,11 +57,11 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
                 }
 
                 break;
-            case EightBodyfatUtil.IMPEDANCE:
+            case EightBodyFatUtil.IMPEDANCE:
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, status, hex[2] & 0xff);
                 }
-                if (status == EightBodyfatUtil.IMPEDANCE_SUCCESS) {
+                if (status == EightBodyFatUtil.IMPEDANCE_SUCCESS) {
                     if (mEightBodyFatCallback != null) {
                         mEightBodyFatCallback.onImpedance(getAdc(hex), hex[2] & 0xff, hex[7] & 0xff);
                     }
@@ -69,18 +69,18 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
 
                 break;
-            case EightBodyfatUtil.HEART_RATE:
+            case EightBodyFatUtil.HEART_RATE:
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, status, -1);
                 }
-                if (EightBodyfatUtil.HEART_RATE_SUCCESS == status) {
+                if (EightBodyFatUtil.HEART_RATE_SUCCESS == status) {
                     if (mEightBodyFatCallback != null) {
                         mEightBodyFatCallback.onHeartRate(hex[2] & 0xff);
                     }
                 }
 
                 break;
-            case EightBodyfatUtil.TEMP_MEASUREMENT:
+            case EightBodyFatUtil.TEMP_MEASUREMENT:
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, -1, -1);
                 }
@@ -88,18 +88,18 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
                     mEightBodyFatCallback.onTemp(hex[1] & 0xff, getTemp(hex), getTempUnit(hex), getTempDecimal(hex));
                 }
                 break;
-            case EightBodyfatUtil.MEASUREMENT_END:
+            case EightBodyFatUtil.MEASUREMENT_END:
                 //测量完成
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, -1, -1);
                 }
                 break;
-            case EightBodyfatUtil.MUC_CALL_BACK_RESULT:
+            case EightBodyFatUtil.MUC_CALL_BACK_RESULT:
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, status, hex[2] & 0xff);
                 }
                 break;
-            case EightBodyfatUtil.ERROR_CODE:
+            case EightBodyFatUtil.ERROR_CODE:
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, status, 0);
                 }
