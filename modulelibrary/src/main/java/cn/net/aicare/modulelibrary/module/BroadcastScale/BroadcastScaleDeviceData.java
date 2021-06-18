@@ -19,6 +19,7 @@ public class BroadcastScaleDeviceData {
     private int mType = BroadcastScaleBleConfig.BROADCAST_SCALE;
     private static BroadcastScaleDeviceData sBroadcastScaleDeviceData = null;
     private int mOldNumberId = -1;
+    private int mOldStatus = -1;
 
     public static BroadcastScaleDeviceData getInstance() {
         if (sBroadcastScaleDeviceData == null) {
@@ -70,13 +71,9 @@ public class BroadcastScaleDeviceData {
                 System.arraycopy(manufacturerData, 10, data, 0, data.length);
                 byte newSum = cmdSum(data);
                 if (newSum == sum) {
-                    int numberId = data[0] & 0xff;//数据ID
-                    if (mOldNumberId == numberId) {
-                        //数据相同,已处理过了.不再处理
-                        return;
-                    }
-                    mOldNumberId = numberId;
+                    BleLog.i(TAG, "接收到的数据:原始数据:"+BleStrUtils.byte2HexStr(data));
                     byte[] bytes;
+                    byte[] dataOriginal=data.clone();
                     if (cid != 0 || vid != 0 || pid != 0) {
                         //数据需要解密
                         if (cid == BroadcastScaleBleConfig.BROADCAST_SCALE_LING_YANG_CID) {
@@ -87,13 +84,17 @@ public class BroadcastScaleDeviceData {
                     } else {
                         bytes = data;
                     }
-                    runOnMainThread(() -> {
-                        if (mOnNotifyData != null) {
-                            mOnNotifyData.OnDID(cid, vid, pid);
-                        }
-                    });
+
                     BleLog.i(TAG, "接收到的数据:" + BleStrUtils.byte2HexStr(bytes));
-                    dataCheck(bytes);
+                    if (bytes.length>1){
+                        int numberId = bytes[0] & 0xff;//数据ID
+                        runOnMainThread(() -> {
+                            if (mOnNotifyData != null) {
+                                mOnNotifyData.onData(dataOriginal,bytes,numberId);
+                            }
+                        });
+                    }
+                    dataCheck(bytes,cid,vid,pid);
                 } else {
                     BleLog.i("校验和错误");
                 }
@@ -110,14 +111,13 @@ public class BroadcastScaleDeviceData {
      *
      * @param data Payload数据
      */
-    private void dataCheck(byte[] data) {
+    private void dataCheck(byte[] data,int cid, int vid, int pid) {
         if (data == null)
             return;
 
 
         if (data.length >= 9) {
             int numberId = data[0] & 0xff;//数据ID
-
             //0x00 ：开始测试
             //0x00 ：正在测量体重 （此时阻抗数值为 0）
             //0x01 ：正在测量阻抗（此时阻抗数值为 0）
@@ -125,6 +125,13 @@ public class BroadcastScaleDeviceData {
             //0x03 ：阻抗测量失败（此时阻抗数值为 0xFFFF）
             //0xFF ：测试结束
             int status = data[1] & 0xff;
+            if (mOldNumberId == numberId&&mOldStatus==status) {
+                //数据相同,已处理过了.不再处理
+                return;
+            }
+            mOldNumberId = numberId;
+            mOldStatus = status;
+
 
             int tempUnit = BleStrUtils.getBits(data[2], 7, 1);//温度单位 0=℃ ，1=℉
 
@@ -160,16 +167,24 @@ public class BroadcastScaleDeviceData {
             //最高位 = 1 ：负单位
             int tempNegative = BleStrUtils.getBits(data[8], 7, 1);
             int temp = ((data[8] & 0x7f) << 8) + (data[9] & 0xff);
-            if (tempNegative == 1 && temp == 4095) {
+            if (tempNegative == 1 && temp == 32767) {
                 //无温度测量，则该值为 0xFFFF
                 tempNegative = -1;
-                temp = -1;
+                temp = 65535;
             }
             int finalTempNegative = tempNegative;
             int finalTemp = temp;
+
+            runOnMainThread(() -> {
+                if (mOnNotifyData != null) {
+                    mOnNotifyData.OnDID(cid, vid, pid);
+                }
+            });
+
             runOnMainThread(() -> {
                 if (mOnNotifyData != null) {
                     mOnNotifyData.getWeightData(status, tempUnit, weightUnit, weightDecimal, weightStatus, weightNegative, weight, adc, algorithmId, finalTempNegative, finalTemp);
+
                 }
             });
         }
@@ -184,8 +199,11 @@ public class BroadcastScaleDeviceData {
         /**
          * 不能识别的透传数据
          * Unrecognized pass-through data
+         * @param dataOriginal 原始数据
+         * @param data 解密后的数据
+         * @param type 数据ID
          */
-        default void onData(byte[] data, int type) {
+        default void onData(byte[] dataOriginal,byte[] data, int type) {
         }
 
         /**

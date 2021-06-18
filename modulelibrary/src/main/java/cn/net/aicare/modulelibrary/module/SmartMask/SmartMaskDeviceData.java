@@ -111,6 +111,45 @@ public class SmartMaskDeviceData extends BaseBleDeviceData {
         sendData(sendMcuBean);
     }
 
+
+    /**
+     * 进入测试模式
+     */
+    public void setTestMode() {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] data = new byte[2];
+        data[0] = 0x09;
+        data[1] = 0x01;
+        sendMcuBean.setHex(CID, data);
+        sendData(sendMcuBean);
+    }
+
+
+    /**
+     * 关闭设备
+     */
+    public void closePower() {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] data = new byte[2];
+        data[0] = 0x07;
+        data[1] = 0x01;
+        sendMcuBean.setHex(CID, data);
+        sendData(sendMcuBean);
+    }
+
+    /**
+     * 获取iaq数据
+     */
+    public void getIAQData() {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] data = new byte[2];
+        data[0] = 0x0b;
+        data[1] = 0x01;
+        sendMcuBean.setHex(CID, data);
+        sendData(sendMcuBean);
+    }
+
+
     //-------------------接收-----------------
 
     @Override
@@ -153,7 +192,17 @@ public class SmartMaskDeviceData extends BaseBleDeviceData {
             case SmartMaskBleConfig.GET_FAN:
                 getFan(data);
                 break;
-
+            case SmartMaskBleConfig.GET_IAQ:
+                getIAQ(data);
+                break;
+            case SmartMaskBleConfig.GET_POWER:
+            case SmartMaskBleConfig.GET_TEST_MODE:
+                runOnMainThread(() -> {
+                    if (mOnNotifyData != null) {
+                        mOnNotifyData.onSetStatus(data[0]&0xff,data[1]&0xff);
+                    }
+                });
+                break;
             default:
                 runOnMainThread(() -> {
                     if (mOnNotifyData != null) {
@@ -163,6 +212,11 @@ public class SmartMaskDeviceData extends BaseBleDeviceData {
 
                 break;
         }
+        runOnMainThread(() -> {
+            if (mOnNotifyData != null) {
+                mOnNotifyData.onPayloadData(data);
+            }
+        });
 
     }
 
@@ -244,6 +298,19 @@ public class SmartMaskDeviceData extends BaseBleDeviceData {
         });
     }
 
+    private void getIAQ(byte[] data) {
+        int status = data[1] & 0xff;
+        int eCO2 = ((data[2] & 0xff) << 8) +( data[3] & 0xff);
+        int TVOC = ((data[4] & 0xff) << 8 )+ (data[5] & 0xff);
+        int HCHO = ((data[6] & 0xff) << 8) + (data[7] & 0xff);
+        runOnMainThread(() -> {
+            if (mOnNotifyData != null) {
+                mOnNotifyData.onIAQData(status, eCO2, TVOC, HCHO);
+            }
+        });
+
+    }
+
 
     //----------------解析数据------
 
@@ -264,6 +331,15 @@ public class SmartMaskDeviceData extends BaseBleDeviceData {
          * Unrecognized pass-through data
          */
         default void onData(byte[] data, int type) {
+        }
+
+        /**
+         * 显示payload数据
+         *
+         * @param data
+         */
+        default void onPayloadData(byte[] data) {
+
         }
 
         /**
@@ -294,6 +370,9 @@ public class SmartMaskDeviceData extends BaseBleDeviceData {
         default void onStatus(int airIndex, int fanStatus, int power, int powerStatus, int batteryRemaining, int breathRate, int breathState, int filterDuration) {
         }
 
+        default void onSetStatus(int type,int status) {
+        }
+
 
         /**
          * 滤网设置指令
@@ -314,7 +393,8 @@ public class SmartMaskDeviceData extends BaseBleDeviceData {
         default void onFan(int status) {
         }
 
-
+        default void onIAQData(int status, int eCo2, int TvOc, int hcho) {
+        }
     }
 
 

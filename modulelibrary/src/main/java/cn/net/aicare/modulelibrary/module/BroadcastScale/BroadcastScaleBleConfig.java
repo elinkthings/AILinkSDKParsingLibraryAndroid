@@ -52,7 +52,7 @@ public class BroadcastScaleBleConfig {
      * 测量完成
      * Measurement completed
      */
-    public static final int GET_TEST_FINISH = (byte) 0xFF;
+    public static final int GET_TEST_FINISH = 0xFF;
 
 
 

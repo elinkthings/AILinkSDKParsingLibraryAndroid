@@ -1,12 +1,15 @@
 package cn.net.aicare.modulelibrary.module.BodyFatScale;
 
 
+import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
+import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
+import com.elinkthings.bleotalibrary.netstrap.OPLOtaManager;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.listener.OnBleConnectStatus;
-import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleSettingListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
@@ -16,11 +19,14 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 import java.lang.ref.WeakReference;
 
 
+
 public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
 
     private BleDevice mBleDevice = null;
     private volatile static BodyFatBleUtilsData bodyfatble = null;
+    private OPLOtaManager mOPLOtaManager;
+
 //    private RefreshUICallback refreshUICallback;
     //    private OnBleConnectStatus onBleConnectStatus;
 //    private OnWifiInfoListener onWifiInfoListener;
@@ -58,12 +64,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             }
         });
 
-        mBleDevice.setOnBleOtherDataListener(new OnBleOtherDataListener() {
-            @Override
-            public void onNotifyOtherData(byte[] data) {
-                Log.e("onNotifyOtherData", BleStrUtils.byte2HexStr(data));
-            }
-        });
 
         if (mBleBodyFatCallback != null) {
             mBleDevice.setOnBleConnectListener(mOnBleConnectStatus);
@@ -80,6 +80,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
                     mBleBodyFatCallback.setTimeCallback(cmdType, cmdData);
             }
         });
+
     }
 
     public static BodyFatBleUtilsData getInstance() {
@@ -108,6 +109,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
         init(bleDevice, bleBodyFatCallback, null);
     }
+
 
     /**
      * 初始化
@@ -154,7 +156,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             //阻抗无算法位
             case BodyFatDataUtil.IMPEDANCE_SUCCESS_DATA:
                 if (mBleBodyFatCallback != null)
-                    mBleBodyFatCallback.onAdc(BodyFatDataUtil.getInstance().getArithmetic(hex), 0);
+                    mBleBodyFatCallback.onAdc(BodyFatDataUtil.getInstance().getImpedance(hex), 0);
 
                 break;
             //阻抗有算法位
@@ -206,10 +208,32 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyDataA6(byte[] hex) {
+        Log.e("huangjunbin", BleStrUtils.byte2HexStr(hex));
         if (hex[0] == BodyFatDataUtil.SCALE_SPECIFIC_INTERACTION) {
             A6Order(hex);
+        } else if ((hex[0] & 0xff) == 0x91) {
+            if (mBleBodyFatCallback != null)
+                mBleBodyFatCallback.onOtaCallback(hex[1] & 0xff);
+
+        } else if ((hex[0] & 0xff) == 0x8b) {
+            if (mBleBodyFatCallback != null) {
+                mBleBodyFatCallback.onSetIpStatus(hex[1] & 0xff);
+            }
+        } else if ((hex[0] & 0xff) == 0x96) {
+            if (mBleBodyFatCallback != null) {
+                mBleBodyFatCallback.onSetIpUrlStatus(hex[1] & 0xff);
+            }
         }
+
     }
+
+
+    public void initOtaUtil(Context context, Uri url, OnBleOTAListener listener) {
+        mOPLOtaManager = null;
+        mOPLOtaManager = OPLOtaManager.newBuilder(context).setFilePath(url).setOnBleOTAListener(listener).build(mBleDevice);
+        mOPLOtaManager.startOta();
+    }
+
 
     private AppHistoryRecordBean appHistoryRecordBean;
     private McuHistoryRecordBean mcuHistoryRecordBean;
@@ -265,6 +289,8 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
                     appHistoryRecordBean = null;
                 }
                 break;
+
+
         }
     }
 
@@ -504,6 +530,11 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
          */
         void requestUserData(int status);
 
+        void onOtaCallback(int status);
+
+        void onSetIpStatus(int status);
+
+        void onSetIpUrlStatus(int status);
 
     }
 

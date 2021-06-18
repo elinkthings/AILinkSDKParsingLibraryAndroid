@@ -3,15 +3,14 @@ package cn.net.aicare.modulelibrary.module.BloodGlucose;
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
+import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
+import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.List;
 
-/**
- * 血糖仪
- */
 public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
 
     private BloodGlucoseCallback mBloodGlucoseCallback;
@@ -102,8 +101,23 @@ public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
         sendData(smb);
     }
 
+    /**
+     * 查询设备CID VID PID
+     */
+    public void getCidVidPid() {
+        SendBleBean sendBleBean = new SendBleBean();
+        sendBleBean.setHex(BleSendCmdUtil.getInstance().getDid());
+        sendData(sendBleBean);
+    }
 
-
+    /**
+     * 查询设备支持的单位
+     */
+    public void getSupportUnit() {
+        SendBleBean sendBleBean = new SendBleBean();
+        sendBleBean.setHex(BleSendCmdUtil.getInstance().getSupportUnit());
+        sendData(sendBleBean);
+    }
 
     private int getBloodData(byte[] hex) {
         int hight = (hex[1] & 0xff) << 16;

@@ -6,6 +6,8 @@ import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.utils.BleDataUtils;
 
+import java.util.Arrays;
+
 /**
  * 体脂秤指令
  */
@@ -138,7 +140,7 @@ public class BodyFatDataUtil {
      */
     public final static int ST = 4;
     /**
-     * 纯lb
+     * lb
      */
     public final static int LB = 6;
     /**
@@ -193,7 +195,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析体重 Analyze weight
-     *
      */
     public float getWeight(byte[] by) {
         float myweight = 0.0f;
@@ -214,7 +215,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析体重小数位 Parsing decimal places of weight
-     *
      */
     public int getWeightPoint(byte[] b) {
         return (b[4] & 0xf0) >> 4;
@@ -224,7 +224,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析体重单位 Analyze weight units
-     *
      */
     public int getWeightUnit(byte[] b) {
         int type = b[4] & 0x0f;
@@ -234,7 +233,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析温度 Resolution temperature
-     *
      */
     public float getTemperature(byte[] b) {
         float mytemper = 0.0f;
@@ -250,7 +248,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析阻抗值 Analyze impedance value
-     *
      */
 
     public int getImpedance(byte[] b) {
@@ -259,7 +256,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析算法位 Parsing algorithm bit
-     *
      */
     public int getArithmetic(byte[] b) {
         return (b[3] & 0xff);
@@ -267,7 +263,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析心率 Analyze heart rate
-     *
      */
     public int getHeart(byte[] b) {
         return b[1] & 0xff;
@@ -275,7 +270,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析体脂数据 Analyze body fat data
-     *
      */
     public BodyFatRecord getBodyFat(byte[] hex, BodyFatRecord bodyFatRecord) {
 
@@ -322,8 +316,8 @@ public class BodyFatDataUtil {
      *
      * @param b
      * @return 00：更新列表成功 01：更新个人用户成功 02：更新列表失败 03：更新个人用户失败
-     *         (00: update the list successfully 01: update the individual user successfully
-     *         02: update the list failure 03: update the individual user)
+     * (00: update the list successfully 01: update the individual user successfully
+     * 02: update the list failure 03: update the individual user)
      */
     public int updateUserCallback(byte[] b) {
 
@@ -332,7 +326,6 @@ public class BodyFatDataUtil {
 
     /**
      * 解析muc历史数据  Parsing muc historical data
-     *
      */
     public McuHistoryRecordBean getMcuHistoryRecord(byte[] b,
                                                     McuHistoryRecordBean mcuHistoryRecordBean) {
@@ -456,7 +449,7 @@ public class BodyFatDataUtil {
      * Request synchronization history return
      *
      * @return 00：无历史记录 01：开始发送历史记录 02：结束发送历史记录
-     *          (00: No history 01: Start sending history 02: End sending history)
+     * (00: No history 01: Start sending history 02: End sending history)
      */
     public int requestSynHistoryCallback(byte[] b) {
         return b[2] & 0xff;
@@ -465,6 +458,7 @@ public class BodyFatDataUtil {
     /**
      * 设置单位 Set unit
      * 主动调用 Active call
+     *
      * @param type       单位类型 unit type
      * @param deviceType 设置类型 蓝牙体脂秤 0x0e  wifi+ble体脂秤 0x11
      *                   ( deviceType Setting type Bluetooth body fat scale 0x0e wifi + ble body fat scale 0x11)
@@ -530,7 +524,6 @@ public class BodyFatDataUtil {
      * 主动下发 连接上设备后下发
      * Update user list
      * Actively distributed after connecting to the device
-     *
      */
     public SendBleBean setUserInfoList(User user) {
 
@@ -571,7 +564,6 @@ public class BodyFatDataUtil {
      * 主动下发，在更新完用户列表后执行。只需执行一次
      * Update user list is complete
      * Actively issued and executed after updating the user list. Only need to execute once
-     *
      */
     public SendBleBean updateUsersComplete() {
         byte[] bytes = new byte[2];
@@ -638,7 +630,6 @@ public class BodyFatDataUtil {
     /**
      * 有格式要求(There are format requirements)
      * AA:BB:CC:DD:EE:FF
-     *
      */
     public SendBleBean setWifiMac(String mac) {
         byte[] bytes = new byte[7];
@@ -695,6 +686,7 @@ public class BodyFatDataUtil {
     /**
      * 获取当前连接的wifi的名字
      * Get the name of the currently connected wifi
+     *
      * @return SendBleBean
      */
     public SendBleBean getConnectWifiName() {
@@ -706,6 +698,7 @@ public class BodyFatDataUtil {
     /**
      * 获取已设置的wifi的密码
      * Get the password of the set wifi
+     *
      * @return SendBleBean
      */
     public SendBleBean getSelectWifiPwd() {
@@ -717,6 +710,7 @@ public class BodyFatDataUtil {
     /**
      * 发起连接
      * Initiate the connection
+     *
      * @return SendBleBean
      */
     public SendBleBean connectWifi() {
@@ -730,6 +724,7 @@ public class BodyFatDataUtil {
     /**
      * 断开连接
      * Disconnect
+     *
      * @return SendBleBean
      */
     public SendBleBean disconnectWifi() {
@@ -742,6 +737,7 @@ public class BodyFatDataUtil {
     /**
      * 获取到设备的did
      * Get the did of the device
+     *
      * @return SendBleBean
      */
     public SendBleBean getSnDeviceDid() {
@@ -765,6 +761,7 @@ public class BodyFatDataUtil {
     /**
      * 查询模块的蓝牙，wifi和模块状态
      * Query the module's Bluetooth, wifi and module status
+     *
      * @return SendBleBean
      */
     public SendBleBean queryBleStatus() {
@@ -777,6 +774,7 @@ public class BodyFatDataUtil {
     /**
      * 同步系统时间
      * Synchronize system time
+     *
      * @return SendBleBean
      */
     public SendBleBean synSysTime() {
@@ -787,6 +785,7 @@ public class BodyFatDataUtil {
     /**
      * 同步时间
      * Synchronize time
+     *
      * @return SendBleBean
      */
     public SendBleBean synTime() {
@@ -797,5 +796,48 @@ public class BodyFatDataUtil {
         return getSendBleBeam(bytes);
     }
 
+    public SendBleBean ota() {
+        byte[] bytes = new byte[2];
+        bytes[0] = (byte) 0x91;
+        bytes[1] = 0x01;
+        return getSendBleBeam(bytes);
+
+    }
+
+//    http://test.ailink.revice.aicare.net.cn
+//    0x68 0x74 0x74 0x70 0x3a 0x2f 0x2f 0x74 0x65 0x73 0x74 0x2e 0x61 0x69 0x6c 0x69 0x6e 0x6b 0x2e 0x72 0x65 0x76 0x69 0x63 0x65 0x2e 0x61 6x69 0x63 0x61 0x72 0x65 0x2e 0x6e 0x65 0x74 0x2e 0x63 0x6e
+
+    public SendBleBean environmentIp(int subpackage, byte[] bytesIp) {
+        byte[] bytes1;
+        if (bytesIp != null) {
+            bytes1 = new byte[bytesIp.length + 2];
+            bytes1[0] = (byte) 0x8b;
+            bytes1[1] = (byte) subpackage;
+            System.arraycopy(bytesIp, 0, bytes1, 2, bytesIp.length);
+        } else {
+            bytes1 = new byte[1];
+            bytes1[0] = (byte) 0x8b;
+        }
+
+        return getSendBleBeam(bytes1);
+
+    }
+
+
+    public SendBleBean environmentUrl(int subpackage, byte[] bytesIpUrl) {
+        byte[] bytes1;
+        if (bytesIpUrl != null) {
+            bytes1 = new byte[bytesIpUrl.length + 2];
+            bytes1[0] = (byte) 0x96;
+            bytes1[1] = (byte) subpackage;
+            System.arraycopy(bytesIpUrl, 0, bytes1, 2, bytesIpUrl.length);
+        } else {
+            bytes1 = new byte[1];
+            bytes1[0] = (byte) 0x96;
+        }
+
+        return getSendBleBeam(bytes1);
+
+    }
 
 }

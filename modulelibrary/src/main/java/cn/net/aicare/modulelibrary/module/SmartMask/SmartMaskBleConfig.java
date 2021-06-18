@@ -37,6 +37,16 @@ public class SmartMaskBleConfig {
      * 设备回复风扇指令
      */
     public static final byte GET_FAN = 0x06;
-
-
+    /**
+     * 设备回复风AIQ
+     */
+    public static final byte GET_IAQ= 0x0c;
+    /**
+     * 设置测试模式回复
+     */
+    public static final byte GET_TEST_MODE= 0x0a;
+    /**
+     * 设置关机回复
+     */
+    public static final byte GET_POWER= 0x08;
 }
