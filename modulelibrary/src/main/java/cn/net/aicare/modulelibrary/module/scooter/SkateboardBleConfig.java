@@ -1,10 +1,6 @@
 package cn.net.aicare.modulelibrary.module.scooter;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.UUID;
-
-import androidx.annotation.IntDef;
 
 /**
  * xing<br>
@@ -47,8 +43,8 @@ public class SkateboardBleConfig {
      * 主机只读控制器
      */
     public final static byte HOST_READ_ONLY_CONTROLLER= (byte) 0x01;
-    @IntDef({HOST_WRITE_RETURN_METER, HOST_RETURN_METER,HOST_READ_ONLY_METER, HOST_WRITE_RETURN_BATTERY,HOST_READ_ONLY_BATTERY,HOST_WRITE_RETURN_CONTROLLER,HOST_READ_ONLY_CONTROLLER})
-    @Retention(RetentionPolicy.SOURCE)
+//    @IntDef({HOST_WRITE_RETURN_METER, HOST_RETURN_METER,HOST_READ_ONLY_METER, HOST_WRITE_RETURN_BATTERY,HOST_READ_ONLY_BATTERY,HOST_WRITE_RETURN_CONTROLLER,HOST_READ_ONLY_CONTROLLER})
+//    @Retention(RetentionPolicy.SOURCE)
     public @interface ScopeType {
 
     }
@@ -68,8 +64,8 @@ public class SkateboardBleConfig {
     public final static UUID UUID_NOTIFY = UUID.fromString("0000FFE2-0000-1000-8000-00805F9B34FB");
 
 
-    @IntDef({OTAType.OTA_BOOTLOADER, OTAType.OTA_APPLICATION, OTAType.OTA_FLASH, OTAType.OTA_BLE})
-    @Retention(RetentionPolicy.SOURCE)
+//    @IntDef({OTAType.OTA_BOOTLOADER, OTAType.OTA_APPLICATION, OTAType.OTA_FLASH, OTAType.OTA_BLE})
+//    @Retention(RetentionPolicy.SOURCE)
     public @interface OTAType {
         int OTA_BOOTLOADER = 0;
         int OTA_APPLICATION = 1;

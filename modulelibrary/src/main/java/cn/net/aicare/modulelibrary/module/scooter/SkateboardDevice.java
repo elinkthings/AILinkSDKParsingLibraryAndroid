@@ -5,8 +5,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
 import com.elinkthings.bleotalibrary.rtk.BleRtkOtaBean;
 import com.pingwang.bluetoothlib.config.BleConfig;
@@ -44,7 +42,7 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
 
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
-        public void handleMessage(@NonNull Message msg) {
+        public void handleMessage( Message msg) {
             switch (msg.what) {
 
 

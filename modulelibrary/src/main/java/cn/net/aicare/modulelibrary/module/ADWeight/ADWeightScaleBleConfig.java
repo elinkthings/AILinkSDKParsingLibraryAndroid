@@ -1,10 +1,5 @@
 package cn.net.aicare.modulelibrary.module.ADWeight;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import androidx.annotation.IntDef;
-
 /**
  * xing<br>
  * 2019/7/11<br>
@@ -140,17 +135,17 @@ public class ADWeightScaleBleConfig {
 
     //---------------------
 
-    @IntDef({SEX.MALE, SEX.FEMALE})
-    @Retention(RetentionPolicy.SOURCE)
+//    @IntDef({SEX.MALE, SEX.FEMALE})
+//    @Retention(RetentionPolicy.SOURCE)
     public @interface SEX {
         int MALE = 1;
         int FEMALE =0;
     }
 
 
-    @IntDef({USER_TYPE.ORDINARY_PERSON, USER_TYPE.AMATEUR_ATHLETE,
-            USER_TYPE.PROFESSIONAL_ATHLETES, USER_TYPE.PREGNANT_WOMAN})
-    @Retention(RetentionPolicy.SOURCE)
+//    @IntDef({USER_TYPE.ORDINARY_PERSON, USER_TYPE.AMATEUR_ATHLETE,
+//            USER_TYPE.PROFESSIONAL_ATHLETES, USER_TYPE.PREGNANT_WOMAN})
+//    @Retention(RetentionPolicy.SOURCE)
     public @interface USER_TYPE {
         int ORDINARY_PERSON = 0;
         int AMATEUR_ATHLETE = 1;
