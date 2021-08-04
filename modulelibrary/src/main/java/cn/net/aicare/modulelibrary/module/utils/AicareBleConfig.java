@@ -6,17 +6,6 @@ import cn.net.aicare.algorithmutil.AlgorithmUtil;
 
 
 public class AicareBleConfig {
-    private final static String TAG = "AicareBleConfig";
-
-    //Used to load the 'aifit-lib' library on application startup.
-    static {
-        try {
-            System.loadLibrary("aicare-lib");
-        } catch (Exception e) {
-        }
-    }
-
-
     /**
      * 计算去脂体重，体重控制量等额外的6项身体指标
      * @param sex 1男,2女
