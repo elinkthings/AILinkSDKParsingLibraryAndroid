@@ -6,8 +6,6 @@ import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.utils.BleDataUtils;
 
-import java.util.Arrays;
-
 /**
  * 体脂秤指令
  */
@@ -99,21 +97,7 @@ public class BodyFatDataUtil {
     public final static int ERROR_CODE = 0xff;
 
     public final static int WIFI_BLE_TYPE = 0x11;
-    /**
-     * 设置wifi mac
-     * Set up wifi mac
-     */
-    public final static int SET_WIFI_MAC = 0x84;
-    /**
-     * 设置wifi 密码
-     * Set wifi password
-     */
-    public final static int SET_WIFI_PAW = 0x86;
-    /**
-     * Wifi发起连接或断开连接
-     * Wifi initiate connection or disconnect
-     */
-    public final static int DIS_OR_CON_WIFI = 0x88;
+
 
     /**
      * 请求同步时间
@@ -632,12 +616,7 @@ public class BodyFatDataUtil {
      * AA:BB:CC:DD:EE:FF
      */
     public SendBleBean setWifiMac(String mac) {
-        byte[] bytes = new byte[7];
-        bytes[0] = (byte) SET_WIFI_MAC;
-        String[] s = mac.split(":");
-        for (int i = 0; i < s.length; i++) {
-            bytes[i + 1] = (byte) Integer.parseInt(s[i]);
-        }
+        byte[] bytes = BleSendCmdUtil.getInstance().setWifiMac(mac);
         return getSendBleBeam(bytes);
 
     }
@@ -655,19 +634,7 @@ public class BodyFatDataUtil {
      * @param password   密码数组 password array
      */
     public SendBleBean setWifiPwd(int subpackage, byte[] password) {
-        int length = 0;
-        byte[] bytes1;
-        if (password != null) {
-            length = password.length + 1;
-            bytes1 = new byte[length + 1];
-            bytes1[0] = (byte) SET_WIFI_PAW;
-            bytes1[1] = (byte) subpackage;
-            System.arraycopy(password, 0, bytes1, 2, password.length);
-
-        } else {
-            bytes1 = new byte[1];
-            bytes1[0] = (byte) 0x86;
-        }
+        byte[] bytes1=BleSendCmdUtil.getInstance().setWifiPwd(subpackage,password);
         return getSendBleBeam(bytes1);
     }
 
@@ -678,8 +645,7 @@ public class BodyFatDataUtil {
      * @return SendBleBean
      */
     public SendBleBean getSelectWifiMac() {
-        byte[] bytes = new byte[1];
-        bytes[0] = (byte) 0x85;
+        byte[] bytes = BleSendCmdUtil.getInstance().getSelectWifiMac();
         return getSendBleBeam(bytes);
     }
 
@@ -690,8 +656,7 @@ public class BodyFatDataUtil {
      * @return SendBleBean
      */
     public SendBleBean getConnectWifiName() {
-        byte[] bytes = new byte[1];
-        bytes[0] = (byte) 0x94;
+        byte[] bytes = BleSendCmdUtil.getInstance().getConnectWifiName();
         return getSendBleBeam(bytes);
     }
 
@@ -702,8 +667,7 @@ public class BodyFatDataUtil {
      * @return SendBleBean
      */
     public SendBleBean getSelectWifiPwd() {
-        byte[] bytes = new byte[1];
-        bytes[0] = (byte) 0x87;
+        byte[] bytes = BleSendCmdUtil.getInstance().getSelectWifiMac();
         return getSendBleBeam(bytes);
     }
 
@@ -715,9 +679,7 @@ public class BodyFatDataUtil {
      */
     public SendBleBean connectWifi() {
 
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) DIS_OR_CON_WIFI;
-        bytes[1] = 0x01;
+        byte[] bytes = BleSendCmdUtil.getInstance().setConnectWifi();
         return getSendBleBeam(bytes);
     }
 
@@ -728,9 +690,26 @@ public class BodyFatDataUtil {
      * @return SendBleBean
      */
     public SendBleBean disconnectWifi() {
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) 0x88;
-        bytes[1] = 0x00;
+        byte[] bytes = BleSendCmdUtil.getInstance().setDisconnectWifi();
+        return getSendBleBeam(bytes);
+    }
+
+
+    public SendBleBean checkIp(){
+        byte[] bytes=new byte[1];
+        bytes[0]= (byte) 0x8c;
+        return getSendBleBeam(bytes);
+    }
+
+    public SendBleBean checkPort(){
+        byte[] bytes=new byte[1];
+        bytes[0]= (byte) 0x8e;
+        return getSendBleBeam(bytes);
+    }
+
+    public SendBleBean checkUrl(){
+        byte[] bytes=new byte[1];
+        bytes[0]= (byte) 0x97;
         return getSendBleBeam(bytes);
     }
 
@@ -752,9 +731,7 @@ public class BodyFatDataUtil {
      * @return SendBleBean
      */
     public SendBleBean scanWifi() {
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) 0x80;
-        bytes[1] = 0x01;
+        byte[] bytes = BleSendCmdUtil.getInstance().setScanWifi();
         return getSendBleBeam(bytes);
     }
 
@@ -772,7 +749,7 @@ public class BodyFatDataUtil {
     }
 
     /**
-     * 同步系统时间
+     * 同步BLE时间
      * Synchronize system time
      *
      * @return SendBleBean
@@ -783,16 +760,14 @@ public class BodyFatDataUtil {
     }
 
     /**
-     * 同步时间
+     * 同步MCU时间
      * Synchronize time
      *
      * @return SendBleBean
      */
     public SendBleBean synTime() {
         byte[] currentTime = BleDataUtils.getInstance().getCurrentTime();
-        byte[] bytes = new byte[currentTime.length + 1];
-        bytes[0] = 0x37;
-        System.arraycopy(currentTime, 0, bytes, 1, currentTime.length);
+        byte[] bytes=BleSendCmdUtil.getInstance().setDeviceTime(currentTime);
         return getSendBleBeam(bytes);
     }
 
@@ -821,6 +796,15 @@ public class BodyFatDataUtil {
 
         return getSendBleBeam(bytes1);
 
+    }
+
+    public SendBleBean environmentPort(int port) {
+        byte[] bytes1;
+        bytes1 = new byte[3];
+        bytes1[0] = (byte) 0x8d;
+        bytes1[1] = (byte) (port >> 8);
+        bytes1[2] = (byte) (port & 0xff);
+        return getSendBleBeam(bytes1);
     }
 
 

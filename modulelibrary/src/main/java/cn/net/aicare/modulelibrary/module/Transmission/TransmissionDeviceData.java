@@ -1,5 +1,7 @@
 package cn.net.aicare.modulelibrary.module.Transmission;
 
+import android.os.Build;
+
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
@@ -9,6 +11,7 @@ import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleCompanyListener;
 import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
+import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.List;
@@ -16,9 +19,17 @@ import java.util.List;
 public class TransmissionDeviceData extends BaseBleDeviceData {
 
     private MyBleCallback mMyBleCallback;
+    private BleDevice mBleDevice;
 
     public TransmissionDeviceData(BleDevice bleDevice) {
         super(bleDevice);
+        mBleDevice=bleDevice;
+        if (mBleDevice!=null){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                boolean b = mBleDevice.setMtu(30);
+                BleLog.i(" MTU:"+b);
+            }
+        }
         bleDevice.setOnBleVersionListener(new OnBleVersionListener() {
             @Override
             public void onBmVersion(String version) {
@@ -61,7 +72,7 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
     public void onNotifyData(byte[] hex, int type) {
 
         if (mMyBleCallback!=null){
-            mMyBleCallback.showdata(BleStrUtils.byte2HexStr(hex));
+            mMyBleCallback.showdata(BleStrUtils.byte2HexStr(hex),type);
         }
 
     }
@@ -75,7 +86,7 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
 
     public interface MyBleCallback {
         void onVersion(String version);
-        void showdata(String data);
+        void showdata(String data,int type);
         void onSupportUnit(List<SupportUnitBean> list);
         void onCid(int cid, int vid, int pid);
         void otherdata(String data);
@@ -85,9 +96,11 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
 
 
     public void setSendData(int cid ,byte[] bytes){
+
         SendMcuBean smb = new SendMcuBean();
         smb.setHex(cid,bytes);
         sendData(smb);
+
         if (mMyBleCallback!=null){
             mMyBleCallback.sendData(BleStrUtils.byte2HexStr(smb.getHex()));
         }

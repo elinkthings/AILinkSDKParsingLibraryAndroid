@@ -44,7 +44,7 @@ makeJar.dependsOn(build)
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.8.0'
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.8.1'
     implementation 'com.github.elinkthings:AILinkSDKOtaLibraryAndroid:1.0.3'//OTA库
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')

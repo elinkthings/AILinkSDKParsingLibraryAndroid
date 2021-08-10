@@ -1,7 +1,5 @@
 package cn.net.aicare.modulelibrary.module.BloodOxygen;
 
-
-
 public class BleBloodOxygenBleConfig {
 
 

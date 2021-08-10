@@ -2,6 +2,7 @@ package cn.net.aicare.modulelibrary.module.scooter;
 
 import java.util.UUID;
 
+
 /**
  * xing<br>
  * 2019/12/11<br>

@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+
 import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
 import com.elinkthings.bleotalibrary.rtk.BleRtkOtaBean;
 import com.pingwang.bluetoothlib.config.BleConfig;

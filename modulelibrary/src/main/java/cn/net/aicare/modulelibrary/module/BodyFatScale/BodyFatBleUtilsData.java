@@ -19,7 +19,6 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 import java.lang.ref.WeakReference;
 
 
-
 public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
 
@@ -208,7 +207,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyDataA6(byte[] hex) {
-        Log.e("huangjunbin", BleStrUtils.byte2HexStr(hex));
+        Log.e("huangjunbin A6数据：", BleStrUtils.byte2HexStr(hex));
         if (hex[0] == BodyFatDataUtil.SCALE_SPECIFIC_INTERACTION) {
             A6Order(hex);
         } else if ((hex[0] & 0xff) == 0x91) {
@@ -216,12 +215,36 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
                 mBleBodyFatCallback.onOtaCallback(hex[1] & 0xff);
 
         } else if ((hex[0] & 0xff) == 0x8b) {
+            // 设置IP地址。47.113.114.70
             if (mBleBodyFatCallback != null) {
                 mBleBodyFatCallback.onSetIpStatus(hex[1] & 0xff);
             }
+        } else if ((hex[0] & 0xff) == 0x8d) {
+            // 设置端口。8092
+            if (mBleBodyFatCallback != null) {
+                mBleBodyFatCallback.onSetPortStatus(hex[1] & 0xff);
+            }
         } else if ((hex[0] & 0xff) == 0x96) {
+            // 设置路径。/index/
             if (mBleBodyFatCallback != null) {
                 mBleBodyFatCallback.onSetIpUrlStatus(hex[1] & 0xff);
+            }
+        } else if ((hex[0] & 0xff) == 0x8c) {
+            if (mBleBodyFatCallback != null) {
+                byte[] name = new byte[hex.length - 1];
+                System.arraycopy(hex, 1, name, 0, name.length);
+                mBleBodyFatCallback.onIpData(BleStrUtils.convertUTF8ToString(name));
+            }
+        } else if ((hex[0] & 0xff) == 0x8e) {
+            if (mBleBodyFatCallback != null) {
+                int port = (((hex[1] & 0xff) << 8) | (hex[2] & 0xff));
+                mBleBodyFatCallback.onPortData(port);
+            }
+        } else if ((hex[0] & 0xff) == 0x97) {
+            if (mBleBodyFatCallback != null) {
+                byte[] name = new byte[hex.length - 1];
+                System.arraycopy(hex, 1, name, 0, name.length);
+                mBleBodyFatCallback.onUrlData(BleStrUtils.convertUTF8ToString(name));
             }
         }
 
@@ -534,8 +557,30 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
         void onSetIpStatus(int status);
 
+        void onSetPortStatus(int status);
+
         void onSetIpUrlStatus(int status);
 
+        /**
+         * 回调ip
+         *
+         * @param ip 47.113.114.70
+         */
+        void onIpData(String ip);
+
+        /**
+         * 回调端口
+         *
+         * @param port 8092
+         */
+        void onPortData(int port);
+
+        /**
+         * 回调Url
+         *
+         * @param url /index/
+         */
+        void onUrlData(String url);
     }
 
 
