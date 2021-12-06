@@ -52,7 +52,7 @@ public class SkateboardBleConfig {
     /**
      * 服务的uuid
      */
-    public final static UUID UUID_BROADCAST = UUID.fromString("0000E0FF-3C17-D293-8E48-14FE2E4DA212");
+    public final static UUID UUID_BROADCAST = UUID.fromString("0000FFE0-3C17-D293-8E48-14FE2E4DA212");
 
     /**
      * write

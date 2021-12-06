@@ -142,18 +142,26 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
     public void sendSlowData(){
         SendMcuBean sendBleBean = new SendMcuBean();
         byte[] bytes = new byte[4];
+//        bytes[0] = 0x03;
+//        bytes[1] = 0x03;
+//        bytes[2] = 0x1E;
+//        bytes[3] = 0x00;
         bytes[0] = 0x03;
         bytes[1] = 0x03;
-        bytes[2] = 0x1E;
+        bytes[2] = 0x14;
         bytes[3] = 0x00;
         sendBleBean.setHex(0x002e, bytes);
         sendData(sendBleBean);
         SendMcuBean sendBleBean1 = new SendMcuBean();
         byte[] bytes1 = new byte[4];
+//        bytes1[0] = 0x07;
+//        bytes1[1] = 0x02;
+//        bytes1[2] = 0x3C;
+//        bytes1[3] = 0x0a;
         bytes1[0] = 0x07;
-        bytes1[1] = 0x02;
-        bytes1[2] = 0x3C;
-        bytes1[3] = 0x0a;
+        bytes1[1] = 0x01;
+        bytes1[2] = 0x1E;
+        bytes1[3] = 0x14;
         sendBleBean1.setHex(0x002e, bytes1);
         sendData(sendBleBean1);
 

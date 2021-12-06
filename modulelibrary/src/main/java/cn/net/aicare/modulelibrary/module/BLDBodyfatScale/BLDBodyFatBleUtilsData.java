@@ -73,7 +73,7 @@ public class BLDBodyFatBleUtilsData extends BaseBleDeviceData {
         //通用指令的回调
         mBleDevice.setOnBleSettingListener(new OnBleSettingListener() {
             @Override
-            public void OnSettingReturn(byte cmdType, byte cmdData) {
+            public void OnSettingReturn(int cmdType, int cmdData) {
 
 
             }

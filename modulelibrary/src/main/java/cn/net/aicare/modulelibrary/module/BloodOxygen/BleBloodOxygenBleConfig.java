@@ -1,5 +1,9 @@
 package cn.net.aicare.modulelibrary.module.BloodOxygen;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+
 public class BleBloodOxygenBleConfig {
 
 
