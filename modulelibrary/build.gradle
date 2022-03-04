@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'com.github.dcendents.android-maven'
 android {
     compileSdkVersion 30
 
@@ -30,6 +30,10 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
+
+//    android {
+//        ndkVersion '22.1.7171670'
+//    }
 }
 
 def jarName="AiLinkBleParsingLibrary.jar"
