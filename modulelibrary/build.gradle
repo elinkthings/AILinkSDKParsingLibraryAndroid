@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.github.dcendents.android-maven'
 android {
     compileSdkVersion 30
 
@@ -31,9 +31,9 @@ android {
         }
     }
 
-    android {
-        ndkVersion '22.1.7171670'
-    }
+//    android {
+//        ndkVersion '22.1.7171670'
+//    }
 }
 
 def jarName="AiLinkBleParsingLibrary.jar"
@@ -48,7 +48,7 @@ makeJar.dependsOn(build)
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.8.6'
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.9.2'
     implementation 'com.github.elinkthings:AILinkSDKOtaLibraryAndroid:1.0.3'//OTA库
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')
