@@ -839,7 +839,6 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
     private int mBeanOldNumber = 0;
 
     public synchronized void sendUpdateData(int status, int id) {
-        Log.e("huangjunbin","sendUpdateData"+ status+" id"+id);
         mHandler.removeMessages(OTA_SEND_TIMEOUT);
         if (mScooterOtaManager == null) {
             //当前不在升级状态
@@ -867,7 +866,6 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
         }
         if (bleScooterOtaBean == null) {
             //数据包发送完成,进行升级校验
-            Log.e("huangjunbin","bleScooterOtaBean");
             getUpdateStatus();
             return;
         }

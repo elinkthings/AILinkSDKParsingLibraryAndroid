@@ -41,7 +41,6 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        Log.e("八级秤", BleStrUtils.byte2HexStr(hex));
         if (mEightBodyFatCallback!=null){
             mEightBodyFatCallback.showData(BleStrUtils.byte2HexStr(hex));
         }
@@ -117,11 +116,8 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
 
             int decimal = (hex[5] & 0xf0) >> 4;
-            Log.e("八级秤", decimal+"  小数位");
             if (decimal == 1) {
-                Log.e("八级秤", weight+"体重");
               float myWeight=  weight / 10f;
-                Log.e("八级秤", myWeight+"体重");
                 return myWeight;
             } else if (decimal == 2) {
                 return weight / 100f;

@@ -3,7 +3,6 @@ package cn.net.aicare.modulelibrary.module.BodyFatScale;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
 import com.elinkthings.bleotalibrary.netstrap.OPLOtaManager;
@@ -57,7 +56,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             @Override
             public void onSysTime(int status, int[] times) {
                 //模块返回的时间
-                Log.e("Time", "模块返回的时间");
                 if (mBleBodyFatCallback != null)
                     mBleBodyFatCallback.onSysTime(status, times);
             }
@@ -134,7 +132,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
     public void onNotifyData(byte[] hex, int type) {
 
         int cmd = hex[0] & 0xFF;
-        Log.e("NotifyData", BleStrUtils.byte2HexStr(hex));
         if (mBleBodyFatCallback != null)
             mBleBodyFatCallback.onStatus(cmd);
         switch (cmd) {
@@ -152,16 +149,17 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
             //阻抗无算法位
             case BodyFatDataUtil.IMPEDANCE_SUCCESS_DATA:
-                if (mBleBodyFatCallback != null)
-                    mBleBodyFatCallback.onAdc(BodyFatDataUtil.getInstance().getImpedance(hex), 0);
-
-                break;
-            //阻抗有算法位
             case BodyFatDataUtil.IMPEDANCE_SUCCESS:
                 if (mBleBodyFatCallback != null)
                     mBleBodyFatCallback.onAdc(BodyFatDataUtil.getInstance().getImpedance(hex), BodyFatDataUtil.getInstance().getArithmetic(hex));
 
                 break;
+//            //阻抗有算法位
+//
+//                if (mBleBodyFatCallback != null)
+//                    mBleBodyFatCallback.onAdc(BodyFatDataUtil.getInstance().getImpedance(hex), BodyFatDataUtil.getInstance().getArithmetic(hex));
+//
+//                break;
             //心率
             case BodyFatDataUtil.HEART_SUCCESS:
                 if (mBleBodyFatCallback != null)
@@ -205,7 +203,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyDataA6(byte[] hex) {
-        Log.e("huangjunbin A6数据：", BleStrUtils.byte2HexStr(hex));
         if (hex[0] == BodyFatDataUtil.SCALE_SPECIFIC_INTERACTION) {
             A6Order(hex);
         } else if ((hex[0] & 0xff) == 0x91) {

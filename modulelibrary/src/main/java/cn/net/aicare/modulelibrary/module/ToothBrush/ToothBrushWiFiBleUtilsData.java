@@ -1,8 +1,11 @@
 package cn.net.aicare.modulelibrary.module.ToothBrush;
 
 
-import android.util.Log;
+import android.content.Context;
+import android.net.Uri;
 
+import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
+import com.elinkthings.bleotalibrary.netstrap.OPLOtaManager;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
@@ -25,6 +28,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     public final static int TOOTHBRUSH_WIFI_BLE = 0x12;
     private BleDevice mBleDevice = null;
     private volatile static ToothBrushWiFiBleUtilsData bodyfatble = null;
+    private OPLOtaManager mOPLOtaManager;
 
 
     private ToothBrushWiFiBleUtilsData(BleDevice bleDevice, BleToothBrushCallback bleToothBrushCallback,
@@ -46,7 +50,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
         bleDevice.setOnMcuParameterListener(new OnMcuParameterListener() {
             @Override
             public void onMcuBatteryStatus(int status, int battery) {
-                Log.e("huang", " 电量 " + status + " " + battery);
                 if (bleToothBrushCallback != null)
                     bleToothBrushCallback.onGetBattery(status, battery);
             }
@@ -54,7 +57,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
         mBleDevice.setOnBleOtherDataListener(new OnBleOtherDataListener() {
             @Override
             public void onNotifyOtherData(byte[] data) {
-                Log.e("onNotifyOtherData", BleStrUtils.byte2HexStr(data));
             }
         });
 
@@ -103,6 +105,13 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     }
 
 
+    public void initOtaUtil(Context context, Uri url, OnBleOTAListener listener) {
+        mOPLOtaManager = null;
+        mOPLOtaManager = OPLOtaManager.newBuilder(context).setFilePath(url).setOnBleOTAListener(listener).build(mBleDevice);
+        mOPLOtaManager.startOta();
+    }
+
+
     /**
      * 获取到蓝牙设备对象
      *
@@ -116,7 +125,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] bytes, int type) {
-//        Log.e("huang", "蓝牙返回的A7数据" + )BleStrUtils.byte2HexStr(bytes);
         if (bleToothBrushCallback != null)
             bleToothBrushCallback.onShowData("蓝牙返回的A7: " + BleStrUtils.byte2HexStr(bytes));
         switch (bytes[0]) {
@@ -568,10 +576,8 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
 
         for (int i = 0; i < s.length; i++) {
             int hex = Integer.parseInt(s[i]);
-            Log.e("huang", hex + "");
             bytes[i + 1] = (byte) hex;
         }
-        Log.e("huang", BleStrUtils.byte2HexStr(bytes));
         sendA6(bytes);
 
     }
@@ -682,7 +688,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
         bytes[11] = (byte) 0;
         bytes[12] = (byte) 0;
         bytes[13] = (byte) 0;
-        Log.e("huang", "使用指令" + BleStrUtils.byte2HexStr(bytes));
         sendA7(bytes);
 
 
@@ -818,7 +823,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
         if (sendBleBean == null)
             sendBleBean = new SendBleBean();
         sendBleBean.setHex(bytes);
-        Log.e("huang", "发送A6指令payload" + BleStrUtils.byte2HexStr(bytes));
         sendData(sendBleBean);
     }
 
@@ -847,7 +851,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
         if (sendMcuBean == null)
             sendMcuBean = new SendMcuBean();
         sendMcuBean.setHex(TOOTHBRUSH_WIFI_BLE, bytes);
-        Log.e("huang", "发送A7指令payload" + BleStrUtils.byte2HexStr(bytes));
         sendData(sendMcuBean);
     }
 }

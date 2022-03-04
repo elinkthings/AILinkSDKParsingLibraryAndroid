@@ -157,8 +157,6 @@ public class WifiUtils {
         final int LeadCode = 4;
         int count = 1;
         byte[] SendData = new byte[info.DataPackageSum * 3];
-        Log.e("info.DataPackageSum = ", info.DataPackageSum + "");
-        Log.e("info.length", +info.info.length + "");
         for (int i = 0, j = 0; i < info.info.length; j = j + 3) {
             if (i < LeadCode) {
                 SendData[j] = (byte) count;
@@ -196,7 +194,6 @@ public class WifiUtils {
                 }
                 for (int j = 0; j < LeadCode; j++) {
                     mUDPMultiClient.send(Data, IP[j]);
-                    Log.e("UdpIp", "[" + j + "]" + IP[j]);
                 }
             }
             for (int i = LeadCode; i < IP.length; i++) {
@@ -206,9 +203,7 @@ public class WifiUtils {
                 mUDPMultiClient.send(Data, IP[i]);
                 if ((i % 5) == 0) {
                     mUDPMultiClient.send(Data, IP[0]);
-                    Log.e("UdpIp", "[" + i + "]" + IP[0]);
                 }
-                Log.e("UdpIp", "[" + i + "]" + IP[i]);
             }
         }
     }

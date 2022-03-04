@@ -55,7 +55,7 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
             public void onNotifyOtherData(byte[] data) {
 
                 if (mMyBleCallback!=null){
-                    mMyBleCallback.otherdata(BleStrUtils.byte2HexStr(data));
+                    mMyBleCallback.otherData(data, BleStrUtils.byte2HexStr(data));
                 }
 
             }
@@ -72,7 +72,7 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
     public void onNotifyData(byte[] hex, int type) {
 
         if (mMyBleCallback!=null){
-            mMyBleCallback.showdata(BleStrUtils.byte2HexStr(hex),type);
+            mMyBleCallback.showData(BleStrUtils.byte2HexStr(hex),type);
         }
 
     }
@@ -86,10 +86,10 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
 
     public interface MyBleCallback {
         void onVersion(String version);
-        void showdata(String data,int type);
+        void showData(String data,int type);
         void onSupportUnit(List<SupportUnitBean> list);
         void onCid(int cid, int vid, int pid);
-        void otherdata(String data);
+        void otherData(byte[] hex, String data);
         void sendData(String data);
     }
 
@@ -106,7 +106,15 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
         }
     }
 
+    public void setSendDataA6(byte[] bytes){
 
+        SendBleBean sendBleBean = new SendBleBean();
+        sendBleBean.setHex(bytes);
+        sendData(sendBleBean);
+        if (mMyBleCallback!=null){
+            mMyBleCallback.sendData(BleStrUtils.byte2HexStr(sendBleBean.getHex()));
+        }
+    }
 
     public void getCid(){
         SendBleBean sendBleBean = new SendBleBean();

@@ -63,7 +63,6 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        Log.e("huangjunbin", BleStrUtils.byte2HexStr(hex));
         if (mOnHeightBodyFatDataCallback != null) {
             int cmd = hex[0] & 0xff;
             switch (cmd) {

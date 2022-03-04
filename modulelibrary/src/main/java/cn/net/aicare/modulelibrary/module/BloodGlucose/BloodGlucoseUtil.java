@@ -4,9 +4,9 @@ public class BloodGlucoseUtil {
 
 
     /**
-     * 血糖仪
+     * 血糖仪CID
      */
-    public final static int BLOOD_GLUCOSE=0x1c;
+    public final static int BLOOD_GLUCOSE=0x001C;
     /**
      * 查询设备状态
      */

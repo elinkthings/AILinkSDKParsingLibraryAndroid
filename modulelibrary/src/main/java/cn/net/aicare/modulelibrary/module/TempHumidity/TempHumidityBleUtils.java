@@ -5,6 +5,7 @@ import android.os.Build;
 
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
+import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
@@ -24,7 +25,6 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         }
 
     }
-
 
 
     @Override
@@ -61,7 +61,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         }
     }
 
-    public static TempHumidityBleUtils getInstance(){
+    public static TempHumidityBleUtils getInstance() {
         return mTempHumidityBleUtils;
     }
 
@@ -69,10 +69,11 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         this.bleDataCallBack = bleDataCallBack;
     }
 
-    public static void init(BleDevice bleDevice){
-        mTempHumidityBleUtils=null;
-        mTempHumidityBleUtils=new TempHumidityBleUtils(bleDevice);
+    public static void init(BleDevice bleDevice) {
+        mTempHumidityBleUtils = null;
+        mTempHumidityBleUtils = new TempHumidityBleUtils(bleDevice);
     }
+
     private void offLineRecord(byte[] bytes) {
         long total1 = (bytes[4] & 0xffL) << 24;
         int total2 = (bytes[3] & 0xff) << 16;
@@ -137,9 +138,9 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         sendData(sendBleBean);
     }
 
-//03 00 00 00
+    //03 00 00 00
 //    0701010A
-    public void sendSlowData(){
+    public void sendSlowData() {
         SendMcuBean sendBleBean = new SendMcuBean();
         byte[] bytes = new byte[4];
 //        bytes[0] = 0x03;
@@ -165,9 +166,10 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         sendBleBean1.setHex(0x002e, bytes1);
         sendData(sendBleBean1);
 
+
     }
 
-    public void sendFatData(){
+    public void sendFatData() {
         SendMcuBean sendBleBean = new SendMcuBean();
         byte[] bytes = new byte[4];
         bytes[0] = 0x03;
@@ -195,6 +197,29 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         void onOffLineRecordNum(long total, long sendNum);
 
         void onOffLineRecord(long time, float temp, float humidity);
+    }
+
+
+    public void setReportTime(int time) {
+
+        byte[] bytes = new byte[3];
+        bytes[0] = 0x14;
+        bytes[1] = (byte) ((time & 0xff00) >> 8);
+        bytes[2] = (byte) (time & 0x00ff);
+        SendMcuBean sendBleBean = new SendMcuBean();
+        sendBleBean.setHex(0x0036, bytes);
+        sendData(sendBleBean);
+    }
+
+
+    public void ota() {
+        byte[] bytes = new byte[2];
+        bytes[0] = (byte) 0x91;
+        bytes[1] = 0x01;
+        SendBleBean sendBleBean = new SendBleBean();
+        sendBleBean.setHex(bytes);
+        sendData(sendBleBean);
+
     }
 
 }

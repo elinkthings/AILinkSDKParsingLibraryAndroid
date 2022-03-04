@@ -32,9 +32,7 @@ public class UDPMultiClient {
             WifiManager manager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
 
             if (manager == null)
-                Log.e("udpclient","manager is null");
             if (udpSockect == null)
-                Log.e("udpclient","udpSockect is null");
 
             lock = manager.createMulticastLock("multicastLock");
             lock.acquire();

@@ -1,8 +1,6 @@
 package cn.net.aicare.modulelibrary.module.BLDBodyfatScale;
 
 
-import android.util.Log;
-
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -10,7 +8,6 @@ import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleSettingListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
-import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -57,7 +54,6 @@ public class BLDBodyFatBleUtilsData extends BaseBleDeviceData {
             @Override
             public void onSysTime(int status, int[] times) {
                 //模块返回的时间
-                Log.e("Time", "模块返回的时间");
 
             }
         });
@@ -65,7 +61,6 @@ public class BLDBodyFatBleUtilsData extends BaseBleDeviceData {
         mBleDevice.setOnBleOtherDataListener(new OnBleOtherDataListener() {
             @Override
             public void onNotifyOtherData(byte[] data) {
-                Log.e("onNotifyOtherData", BleStrUtils.byte2HexStr(data));
             }
         });
 

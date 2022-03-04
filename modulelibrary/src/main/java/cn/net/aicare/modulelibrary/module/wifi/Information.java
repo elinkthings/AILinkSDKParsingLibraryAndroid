@@ -51,22 +51,18 @@ public class Information {
 
         //获取目标AP加密方式
         encryption = this.getCipherType(wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1));
-        Log.d("SSID:", wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1));
         //通过获取扫描结果从频率判断当前目标AP处理处于信道
         wifiManager.startScan();
         List<ScanResult> scanResults = wifiManager.getScanResults();
         if (scanResults.isEmpty()) {
-            Log.e("debug", "get scanResults is Empty");
         }
         for (ScanResult result : scanResults) {
             if (result.BSSID.equalsIgnoreCase(wifiInfo.getBSSID()) && result.SSID.equalsIgnoreCase(wifiInfo.getSSID().substring(1, wifiInfo.getSSID().length() - 1))) {
                 channel = getChannelByFrequency(result.frequency);
-                Log.d("debug", "channel:" + channel);
                 break;
             }
         }
         if (channel == -1) {
-            Log.e("debug", "channel:" + channel);
 
         }
 
@@ -87,7 +83,6 @@ public class Information {
         SsidPawdLength = (passwordEncrypt.length + ssidEncrypt.length);
         informationSize = SsidPawdLength + (SsidPawdLength % 2) + CrcSize + LeadCode;
         info = new byte[informationSize];
-        Log.e("info length =", info.length + "");
         //将信息放在一起方便后面进行组装
         //随机数
         randomNum = (int) (Math.random() * 256);
@@ -96,14 +91,12 @@ public class Information {
         if (getCipherType(ssid) == 1) {
             randomNum = randomNum + 1;
         }
-        Log.d("info randomNum =", randomNum + "");
         LeadCodeTable = new byte[LeadCode];
         //Lead code
         LeadCodeTable[0] = (byte) (channel & 0xff);
         LeadCodeTable[1] = (byte) (SsidPawdLength & 0xff);
         LeadCodeTable[2] = (byte) (passwordEncrypt.length & 0xff);
         LeadCodeTable[3] = (byte) (randomNum.byteValue() & 0xff);
-        Log.d("info randomNum 1 =", new Integer(LeadCodeTable[3]) + "");
         DataPackageSum = (SsidPawdLength + CrcSize);
         DataPackageSum = DataPackageSum / 2 + DataPackageSum % 2 + LeadCode;
         for (int i = 0; i < LeadCode; i++) {
@@ -131,19 +124,13 @@ public class Information {
     //获取目标Ap当前加密方式
     public int getCipherType(String ssid) {
         List<ScanResult> list = wifiManager.getScanResults();
-        if (list.isEmpty()) {
-            Log.d("WiFi", "list.isEmpty()");
-            Log.d("WiFi", "ssid:" + ssid);
-        }
         for (ScanResult scResult : list) {
             if (!TextUtils.isEmpty(scResult.SSID) && scResult.SSID.equals(ssid)) {
                 String capabilities = scResult.capabilities;
                 if (!TextUtils.isEmpty(capabilities)) {
                     if (capabilities.contains("WPA") || capabilities.contains("wpa")) {
-                        Log.d("WiFi", "WPA");
                         return 0;
                     } else if (capabilities.contains("WEP") || capabilities.contains("wep")) {
-                        Log.d("WiFi", "WEP");
                         return 1;
                     } else {
                         return 2;
