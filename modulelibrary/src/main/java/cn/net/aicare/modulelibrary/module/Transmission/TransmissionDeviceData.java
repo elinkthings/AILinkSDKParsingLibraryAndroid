@@ -1,7 +1,5 @@
 package cn.net.aicare.modulelibrary.module.Transmission;
 
-import android.os.Build;
-
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
@@ -11,7 +9,6 @@ import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleCompanyListener;
 import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
-import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.List;
@@ -24,12 +21,12 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
     public TransmissionDeviceData(BleDevice bleDevice) {
         super(bleDevice);
         mBleDevice=bleDevice;
-        if (mBleDevice!=null){
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                boolean b = mBleDevice.setMtu(30);
-                BleLog.i(" MTU:"+b);
-            }
-        }
+//        if (mBleDevice!=null){
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                boolean b = mBleDevice.setMtu(30);
+//                BleLog.i(" MTU:"+b);
+//            }
+//        }
         bleDevice.setOnBleVersionListener(new OnBleVersionListener() {
             @Override
             public void onBmVersion(String version) {

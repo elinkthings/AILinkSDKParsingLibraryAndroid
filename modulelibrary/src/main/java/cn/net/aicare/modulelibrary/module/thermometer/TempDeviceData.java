@@ -2,10 +2,13 @@ package cn.net.aicare.modulelibrary.module.thermometer;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
+import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
+import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleCompanyListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
@@ -13,7 +16,9 @@ import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
 import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * xing<br>
@@ -24,7 +29,7 @@ public class TempDeviceData extends BaseBleDeviceData {
     private String TAG = TempDeviceData.class.getName();
 
     private onNotifyData mOnNotifyData;
-    private int mType = TempBleConfig.THERMOMETER;
+    private int mType = 0x03;
     private byte[] CID;
     private static BleDevice mBleDevice = null;
     private static TempDeviceData mDevice = null;
@@ -86,6 +91,18 @@ public class TempDeviceData extends BaseBleDeviceData {
 
     }
 
+    @Override
+    public void onNotifyDataA6(byte[] hex) {
+        if (hex != null && hex.length > 0) {
+            switch (hex[0] & 0xFF) {
+                case 0x44:
+                    // 设备回复设置 Unix 时间戳结果
+                    int status = hex[1] & 0xFF;
+                    mOnNotifyData.mcuSetUnixStamp(status);
+                    break;
+            }
+        }
+    }
 
     //---------------解析数据------
 
@@ -93,7 +110,7 @@ public class TempDeviceData extends BaseBleDeviceData {
      * @param data Payload数据
      */
     private void dataCheck(byte[] data) {
-        switch (data[0]) {
+        switch (data[0] & 0xFF) {
 
             case TempBleConfig.TEMP:
                 temp(data);
@@ -106,6 +123,26 @@ public class TempDeviceData extends BaseBleDeviceData {
                 break;
             case TempBleConfig.GET_ERR:
                 getErr(data);
+                break;
+            case 0x04:
+                // 设备回复历史记录
+                mcuHistory(data);
+                break;
+            case 0x84:
+                // 设备回复测温模式
+                mcuGetMode(data);
+                break;
+            case 0x85:
+                // 设备回复设置测温模式结果
+                mcuSetMode(data);
+                break;
+            case 0x86:
+                // 设备回复高温报警值
+                mcuGetTemp(data);
+                break;
+            case 0x87:
+                // 设备回复设置高温报警值结果
+                mcuSetTemp(data);
                 break;
             default:
                 runOnMainThread(new Runnable() {
@@ -239,6 +276,162 @@ public class TempDeviceData extends BaseBleDeviceData {
         }
         BleLog.i(TAG, "握手:" + status);
     }
+
+    private void mcuHistory(byte[] hex) {
+        Log.i(TAG, "mcuHistory：" + BleStrUtils.byte2HexStr(hex));
+        int maxSize = ((hex[1] & 0xFF)) + ((hex[2] & 0xFF) << 8) + ((hex[3] & 0xFF) << 16) + ((hex[4] & 0xFF) << 24);
+        int curSize = ((hex[5] & 0xFF)) + ((hex[6] & 0xFF) << 8) + ((hex[7] & 0xFF) << 16) + ((hex[8] & 0xFF) << 24);
+
+        List<HistoryBean> list = new ArrayList<>();
+        for (int i = 1; i <= curSize; i++) {
+            int stamp = ((hex[i * 8 + 1] & 0xFF)) + ((hex[i * 8 + 2] & 0xFF) << 8) + ((hex[i * 8 + 3] & 0xFF) << 16) + ((hex[i * 8 + 4] & 0xFF) << 24);
+            int temp = ((hex[i * 8 + 5] & 0xFF) << 8) + ((hex[i * 8 + 6] & 0xFF));
+            int unit = (hex[i * 8 + 7] & 0xFF);
+            int decimal = (hex[i * 8 + 8] & 0xFF);
+            list.add(new HistoryBean(stamp, temp, unit, decimal));
+        }
+
+        mOnNotifyData.mcuHistory(maxSize, curSize, list);
+    }
+
+    private void mcuGetMode(byte[] hex) {
+        int mode = hex[1] & 0xFF;
+        mOnNotifyData.mcuGetMode(mode);
+    }
+
+    private void mcuSetMode(byte[] hex) {
+        int status = hex[1] & 0xFF;
+        mOnNotifyData.mcuSetMode(status);
+    }
+
+    private void mcuGetTemp(byte[] hex) {
+        int temp = ((hex[1] & 0xFF) << 8) + (hex[2] & 0xFF);
+        int unit = hex[3] & 0xFF;
+        int decimal = hex[4] & 0xFF;
+        mOnNotifyData.mcuGetTemp(temp, unit, decimal);
+    }
+
+    private void mcuSetTemp(byte[] hex) {
+        int status = hex[1] & 0xFF;
+        mOnNotifyData.mcuSetTemp(status);
+    }
+
+    /**
+     * 获取历史记录
+     *
+     * @param size
+     * @param stamp 秒
+     */
+    public void getHistory(int size, int stamp) {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] hex = new byte[6];
+        hex[0] = (byte) 0x03;
+        hex[1] = (byte) size;
+
+        byte[] intToByteLittle = getIntToByteLittle(stamp);
+        hex[2] = (byte) intToByteLittle[0];
+        hex[3] = (byte) intToByteLittle[1];
+        hex[4] = (byte) intToByteLittle[2];
+        hex[5] = (byte) intToByteLittle[3];
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
+    }
+
+    /**
+     * 获取设备测温模式
+     */
+    public void getMode() {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] hex = new byte[2];
+        hex[0] = (byte) 0x84;
+        hex[1] = (byte) 0x01;
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
+    }
+
+    /**
+     * 设置设备测温模式
+     *
+     * @param mode
+     */
+    public void setMode(int mode) {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] hex = new byte[2];
+        hex[0] = (byte) 0x85;
+        hex[1] = (byte) mode;
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
+    }
+
+    /**
+     * 获取高温报警值
+     */
+    public void getTemp() {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] hex = new byte[2];
+        hex[0] = (byte) 0x86;
+        hex[1] = (byte) 0x01;
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
+    }
+
+    /**
+     * 设置高温报警值
+     *
+     * @param tempStr
+     * @param unit
+     */
+    public void setTemp(String tempStr, int unit) {
+        int temp = 0;
+        int decimal = 0;
+
+        if (tempStr.contains(".")) {
+            // 有小数点
+            String[] split = tempStr.split("\\.");
+            decimal = split[1].length();
+            temp = Integer.parseInt(tempStr.replace(".", ""));
+        } else {
+            // 没有小数点
+            decimal = 0;
+            temp = Integer.parseInt(tempStr);
+        }
+
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] hex = new byte[5];
+        hex[0] = (byte) 0x87;
+        hex[1] = (byte) (temp >> 8);
+        hex[2] = (byte) (temp & 0xFF);
+        hex[3] = (byte) unit;
+        hex[4] = (byte) decimal;
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
+    }
+
+    /**
+     * 设置 Unix 时间戳
+     *
+     * @param stamp 秒
+     */
+    public void setUnixStamp(int stamp) {
+        SendBleBean sendBleBean = new SendBleBean();
+        byte[] hex = new byte[5];
+        hex[0] = (byte) 0x44;
+        byte[] intToByteLittle = getIntToByteLittle(stamp);
+        hex[1] = (byte) intToByteLittle[0];
+        hex[2] = (byte) intToByteLittle[1];
+        hex[3] = (byte) intToByteLittle[2];
+        hex[4] = (byte) intToByteLittle[3];
+        sendBleBean.setHex(hex);
+        sendData(sendBleBean);
+    }
+
+    /**
+     * 请求电量
+     */
+    public void requestBattery() {
+        mBleDevice.sendData(new SendBleBean(BleSendCmdUtil.getInstance().getMcuBatteryStatus()));
+    }
+
 //---------------解析数据------
 
 
@@ -275,6 +468,64 @@ public class TempDeviceData extends BaseBleDeviceData {
          * 错误指令
          */
         void getErr(byte status);
+
+        void mcuHistory(int maxSize, int curSize, List<HistoryBean> list);
+
+        void mcuGetMode(int mode);
+
+        void mcuSetMode(int status);
+
+        void mcuGetTemp(int temp, int unit, int decimal);
+
+        void mcuSetTemp(int status);
+
+        void mcuSetUnixStamp(int status);
+    }
+
+    public class HistoryBean {
+        private int stamp;
+        private int temp;
+        private int unit;
+        private int decimal;
+
+        public HistoryBean(int stamp, int temp, int unit, int decimal) {
+            this.stamp = stamp;
+            this.temp = temp;
+            this.unit = unit;
+            this.decimal = decimal;
+        }
+
+        public int getStamp() {
+            return stamp;
+        }
+
+        public void setStamp(int stamp) {
+            this.stamp = stamp;
+        }
+
+        public int getTemp() {
+            return temp;
+        }
+
+        public void setTemp(int temp) {
+            this.temp = temp;
+        }
+
+        public int getUnit() {
+            return unit;
+        }
+
+        public void setUnit(int unit) {
+            this.unit = unit;
+        }
+
+        public int getDecimal() {
+            return decimal;
+        }
+
+        public void setDecimal(int decimal) {
+            this.decimal = decimal;
+        }
     }
 
     //------------------set/get--------------
@@ -309,5 +560,24 @@ public class TempDeviceData extends BaseBleDeviceData {
         } else {
             threadHandler.post(runnable);
         }
+    }
+
+    /**
+     * int 转byte 小端序
+     */
+    public byte[] getIntToByteLittle(int data) {
+        byte[] result = new byte[4];
+        result[0] = (byte) ((data >> 24) & 0xFF);
+        result[1] = (byte) ((data >> 16) & 0xFF);
+        result[2] = (byte) ((data >> 8) & 0xFF);
+        result[3] = (byte) (data & 0xFF);
+        return result;
+    }
+
+    public void getDeviceVersion() {
+        SendBleBean sendBleBean = new SendBleBean();
+        BleSendCmdUtil sendCmdUtil = BleSendCmdUtil.getInstance();
+        sendBleBean.setHex(sendCmdUtil.getBleVersion());
+        sendData(sendBleBean);
     }
 }

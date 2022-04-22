@@ -1,6 +1,5 @@
 package cn.net.aicare.modulelibrary.module.scooter;
 
-
 import com.pingwang.bluetoothlib.annotation.IntDef;
 import com.pingwang.bluetoothlib.annotation.Retention;
 import com.pingwang.bluetoothlib.annotation.RetentionPolicy;

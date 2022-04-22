@@ -21,6 +21,17 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    //引入依赖路径
+    repositories {
+        flatDir {
+            dir '../modulelibrary/libs'
+        }
+    }
 }
 
 dependencies {
