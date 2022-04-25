@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 15
-        versionName "1.6.5"
+        versionCode 16
+        versionName "1.6.6"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -56,6 +56,7 @@ dependencies {
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')
     api files('libs/getmorefatdata.jar')
-    api (name: 'bhBodyComposition120', ext: 'aar')
+    api files('libs/bhBodyComposition120.jar')
+//    api (name: 'bhBodyComposition120', ext: 'aar')
 
 }
