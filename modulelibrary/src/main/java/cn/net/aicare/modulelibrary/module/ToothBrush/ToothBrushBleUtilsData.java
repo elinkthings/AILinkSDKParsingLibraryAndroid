@@ -15,10 +15,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 如果在解析包中。找不到这个类。可以直接把代码复制过去
- * 如果有这个类。这个类只演示用
- */
+
 public class ToothBrushBleUtilsData extends BaseBleDeviceData {
 
     public final static int TOOTHBRUSH_BLE = 0x2d;
