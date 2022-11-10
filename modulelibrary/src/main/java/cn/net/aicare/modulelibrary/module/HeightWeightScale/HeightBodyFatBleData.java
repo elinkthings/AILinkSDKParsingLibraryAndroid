@@ -1,14 +1,11 @@
 package cn.net.aicare.modulelibrary.module.HeightWeightScale;
 
 
-import android.util.Log;
-
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
-import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 
 import java.util.List;
@@ -119,7 +116,16 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
                     break;
 
                 case HeightBodyFatBleUntils.MCU_ADC_RESULT:
-                    if (hex.length >= 8) {
+                    //兼容 之前版本adc 解析错误的问题
+                    if (hex.length>=9){
+                        int mode = hex[1] & 0xff;
+                        int status = hex[2] & 0xff;
+                        int adcType = hex[3] & 0xff;
+                        long adcH =( (hex[4] & 0xffL) << 24)+((hex[5] & 0xffL)<<16);
+                        long adcL = ((hex[6] & 0xff) << 8)+(hex[7] & 0xff);
+                        int id = hex[8] & 0xff;
+                        mOnHeightBodyFatDataCallback.onAdc(mode, status, adcType, adcH + adcL, id);
+                    }else if (hex.length >= 8) {
                         int mode = hex[1] & 0xff;
                         int status = hex[2] & 0xff;
                         int adcType = hex[3] & 0xff;
@@ -128,6 +134,8 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
                         int id = hex[6] & 0xff;
                         mOnHeightBodyFatDataCallback.onAdc(mode, status, adcType, adcH + adcL, id);
                     }
+
+
                     break;
                 case HeightBodyFatBleUntils.MCU_HEART:
                     if (hex.length >= 5) {
@@ -244,7 +252,7 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
 
         void onWeight(int workMode, int weightMode, int weight, int decimals, int unit);
 
-        void onAdc(int workMode, int status, int adcType, int adc, int arithmetic);
+        void onAdc(int workMode, int status, int adcType, long adc, int arithmetic);
 
         void onHeart(int workMode, int status, int heart);
 

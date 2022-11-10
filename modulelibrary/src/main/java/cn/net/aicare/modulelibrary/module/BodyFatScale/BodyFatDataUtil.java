@@ -162,7 +162,7 @@ public class BodyFatDataUtil {
      */
     public final static int STATUS_SUCCESS = 0x00;
     public final static int STATUS_FAIL = 0x01;
-    public final static int STATUS_NOSUPORT = 0x02;
+    public final static int STATUS_NOT_SUPPORT = 0x02;
 
     private BodyFatDataUtil() {
     }

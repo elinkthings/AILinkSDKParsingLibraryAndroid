@@ -73,7 +73,13 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
         }
 
     }
-//    @Override
+
+    @Override
+    public void onNotifyDataA6(byte[] hex) {
+
+    }
+
+    //    @Override
 //    public void OnDID(int cid, int vid, int pid) {
 //        mList.add(TimeUtils.getTime() + "cid:" + cid + "||vid:" + vid + "||pid:" + pid);
 //        mHandler.sendEmptyMessage(REFRESH_DATA);

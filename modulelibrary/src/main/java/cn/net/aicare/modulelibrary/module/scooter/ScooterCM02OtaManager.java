@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 
-import com.elinkthings.bleotalibrary.rtk.BleRtkOtaBean;
 import com.pingwang.bluetoothlib.utils.BleLog;
 
 import java.io.FileInputStream;

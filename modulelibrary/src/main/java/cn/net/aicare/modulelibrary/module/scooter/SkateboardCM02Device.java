@@ -4,8 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
-import com.elinkthings.bleotalibrary.rtk.BleRtkOtaBean;
 import com.pingwang.bluetoothlib.config.BleConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -31,7 +29,7 @@ public class SkateboardCM02Device extends BaseBleDeviceData implements OnBleOthe
 
     private final static int OTA_SEND_TIMEOUT = 1;
     private onNotifyData mOnNotifyData;
-    private OnBleOTAListener mOnBleOTAListener;
+    private OnScooterBleOTAListener mOnBleOTAListener;
     private static BleDevice mBleDevice = null;
     private static SkateboardCM02Device sMSkateboardDevice = null;
     private boolean mAILinkBle;
@@ -91,7 +89,7 @@ public class SkateboardCM02Device extends BaseBleDeviceData implements OnBleOthe
         mBleDevice = bleDevice;
         mAILinkBle = bleDevice.containsServiceUuid(BleConfig.UUID_SERVER_AILINK);
         if (!mAILinkBle) {
-            bleDevice.setHandshakeStatus(false);
+            bleDevice.setHandshake(false);
             bleDevice.setNotify(SkateboardBleConfig.UUID_BROADCAST, SkateboardBleConfig.UUID_NOTIFY);
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //                bleDevice.setMtu(200);
@@ -1325,7 +1323,7 @@ public class SkateboardCM02Device extends BaseBleDeviceData implements OnBleOthe
         mOnNotifyData = onNotifyData;
     }
 
-    public void setOnBleOTAListener(OnBleOTAListener onBleOTAListener) {
+    public void setOnBleOTAListener(OnScooterBleOTAListener onBleOTAListener) {
         mOnBleOTAListener = onBleOTAListener;
     }
 

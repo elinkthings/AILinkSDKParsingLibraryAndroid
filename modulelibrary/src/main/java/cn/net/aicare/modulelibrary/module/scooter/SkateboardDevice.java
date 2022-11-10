@@ -3,11 +3,8 @@ package cn.net.aicare.modulelibrary.module.scooter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 
-import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
-import com.elinkthings.bleotalibrary.rtk.BleRtkOtaBean;
 import com.pingwang.bluetoothlib.config.BleConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -33,7 +30,7 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
 
     private final static int OTA_SEND_TIMEOUT = 1;
     private onNotifyData mOnNotifyData;
-    private OnBleOTAListener mOnBleOTAListener;
+    private OnScooterBleOTAListener mOnScooterBleOTAListener;
     private static BleDevice mBleDevice = null;
     private static SkateboardDevice sMSkateboardDevice = null;
     private int mDeviceId = -1;
@@ -95,7 +92,7 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
         mBleDevice = bleDevice;
         mAILinkBle = bleDevice.containsServiceUuid(BleConfig.UUID_SERVER_AILINK);
         if (!mAILinkBle) {
-            bleDevice.setHandshakeStatus(false);
+            bleDevice.setHandshake(false);
             bleDevice.setNotify(SkateboardBleConfig.UUID_BROADCAST, SkateboardBleConfig.UUID_NOTIFY);
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //                bleDevice.setMtu(200);
@@ -738,8 +735,8 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
                 break;
             default:
                 mScooterOtaManager = null;
-                if (mOnBleOTAListener != null) {
-                    mOnBleOTAListener.onOtaFailure(0, "升级失败");
+                if (mOnScooterBleOTAListener != null) {
+                    mOnScooterBleOTAListener.onOtaFailure(0, "升级失败");
                 }
                 return;
         }
@@ -854,15 +851,15 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
             if (mBeanOldNumber > 10) {
                 mScooterOtaManager = null;
                 mOtaType = -1;
-                if (mOnBleOTAListener != null) {
-                    mOnBleOTAListener.onOtaFailure(0, "升级失败");
+                if (mOnScooterBleOTAListener != null) {
+                    mOnScooterBleOTAListener.onOtaFailure(0, "升级失败");
                     return;
                 }
             }
         }
-        if (mOnBleOTAListener != null && mScooterOtaManager != null) {
+        if (mOnScooterBleOTAListener != null && mScooterOtaManager != null) {
             BleLog.i(TAG, "OTA百分比:" + mScooterOtaManager.getProgress());
-            mOnBleOTAListener.onOtaProgress(mScooterOtaManager.getProgress(), 1, 1);
+            mOnScooterBleOTAListener.onOtaProgress(mScooterOtaManager.getProgress(), 1, 1);
         }
         if (bleScooterOtaBean == null) {
             //数据包发送完成,进行升级校验
@@ -884,8 +881,8 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
                 break;
             default:
                 mScooterOtaManager = null;
-                if (mOnBleOTAListener != null) {
-                    mOnBleOTAListener.onOtaFailure(0, "升级失败");
+                if (mOnScooterBleOTAListener != null) {
+                    mOnScooterBleOTAListener.onOtaFailure(0, "升级失败");
                 }
                 return;
 
@@ -927,8 +924,8 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
                 break;
             default:
                 mScooterOtaManager = null;
-                if (mOnBleOTAListener != null) {
-                    mOnBleOTAListener.onOtaFailure(0, "升级失败");
+                if (mOnScooterBleOTAListener != null) {
+                    mOnScooterBleOTAListener.onOtaFailure(0, "升级失败");
                 }
                 return;
 
@@ -1164,16 +1161,16 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
                 case 0:
                     mScooterOtaManager = null;
                     mOtaType = -1;
-                    if (mOnBleOTAListener != null) {
-                        mOnBleOTAListener.onOtaSuccess();
+                    if (mOnScooterBleOTAListener != null) {
+                        mOnScooterBleOTAListener.onOtaSuccess();
                     }
                     break;
                 //升级失败
                 case 1:
                     mScooterOtaManager = null;
                     mOtaType = -1;
-                    if (mOnBleOTAListener != null) {
-                        mOnBleOTAListener.onOtaFailure(0, "升级失败");
+                    if (mOnScooterBleOTAListener != null) {
+                        mOnScooterBleOTAListener.onOtaFailure(0, "升级失败");
                     }
                     break;
                 //升级中
@@ -1318,8 +1315,8 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
         mOnNotifyData = onNotifyData;
     }
 
-    public void setOnBleOTAListener(OnBleOTAListener onBleOTAListener) {
-        mOnBleOTAListener = onBleOTAListener;
+    public void setOnScooterBleOTAListener(OnScooterBleOTAListener onScooterBleOTAListener) {
+        mOnScooterBleOTAListener = onScooterBleOTAListener;
     }
 
     public void setOnBleVersionListener(OnBleVersionListener listener) {

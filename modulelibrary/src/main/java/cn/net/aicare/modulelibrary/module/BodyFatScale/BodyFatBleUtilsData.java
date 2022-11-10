@@ -1,11 +1,6 @@
 package cn.net.aicare.modulelibrary.module.BodyFatScale;
 
 
-import android.content.Context;
-import android.net.Uri;
-
-import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
-import com.elinkthings.bleotalibrary.netstrap.OPLOtaManager;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.listener.OnBleConnectStatus;
@@ -23,11 +18,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
     private BleDevice mBleDevice = null;
     private volatile static BodyFatBleUtilsData bodyfatble = null;
-    private OPLOtaManager mOPLOtaManager;
-
-//    private RefreshUICallback refreshUICallback;
-    //    private OnBleConnectStatus onBleConnectStatus;
-//    private OnWifiInfoListener onWifiInfoListener;
 
 
     private BodyFatBleUtilsData(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback, BleBodyFatWiFiCallback bleBodyFatWiFiCallback) {
@@ -246,11 +236,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
     }
 
 
-    public void initOtaUtil(Context context, Uri url, OnBleOTAListener listener) {
-        mOPLOtaManager = null;
-        mOPLOtaManager = OPLOtaManager.newBuilder(context).setFilePath(url).setOnBleOTAListener(listener).build(mBleDevice);
-        mOPLOtaManager.startOta();
-    }
 
 
     private AppHistoryRecordBean appHistoryRecordBean;

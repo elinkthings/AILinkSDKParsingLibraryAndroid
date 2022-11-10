@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 17
-        versionName "1.6.7"
+        versionCode 18
+        versionName "1.6.8"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -51,7 +51,7 @@ makeJar.dependsOn(build)
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.9.4'
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.9.9'
     implementation 'com.github.elinkthings:AILinkSDKOtaLibraryAndroid:1.0.3'//OTA库
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')

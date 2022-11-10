@@ -1,11 +1,6 @@
 package cn.net.aicare.modulelibrary.module.ToothBrush;
 
 
-import android.content.Context;
-import android.net.Uri;
-
-import com.elinkthings.bleotalibrary.listener.OnBleOTAListener;
-import com.elinkthings.bleotalibrary.netstrap.OPLOtaManager;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
@@ -28,7 +23,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     public final static int TOOTHBRUSH_WIFI_BLE = 0x12;
     private BleDevice mBleDevice = null;
     private volatile static ToothBrushWiFiBleUtilsData bodyfatble = null;
-    private OPLOtaManager mOPLOtaManager;
+
 
 
     private ToothBrushWiFiBleUtilsData(BleDevice bleDevice, BleToothBrushCallback bleToothBrushCallback,
@@ -105,11 +100,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     }
 
 
-    public void initOtaUtil(Context context, Uri url, OnBleOTAListener listener) {
-        mOPLOtaManager = null;
-        mOPLOtaManager = OPLOtaManager.newBuilder(context).setFilePath(url).setOnBleOTAListener(listener).build(mBleDevice);
-        mOPLOtaManager.startOta();
-    }
 
 
     /**

@@ -96,9 +96,40 @@ public class TempDeviceData extends BaseBleDeviceData {
         if (hex != null && hex.length > 0) {
             switch (hex[0] & 0xFF) {
                 case 0x44:
+                case 0x45:
                     // 设备回复设置 Unix 时间戳结果
                     int status = hex[1] & 0xFF;
                     mOnNotifyData.mcuSetUnixStamp(status);
+                    break;
+                case 0x48:
+
+
+                    if ((hex[1] & 0xff) == 0x02) {
+                        long allNum = ((hex[2] & 0xffL) << 24) + ((hex[3] & 0xffL) << 16) + ((hex[4] & 0xffL) << 24) + ((hex[5] & 0xffL));
+                        long sendNum = ((hex[6] & 0xffL) << 24) + ((hex[7] & 0xffL) << 16) + ((hex[8] & 0xffL) << 24) + ((hex[9] & 0xffL));
+                        if (allNum==0){
+                            mOnNotifyData.onHistoryNum(allNum, sendNum);
+                            return;
+                        }
+                        int dataLength = (int) ((hex.length - 10) / sendNum);
+                        byte[] dataBytes = new byte[hex.length - 10];
+                        System.arraycopy(hex, 10, dataBytes, 0, dataBytes.length);
+                        for (int i=0;i<sendNum;i++){
+                         long time=((dataBytes[3+dataLength*i] & 0xffL) << 24) + ((dataBytes[2+dataLength*i] & 0xffL) << 16)
+                                 + ((dataBytes[1+dataLength*i] & 0xffL) << 8) + ((dataBytes[0+dataLength*i] & 0xffL));
+                         byte[] bytes=new byte[dataLength-4];
+                         System.arraycopy(dataBytes, 4+dataLength*i, bytes, 0, bytes.length);
+
+                         mOnNotifyData.onHistory(time,bytes);
+                         if (i==sendNum-1){
+                             mOnNotifyData.onHistoryLast(time);
+                         }
+                        }
+                        mOnNotifyData.onHistoryNum(allNum, sendNum);
+                    } else if ((hex[1] & 0xff) == 0x03) {
+                        mOnNotifyData.onDelHistory(hex[hex[2] & 0xff]);
+                    }
+
                     break;
             }
         }
@@ -337,6 +368,31 @@ public class TempDeviceData extends BaseBleDeviceData {
         sendData(sendMcuBean);
     }
 
+
+    public void getHistoryNew(long time) {
+        SendBleBean sendBleBean = new SendBleBean();
+        byte[] hex = new byte[6];
+        hex[0] = 0x48;
+        hex[1] = 0x02;
+        hex[5] = (byte) ((time & 0xff000000L) >> 24);
+        hex[4] = (byte) ((time & 0x00ff0000L) >> 16);
+        hex[3] = (byte) ((time & 0x0000ff00L) >> 8);
+        hex[2] = (byte) ((time & 0xffL));
+        sendBleBean.setHex(hex);
+        sendData(sendBleBean);
+    }
+
+
+    public void delHistoryNew() {
+        SendBleBean sendBleBean = new SendBleBean();
+        byte[] hex = new byte[2];
+        hex[0] = 0x48;
+        hex[1] = 0x03;
+
+        sendBleBean.setHex(hex);
+        sendData(sendBleBean);
+    }
+
     /**
      * 获取设备测温模式
      */
@@ -424,7 +480,18 @@ public class TempDeviceData extends BaseBleDeviceData {
         sendBleBean.setHex(hex);
         sendData(sendBleBean);
     }
-
+    public void setUnixStampNew(int stamp) {
+        SendBleBean sendBleBean = new SendBleBean();
+        byte[] hex = new byte[5];
+        hex[0] = (byte) 0x45;
+        byte[] intToByteLittle = getIntToByteLittle(stamp);
+        hex[4] = (byte) intToByteLittle[0];
+        hex[3] = (byte) intToByteLittle[1];
+        hex[2] = (byte) intToByteLittle[2];
+        hex[1] = (byte) intToByteLittle[3];
+        sendBleBean.setHex(hex);
+        sendData(sendBleBean);
+    }
     /**
      * 请求电量
      */
@@ -480,6 +547,13 @@ public class TempDeviceData extends BaseBleDeviceData {
         void mcuSetTemp(int status);
 
         void mcuSetUnixStamp(int status);
+
+        void onHistoryNum(long allNum, long sendNum);
+
+        void onHistory(long time, byte[] value);
+        void onHistoryLast(long time);
+
+        void onDelHistory(int result);
     }
 
     public class HistoryBean {

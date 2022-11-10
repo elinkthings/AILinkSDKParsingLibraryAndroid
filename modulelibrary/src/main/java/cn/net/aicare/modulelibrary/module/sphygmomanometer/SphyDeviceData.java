@@ -6,6 +6,7 @@ import android.os.Looper;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
+import com.pingwang.bluetoothlib.device.SendDataBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleCompanyListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
@@ -43,6 +44,11 @@ public class SphyDeviceData extends BaseBleDeviceData {
         return mDevice;
     }
 
+    public void setType(int type) {
+        mType = type;
+        init();
+    }
+
     /**
      * 退出模块时需要清空单例赋值
      */
@@ -68,7 +74,6 @@ public class SphyDeviceData extends BaseBleDeviceData {
     }
 
     private void init() {
-        //可进行额温枪特有的初始化操作
         //It can carry out the unique initialization operation of the front temperature gun
         CID = new byte[2];
         CID[0] = (byte) ((mType >> 8) & 0xff);
@@ -78,7 +83,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] hex, int type) {
-        if (mType == type ) {
+        if (mType == type) {
             BleLog.i(TAG, "接收到的原始数据:" + Arrays.toString(hex));
             String data = BleStrUtils.byte2HexStr(hex);
             BleLog.i(TAG, "接收到的数据:" + data);
@@ -105,6 +110,10 @@ public class SphyDeviceData extends BaseBleDeviceData {
                 break;
             case SphyBleConfig.SHPY_CMD:
                 getSphyCmd(data);
+                break;
+
+            case SphyBleConfig.GET_SHPY_VOICE:
+                getSphyVoice(data);
                 break;
 
             case SphyBleConfig.GET_UNIT:
@@ -156,6 +165,28 @@ public class SphyDeviceData extends BaseBleDeviceData {
     }
 
 
+    private void getSphyVoice(final byte[] data) {
+        switch (data[1]) {
+            case 0x00:
+                BleLog.i(TAG, "打开语音");
+                break;
+            case 0x01:
+                BleLog.i(TAG, "关闭语音");
+                break;
+
+        }
+
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mOnNotifyData != null) {
+                    mOnNotifyData.getSphyVoice(data[1]);
+                }
+            }
+        });
+
+    }
+
     /**
      * 开始测量(Start measurement)
      */
@@ -180,7 +211,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
     /**
      * 关机(Shut down)
      */
-    public void stoptMcu() {
+    public void stopMcu() {
         setSphyCmd(SphyBleConfig.SHPY_CMD_MCU_STOP);
     }
 
@@ -193,6 +224,34 @@ public class SphyDeviceData extends BaseBleDeviceData {
         byte[] data = new byte[2];
         data[0] = SphyBleConfig.SHPY_CMD;
         data[1] = cmd;
+        sendMcuBean.setHex(CID, data);
+        sendData(sendMcuBean);
+
+    }
+
+
+    @Override
+    public void sendData(SendDataBean sendDataBean) {
+        super.sendData(sendDataBean);
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (mOnNotifyData != null) {
+                    mOnNotifyData.onData(sendDataBean.getHex(), 100);
+                }
+            }
+        });
+    }
+
+    /**
+     * 操作指令
+     * @param cmd 0：打开语音 1：关闭语音
+     */
+    public void setSphyVoice(int cmd) {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] data = new byte[2];
+        data[0] = SphyBleConfig.SET_SHPY_VOICE;
+        data[1] = (byte) cmd;
         sendMcuBean.setHex(CID, data);
         sendData(sendMcuBean);
 
@@ -243,6 +302,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
 
     /**
      * 设置单位(Set unit)
+     *
      * @param unit
      */
     public void setUnit(byte unit) {
@@ -323,9 +383,14 @@ public class SphyDeviceData extends BaseBleDeviceData {
         /**
          * 设置操作指令(Set operation instructions)
          *
-         * @param cmd {@link SphyBleConfig.SHPY_CMD}
+         * @param cmd {@link SphyBleConfig#SHPY_CMD}
          */
         void getSphyCmd(byte cmd);
+
+        /**
+         * 语音设置
+         */
+        void getSphyVoice(byte cmd);
 
         /**
          * 实时数据(Real-time data)
@@ -352,14 +417,14 @@ public class SphyDeviceData extends BaseBleDeviceData {
         /**
          * 设置单位返回(Set Unit Return)
          *
-         * @param unit {@link CmdConfig.SETTING_SUCCESS,CmdConfig.SETTING_FAILURE,CmdConfig.SETTING_ERR}
+         * @param unit {@link CmdConfig#SETTING_SUCCESS,CmdConfig#SETTING_FAILURE,CmdConfig#SETTING_ERR}
          */
         void getUnit(int unit);
 
         /**
          * 错误指令
          *
-         * @param status {@link SphyBleConfig.GET_ERR}
+         * @param status {@link SphyBleConfig#GET_ERR}
          */
         void getErr(byte status);
     }

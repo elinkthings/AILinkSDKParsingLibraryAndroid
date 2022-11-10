@@ -48,6 +48,11 @@ public class SphyBleConfig {
      */
     public static final byte SHPY_CMD = (byte) 0x83;
     /**
+     * 设置语音开关
+     */
+    public static final byte SET_SHPY_VOICE = (byte) 0x85;
+    public static final byte GET_SHPY_VOICE = (byte) 0x86;
+    /**
      * 开始测量(Start measurement)
      */
     public static final byte SHPY_CMD_START = (byte) 0x00;
@@ -74,6 +79,20 @@ public class SphyBleConfig {
      *
      */
     public static final byte GET_ERR = (byte) 0xFF;
+
+
+    /**
+     * 设置类返回状态
+     * 设置wifi的mac，密码 和设置的单位 和设置时间
+     * 00 成功 01 失败 02 不支持
+     * <p>
+     * Set class return status
+     * Set wifi mac, password, set unit and set time
+     * 00 Success 01 Failure 02 Not supported
+     */
+    public final static int STATUS_SUCCESS = 0x00;
+    public final static int STATUS_FAIL = 0x01;
+    public final static int STATUS_NOT_SUPPORT = 0x02;
 
 
 }
