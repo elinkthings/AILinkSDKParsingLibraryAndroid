@@ -19,6 +19,11 @@ public class ToothBrushBleCmd {
      * Request authorization
      */
     public final static int REQUEST_TOKEN=0x7F;
+
+    /**
+     * 牙刷请求专用指令
+     */
+    public final static int REQUEST_CODE = 0xC0;
     //===================================A7
     /**
      * 设置默认刷牙时长和工作档位
@@ -39,14 +44,14 @@ public class ToothBrushBleCmd {
      *APP trial instruction
      */
 
-    public final static int The_Trial_Order = 0x06;
+    public final static int THE_TRIAL_ORDER = 0x06;
 
 
     /**
      * MCU 上报当前工作档位和工作阶段
      * MCU reports the current working gear and working stage
      */
-    public final static int Report_Current_GEARS = 0x07;
+    public final static int REPORT_CURRENT_GEARS = 0x07;
 
 
     /**
@@ -54,13 +59,13 @@ public class ToothBrushBleCmd {
      *APP set manual setting (custom) gear
      */
 
-    public final static int Set_Manual_Mode = 0x09;
+    public final static int SET_MANUAL_MODE = 0x09;
 
     /**
      * APP 获取手动设置（自定义）档位
      * APP get manual setting (custom) gear
      */
-    public final static int Get_Manual_Mode = 0x0A;
+    public final static int GET_MANUAL_MODE = 0x0A;
 
     /**
      * APP 启动/关闭牙刷
@@ -79,7 +84,13 @@ public class ToothBrushBleCmd {
      *APP 获取二级档位默认值
      * APP gets the default value of the second gear
      */
-    public  final static int Get_Second_GEARS=0x0D;
+    public  final static int GET_SECOND_GEARS =0x0D;
+
+
+    /**
+     * app 获取刷牙最终结果
+     */
+    public final static int REPORT_CURRENT_GEARS_BLE=0xfc;
 
     /**
      * APP 下发数据上报完成
@@ -90,7 +101,7 @@ public class ToothBrushBleCmd {
      * app 获取刷牙最终结果
      * app gets the final result of brushing
      */
-    public final static int Brush_Teeth_to_Complete=0xfd;
+    public final static int BRUSH_TEETH_TO_COMPLETE =0xfd;
 
     /**
      *     0：没有授权
@@ -124,4 +135,42 @@ public class ToothBrushBleCmd {
     public final static int STATUS_SUCCESS = 0x00;
     public final static int STATUS_FAIL = 0x01;
     public final static int STATUS_NOSUPORT = 0x02;
+
+//-----------历史记录
+
+
+    /**
+     * APP获取离线历史记录条数
+     */
+    public final static int REQUEST_OFFLINE_HISTORY_NUM = 0x11;
+
+    /**
+     * APP请求接收离线历史记录
+     */
+    public final static int REQUEST_RECEIVE_OFFLINE_HISTORY = 0x12;
+
+    /**
+     * APP请求取消接收离线历史记录
+     */
+    public final static int REQUEST_CANCEL_OFFLINE_HISTORY = 0x13;
+
+    /**
+     * APP请求清空离线历史记录
+     */
+    public final static int REQUEST_CLEAR_OFFLINE_HISTORY = 0x14;
+
+    /**
+     * MCU发送离线历史记录
+     */
+    public final static int MCU_SEND_OFFLINE_HISTORY = 0x15;
+
+    /**
+     *
+     */
+    public final static int MCU_SEND_OFFLINE_HISTORY_STATE = 0x16;
+
+
+
+
+
 }

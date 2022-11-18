@@ -20,9 +20,9 @@ import java.util.List;
 
 public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
 
-    public final static int TOOTHBRUSH_WIFI_BLE = 0x12;
+    public final static int TOOTHBRUSH_WIFI_BLE = 0x0012;
     private BleDevice mBleDevice = null;
-    private volatile static ToothBrushWiFiBleUtilsData bodyfatble = null;
+    private volatile static ToothBrushWiFiBleUtilsData bodyFatBle = null;
 
 
 
@@ -38,15 +38,17 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
             @Override
             public void onBmVersion(String version) {
                 //蓝牙版本号
-                if (bleToothBrushCallback != null)
+                if (bleToothBrushCallback != null) {
                     bleToothBrushCallback.onVersion(version);
+                }
             }
         });
         bleDevice.setOnMcuParameterListener(new OnMcuParameterListener() {
             @Override
             public void onMcuBatteryStatus(int status, int battery) {
-                if (bleToothBrushCallback != null)
+                if (bleToothBrushCallback != null) {
                     bleToothBrushCallback.onGetBattery(status, battery);
+                }
             }
         });
         mBleDevice.setOnBleOtherDataListener(new OnBleOtherDataListener() {
@@ -64,7 +66,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     }
 
     public static ToothBrushWiFiBleUtilsData getInstance() {
-        return bodyfatble;
+        return bodyFatBle;
     }
 
     /**
@@ -76,7 +78,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      */
     public static void init(BleDevice bleDevice, BleToothBrushCallback bleCallback, BleToothBrushWiFiCallback bleToothBrushWiFiCallback) {
 
-        bodyfatble = new ToothBrushWiFiBleUtilsData(bleDevice, bleCallback, bleToothBrushWiFiCallback);
+        bodyFatBle = new ToothBrushWiFiBleUtilsData(bleDevice, bleCallback, bleToothBrushWiFiCallback);
     }
 
     /**
@@ -115,8 +117,9 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(byte[] bytes, int type) {
-        if (bleToothBrushCallback != null)
+        if (bleToothBrushCallback != null) {
             bleToothBrushCallback.onShowData("蓝牙返回的A7: " + BleStrUtils.byte2HexStr(bytes));
+        }
         switch (bytes[0]) {
             case ToothBrushBleCmd.GET_TOOTHBRUSH_TIME_GEARS:
                 if (bytes.length >= 5) {
@@ -124,19 +127,21 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
                     int lowTime = bytes[2] & 0xff;
                     int gears = bytes[3] & 0xff;
                     int gearsfrom = bytes[4] & 0xff;
-                    if (bleToothBrushCallback != null)
+                    if (bleToothBrushCallback != null) {
                         bleToothBrushCallback.onGetDefaultGearAndDuration(highTime + lowTime, gears, gearsfrom);
+                    }
                 }
                 break;
             case ToothBrushBleCmd.SET_TOOTHBRUSH_TIME_GEARS:
-            case ToothBrushBleCmd.Set_Manual_Mode:
+            case ToothBrushBleCmd.SET_MANUAL_MODE:
                 if (bytes.length >= 2) {
-                    if (bleToothBrushCallback != null)
+                    if (bleToothBrushCallback != null) {
                         bleToothBrushCallback.onSetDefaultModeAndManualModeResult(bytes[0], bytes[1] & 0xff);
+                    }
 
                 }
                 break;
-            case ToothBrushBleCmd.Get_Manual_Mode:
+            case ToothBrushBleCmd.GET_MANUAL_MODE:
                 if (bytes.length >= 7) {
                     int hzH = (bytes[2] & 0xff) << 8;
                     int hzl = bytes[3] & 0xff;
@@ -148,7 +153,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
                     }
                 }
                 break;
-            case (byte) ToothBrushBleCmd.Brush_Teeth_to_Complete:
+            case (byte) ToothBrushBleCmd.BRUSH_TEETH_TO_COMPLETE:
                 if (bytes.length >= 9) {
                     int mode = bytes[1] & 0xff;
                     int timeH = (bytes[2] & 0xff) << 8;
@@ -164,28 +169,32 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
                 }
 
                 break;
-            case ToothBrushBleCmd.The_Trial_Order:
+            case ToothBrushBleCmd.THE_TRIAL_ORDER:
                 //试用指令
-                if (bytes.length >= 2)
+                if (bytes.length >= 2) {
                     if (bleToothBrushCallback != null) {
                         bleToothBrushCallback.onTryOutResult(bytes[1] & 0xff);
                     }
+                }
                 break;
-            case ToothBrushBleCmd.Get_Second_GEARS:
-                if (bytes.length >= 2)
+            case ToothBrushBleCmd.GET_SECOND_GEARS:
+                if (bytes.length >= 2) {
                     if (bleToothBrushCallback != null) {
                         bleToothBrushCallback.onTwoLevelModeDefault(bytes[1] & 0xff);
                     }
+                }
 
-
+            default:
+                break;
         }
     }
 
 
     @Override
     public void onNotifyDataA6(byte[] hex) {
-        if (bleToothBrushCallback != null)
+        if (bleToothBrushCallback != null) {
             bleToothBrushCallback.onShowData("蓝牙返回的A6: " + BleStrUtils.byte2HexStr(hex));
+        }
         switch (hex[0]) {
             case (byte) ToothBrushBleCmd.GET_TOOTHBRUSH_GEARS:
                 disposeSupportGears(hex);
@@ -200,6 +209,10 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
                 if (bleToothBrushCallback != null) {
                     bleToothBrushCallback.onOTA(hex[1]&0xff);
                 }
+                break;
+
+            default:
+
                 break;
         }
     }
@@ -221,8 +234,9 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
                 }
 
             }
-            if (bleToothBrushCallback != null)
+            if (bleToothBrushCallback != null) {
                 bleToothBrushCallback.onGetSupportGears(stairs, secondLevels);
+            }
         }
 
 
@@ -233,66 +247,76 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     private OnWifiInfoListener onWifiInfoListener = new OnWifiInfoListener() {
         @Override
         public void onScanWiFiStatus(int status) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.OnWifiScanStatus(status);
+            }
         }
 
         @Override
         public void onWifiListName(int no, String name) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.OnWifiListName(no, name);
+            }
         }
 
         @Override
         public void onConnectedWifiName(String name) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.OnWifiCurrentConnect(name);
+            }
         }
 
         @Override
         public void onWifiListInfo(int no, String mac, int db, int type, int wifistatus) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.OnWifiListInfo(no, mac, db, type, wifistatus);
+            }
         }
 
         @Override
         public void onWifiScanFinish(int wifiNum) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.OnWifiScanFinish(wifiNum);
+            }
 
         }
 
         @Override
         public void onSetWifiNameOrPawOrConnectCallback(int type, int status) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.OnSetWifiNameOrPwdOrConnectCallback(type, status);
+            }
         }
 
         @Override
         public void getSelectWifiMac(String mac) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.getSelectWifiMac(mac);
+            }
         }
 
         @Override
         public void getSelectWifiPaw(String pwd) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.getSelectWifiPaw(pwd);
+            }
         }
 
 
         @Override
         public void getSN(long sn) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.getDid(sn);
+            }
         }
     };
 
     private OnBleConnectStatus mOnBleConnectStatus = new OnBleConnectStatus() {
         @Override
         public void onBleConnectStatus(int bleStatus, int wifiStatus, int workStatus) {
-            if (bleToothBrushWiFiCallback != null)
+            if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.OnBleAndWifiStatus(bleStatus, wifiStatus, workStatus);
+            }
         }
     };
 
@@ -358,7 +382,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
         /**
          * 设置默认档位和手动模式结果回调
          *
-         * @param type   类型 {@link ToothBrushBleCmd#SET_TOOTHBRUSH_TIME_GEARS,ToothBrushBleCmd#Set_Manual_Mode}
+         * @param type   类型 {@link ToothBrushBleCmd#SET_TOOTHBRUSH_TIME_GEARS, ToothBrushBleCmd#SET_MANUAL_MODE}
          * @param result 0：设置成功 1：设置失败 2：不支持设置
          */
         void onSetDefaultModeAndManualModeResult(byte type, int result);
@@ -664,7 +688,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      */
     public void setTryOut(int id, int level, int hz, int duty) {
         byte[] bytes = new byte[14];
-        bytes[0] = ToothBrushBleCmd.The_Trial_Order;
+        bytes[0] = ToothBrushBleCmd.THE_TRIAL_ORDER;
         bytes[1] = (byte) id;
         bytes[2] = (byte) level;
         bytes[3] = (byte) 0xff;
@@ -686,6 +710,10 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
     /**
      * 设置默认
      * Set the default
+     *
+     * @param time  时间 秒
+     * @param mode  模式 模式
+     * @param level 等级 模式在什么等级
      */
     public void setDefault(int time, int mode, int level) {
         byte[] bytes = new byte[5];
@@ -728,7 +756,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      */
     public void getTwoLevelDefault() {
         byte[] bytes = new byte[1];
-        bytes[0] = ToothBrushBleCmd.Get_Second_GEARS;
+        bytes[0] = ToothBrushBleCmd.GET_SECOND_GEARS;
         sendA7(bytes);
     }
 
@@ -750,7 +778,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      */
     public void setManualParameter(int hz, int duty, int time) {
         byte[] bytes = new byte[7];
-        bytes[0] = ToothBrushBleCmd.Set_Manual_Mode;
+        bytes[0] = ToothBrushBleCmd.SET_MANUAL_MODE;
         bytes[1] = 0x00;
         bytes[2] = (byte) (hz >> 8);
         bytes[3] = (byte) hz;
@@ -767,7 +795,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      */
     public void getManualParameter() {
         byte[] bytes = new byte[1];
-        bytes[0] = ToothBrushBleCmd.Get_Manual_Mode;
+        bytes[0] = ToothBrushBleCmd.GET_MANUAL_MODE;
 
         sendA7(bytes);
 
@@ -780,7 +808,8 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      * @param toothbrushId 时间搓
      */
     public void requestToken(long toothbrushId) {
-        byte[] timebyte = long2Bytes(toothbrushId); //long 长度8 byte  时间搓是6个byte 所以去后面6位
+        //long 长度8 byte  时间搓是6个byte 所以去后面6位
+        byte[] timebyte = long2Bytes(toothbrushId);
         byte[] bytes = new byte[7];
         bytes[0] = ToothBrushBleCmd.REQUEST_TOKEN;
         bytes[1] = timebyte[2];
@@ -810,8 +839,9 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      * @param bytes
      */
     public void sendA6(byte[] bytes) {
-        if (sendBleBean == null)
+        if (sendBleBean == null) {
             sendBleBean = new SendBleBean();
+        }
         sendBleBean.setHex(bytes);
         sendData(sendBleBean);
     }
@@ -838,8 +868,9 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData {
      * @param bytes
      */
     public void sendA7(byte[] bytes) {
-        if (sendMcuBean == null)
+        if (sendMcuBean == null) {
             sendMcuBean = new SendMcuBean();
+        }
         sendMcuBean.setHex(TOOTHBRUSH_WIFI_BLE, bytes);
         sendData(sendMcuBean);
     }
