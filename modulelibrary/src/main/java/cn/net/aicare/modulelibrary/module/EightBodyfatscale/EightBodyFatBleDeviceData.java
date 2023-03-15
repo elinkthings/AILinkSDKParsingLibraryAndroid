@@ -1,7 +1,5 @@
 package cn.net.aicare.modulelibrary.module.EightBodyfatscale;
 
-import android.util.Log;
-
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;

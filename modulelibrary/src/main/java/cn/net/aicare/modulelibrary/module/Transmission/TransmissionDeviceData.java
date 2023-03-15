@@ -1,10 +1,12 @@
 package cn.net.aicare.modulelibrary.module.Transmission;
 
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
+import com.pingwang.bluetoothlib.config.BleConfig;
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendBleBean;
+import com.pingwang.bluetoothlib.device.SendDataBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleCompanyListener;
 import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
@@ -88,11 +90,50 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
 
 
     public interface MyBleCallback {
+        /**
+         * 版本
+         *
+         * @param version 版本
+         */
         void onVersion(String version);
+
+        /**
+         * 显示数据
+         *
+         * @param data 数据
+         * @param type 类型
+         */
         void showData(String data,int type);
+
+        /**
+         * 支持单位
+         *
+         * @param list 列表
+         */
         void onSupportUnit(List<SupportUnitBean> list);
+
+        /**
+         * CID信息
+         *
+         * @param cid cid
+         * @param vid 从视频
+         * @param pid pid
+         */
         void onCid(int cid, int vid, int pid);
+
+        /**
+         * 其他数据
+         *
+         * @param hex  十六进制
+         * @param data 数据
+         */
         void otherData(byte[] hex, String data);
+
+        /**
+         * 发送数据
+         *
+         * @param data 数据
+         */
         void sendData(String data);
     }
 
@@ -110,7 +151,6 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
     }
 
     public void setSendDataA6(byte[] bytes){
-
         SendBleBean sendBleBean = new SendBleBean();
         sendBleBean.setHex(bytes);
         sendData(sendBleBean);
@@ -118,6 +158,15 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
             mMyBleCallback.sendData(BleStrUtils.byte2HexStr(sendBleBean.getHex()));
         }
     }
+
+    public void setSendDataCustomize(byte[] bytes){
+        SendDataBean sendDataBean=new SendDataBean(bytes,BleConfig.UUID_WRITE_AILINK,BleConfig.WRITE_DATA,BleConfig.UUID_SERVER_AILINK);
+        sendData(sendDataBean);
+        if (mMyBleCallback!=null){
+            mMyBleCallback.sendData(BleStrUtils.byte2HexStr(sendDataBean.getHex()));
+        }
+    }
+
 
     public void getCid(){
         SendBleBean sendBleBean = new SendBleBean();

@@ -1,7 +1,5 @@
 package cn.net.aicare.modulelibrary.module.BleToothbrush;
 
-import android.util.Log;
-
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendBleBean;

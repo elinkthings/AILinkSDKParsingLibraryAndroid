@@ -1,7 +1,6 @@
 package cn.net.aicare.modulelibrary.module.wifi;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.net.DatagramPacket;
 

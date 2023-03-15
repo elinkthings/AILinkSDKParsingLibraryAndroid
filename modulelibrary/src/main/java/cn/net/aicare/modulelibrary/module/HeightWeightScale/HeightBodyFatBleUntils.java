@@ -2,8 +2,6 @@ package cn.net.aicare.modulelibrary.module.HeightWeightScale;
 
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 
-import java.util.Set;
-
 public class HeightBodyFatBleUntils {
 
     public final static int DeviceType=0x26;

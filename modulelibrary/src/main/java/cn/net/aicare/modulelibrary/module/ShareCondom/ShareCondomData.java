@@ -4,8 +4,6 @@ import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 
-import cn.net.aicare.modulelibrary.module.ShareCondom.ShareCondomConfig;
-
 public class ShareCondomData extends BaseBleDeviceData {
 
     private static final int CID = ShareCondomConfig.SHARE_CONDOM;

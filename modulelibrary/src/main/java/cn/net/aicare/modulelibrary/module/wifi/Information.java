@@ -5,8 +5,6 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.text.TextUtils;
-import android.util.Log;
-
 
 import java.util.ArrayList;
 import java.util.List;

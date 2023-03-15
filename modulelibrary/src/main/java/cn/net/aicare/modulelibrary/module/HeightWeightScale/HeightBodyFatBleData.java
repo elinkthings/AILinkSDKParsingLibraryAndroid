@@ -7,7 +7,6 @@ import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 
-
 import java.util.List;
 
 public class HeightBodyFatBleData extends BaseBleDeviceData {

@@ -2197,7 +2197,7 @@ public class AICareWatchData extends BaseWatchData {
      *
      * @param cityName 城市名称
      */
-    public void synchronizeTheWeather(String cityName, AICareWatchData.OnWeatherListener listener) {
+    public void synchronizeTheWeather(String cityName, OnWeatherListener listener) {
 
 //        if (mWeatherHttpUtils == null) {
 //            mWeatherHttpUtils = new WeatherHttpUtils();

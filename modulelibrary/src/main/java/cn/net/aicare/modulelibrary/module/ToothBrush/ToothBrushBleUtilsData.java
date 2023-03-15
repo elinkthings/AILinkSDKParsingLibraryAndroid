@@ -1,6 +1,7 @@
 package cn.net.aicare.modulelibrary.module.ToothBrush;
 
 
+import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
@@ -20,7 +21,7 @@ import java.util.List;
 /**
  * BLE牙刷解析演示类
  */
-public class ToothBrushBleUtilsData extends BaseBleDeviceData {
+public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOtherDataListener {
 
     public final static int TOOTHBRUSH_BLE = 0x002D;
     private BleDevice mBleDevice = null;
@@ -32,6 +33,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData {
         mBleDevice = bleDevice;
         appSyncTime();
         this.bleToothBrushCallback = bleToothBrushCallback;
+        bleDevice.setOnBleOtherDataListener(this);
         mBleDevice.setOnBleVersionListener(new OnBleVersionListener() {
             @Override
             public void onBmVersion(String version) {
@@ -86,6 +88,28 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData {
         return (BleDevice) weakReference.get();
     }
 
+    @Override
+    public void onNotifyOtherData(String uuid, byte[] data) {
+        byte one = data[0];
+        if (one== CmdConfig.SEND_MCU_START){
+            byte sum = 0;
+            for (int i = 1; i < data.length - 2; i++) {
+                sum += data[i];
+            }
+            if (sum == data[data.length - 2]) {
+                //校验和满足
+                int startIndex = 4;
+                //有包头,2cid,长度
+                int two = data[3] & 0xFF;
+                if (data.length >= (two + startIndex)) {
+                    int type = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
+                    byte[] returnData = new byte[two];
+                    System.arraycopy(data, startIndex, returnData, 0, two);
+                    onNotifyData(returnData,type);
+                }
+            }
+        }
+    }
 
     @Override
     public void onNotifyData(byte[] bytes, int type) {
@@ -445,7 +469,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData {
      * 获取默认模式和时长
      * Get the default mode and duration
      */
-    public void getdefaultGearAndDuration() {
+    public void getDefaultGearAndDuration() {
         byte[] bytes = new byte[1];
         bytes[0] = ToothBrushBleCmd.GET_TOOTHBRUSH_TIME_GEARS;
         sendA7(bytes);

@@ -7,8 +7,6 @@ import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 
-import cn.net.aicare.modulelibrary.module.ShareSocket.ShareSocketConfig;
-
 public class ShareSocketData extends BaseBleDeviceData implements OnBleVersionListener {
 
     private static final int CID = ShareSocketConfig.SHARE_SOCKET;

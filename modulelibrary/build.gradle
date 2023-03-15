@@ -1,14 +1,14 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 30
-        versionCode 19
-        versionName "1.6.9"
+        targetSdkVersion 31
+        versionCode 20
+        versionName "1.7.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -51,7 +51,7 @@ makeJar.dependsOn(build)
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.9.9'
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.10.9'
     implementation 'com.github.elinkthings:AILinkSDKOtaLibraryAndroid:1.0.3'//OTA库
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')

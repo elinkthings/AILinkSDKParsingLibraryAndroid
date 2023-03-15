@@ -1,7 +1,5 @@
 package cn.net.aicare.modulelibrary.module.CoffeeScale;
 
-import android.util.Log;
-
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
@@ -9,12 +7,9 @@ import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
 import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
-import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-import cn.net.aicare.modulelibrary.module.CoffeeScale.CoffeeScaleConfig;
 
 public class CoffeeScaleData extends BaseBleDeviceData implements OnBleVersionListener {
 
