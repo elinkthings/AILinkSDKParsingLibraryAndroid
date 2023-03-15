@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 31
-        versionCode 23
-        versionName "1.7.1"
+        versionCode 25
+        versionName "1.7.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -22,8 +22,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility '1.8'
-        targetCompatibility '1.8'
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
     repositories {
         flatDir {
@@ -39,15 +39,6 @@ android {
 
 }
 
-def jarName="AiLinkBleParsingLibrary.jar"
-task makeJar(type: Jar) {
-    delete 'build/libs/'+jarName
-    from zipTree("build/intermediates/packaged-classes/release/classes.jar")
-    from fileTree(dir: 'src/main/java') //需要保留的资源文件,源码等
-    archiveName = jarName
-    destinationDir = file('build/libs')
-}
-makeJar.dependsOn(build)
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
