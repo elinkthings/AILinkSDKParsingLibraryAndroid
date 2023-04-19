@@ -1,5 +1,7 @@
-apply plugin: 'com.android.library'
-
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
 android {
     compileSdkVersion 31
 
@@ -8,7 +10,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 31
         versionCode 27
-        versionName "1.8.0"
+        versionName "1.8.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -22,8 +24,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
     repositories {
         flatDir {
@@ -42,12 +44,26 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.10.9'
-    implementation 'com.github.elinkthings:AILinkSDKOtaLibraryAndroid:1.0.3'//OTA库
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.11.5'
+    implementation 'com.github.elinkthings:AILinkSDKOtaLibraryAndroid:1.0.4'//OTA库
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')
     api files('libs/getmorefatdata.jar')
     api files('libs/bhBodyComposition120.jar')
 //    api (name: 'bhBodyComposition120', ext: 'aar')
 
+}
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.elinkthings'
+                artifactId = 'AILinkSDKParsingLibraryAndroid'
+                version = "1.8.1"
+            }
+        }
+    }
 }

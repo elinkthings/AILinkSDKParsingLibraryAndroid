@@ -1,5 +1,6 @@
 package cn.net.aicare.modulelibrary.module.airDetector;
 
+import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendDataBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 
@@ -19,7 +20,7 @@ public class AirSendUtil {
         byte[] bytes = new byte[2];
         bytes[0] = 0x01;
         bytes[1] = 0x00;
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -29,7 +30,7 @@ public class AirSendUtil {
         byte[] bytes = new byte[2];
         bytes[0] = 0x03;
         bytes[1] = 0x00;
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -39,7 +40,7 @@ public class AirSendUtil {
         byte[] bytes = new byte[2];
         bytes[0] = 0x05;
         bytes[1] = 0x01;
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -56,26 +57,6 @@ public class AirSendUtil {
     }
 
     /**
-     * 设置甲醛报警状态
-     *
-     * @param state 开关
-     * @param point 小数点
-     * @param value 值
-     * @return SendDataBean
-     */
-    public static SendDataBean setWarmHCHO(int state, int point, float value) {
-        byte[] bytes = new byte[3 + 5];
-        initSettingBytes(bytes);
-        bytes[3] = AirConst.AIR_TYPE_FORMALDEHYDE;
-        bytes[4] = 0x03;
-        int myValue = (int) Math.abs(value * Math.pow(10, point == -1 ? 0 : point));
-        bytes[5] = (byte) state;
-        bytes[6] = (byte) (myValue & 0xff);
-        bytes[7] = (byte) ((myValue & 0xff00) >> 8);
-        return setBytes(bytes);
-    }
-
-    /**
      * 设置温度报警状态
      *
      * @param point point
@@ -84,7 +65,7 @@ public class AirSendUtil {
      * @param minValue 下限
      * @return SendDataBean
      */
-    public static SendDataBean setWarmTemp(int point, int unit, float maxValue, float minValue) {
+    public static SendDataBean setWarmTemp(int point, int unit, float maxValue, float minValue, int switchStatus) {
         byte[] bytes = new byte[3 + 7];
         initSettingBytes(bytes);
         bytes[3] = AirConst.AIR_TYPE_TEMP;
@@ -103,6 +84,10 @@ public class AirSendUtil {
         if (unit == AirConst.UNIT_F) {
             myPoint = (byte) (myPoint | 0x10);
         }
+        // 报警开关
+        if (switchStatus == 1){
+            myPoint = (byte) (myPoint | 0x20);
+        }
         bytes[5] = myPoint;
         double pow = Math.pow(10, point == -1 ? 0 : point);
         // 报警下限值
@@ -113,7 +98,7 @@ public class AirSendUtil {
         int warmMax = (int) Math.abs(maxValue * pow);
         bytes[8] = (byte) (warmMax & 0xff);
         bytes[9] = (byte) ((warmMax & 0xff00) >> 8);
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -124,11 +109,11 @@ public class AirSendUtil {
      * @param minValue 下限
      * @return SendDataBean
      */
-    public static SendDataBean setWarmHumidity(int point, float maxValue, float minValue) {
-        byte[] bytes = new byte[3 + 6];
+    public static SendDataBean setWarmHumidity(int point, float maxValue, float minValue, int switchStatus) {
+        byte[] bytes = new byte[3 + 7];
         initSettingBytes(bytes);
         bytes[3] = AirConst.AIR_TYPE_HUMIDITY;
-        bytes[4] = 0x04;
+        bytes[4] = 0x05;
         double pow = Math.pow(10, point == -1 ? 0 : point);
         // 报警下限值
         int myMin = (int) Math.abs(minValue * pow);
@@ -138,7 +123,9 @@ public class AirSendUtil {
         int myMax = (int) Math.abs(maxValue * pow);
         bytes[7] = (byte) (myMax & 0xff);
         bytes[8] = (byte) ((myMax & 0xff00) >> 8);
-        return setBytes(bytes);
+        // 报警开关
+        bytes[9] = (byte) (switchStatus & 0x01);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -160,7 +147,7 @@ public class AirSendUtil {
         bytes[5] = (byte) (switchSate & 0x01);
         bytes[6] = (byte) (myValue & 0xff);
         bytes[7] = (byte) ((myValue & 0xff00) >> 8);
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -177,7 +164,7 @@ public class AirSendUtil {
         bytes[4] = 0x02;
         bytes[5] = (byte) (switchSate & 0x01);
         bytes[6] = (byte) value;
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -193,7 +180,23 @@ public class AirSendUtil {
         bytes[4] = 0x02;
         bytes[5] = (byte) (value & 0xff);
         bytes[6] = (byte) ((value & 0xff00) >> 8);
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
+    }
+
+    /**
+     * 设置 报警总开关状态（Bit0）
+     * 参数报警
+     *
+     * @param switchSate switchSate 0=关闭,1=打开
+     * @return SendDataBean
+     */
+    public static SendDataBean setMasterWarnSwitch(int switchSate) {
+        byte[] bytes = new byte[3 + 3];
+        initSettingBytes(bytes);
+        bytes[3] = AirConst.AIR_SETTING_WARM;
+        bytes[4] = 0x01;
+        bytes[5] = (byte) (switchSate & 0x01);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -210,7 +213,7 @@ public class AirSendUtil {
         bytes[3] = (byte) type;
         bytes[4] = 0x01;
         bytes[5] = (byte) ((switchSate & 0x01) << 7);
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -225,7 +228,7 @@ public class AirSendUtil {
         bytes[3] = AirConst.AIR_SETTING_SWITCH_TEMP_UNIT;
         bytes[4] = 0x01;
         bytes[5] = (byte) unit;
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -242,7 +245,21 @@ public class AirSendUtil {
         bytes[3] = (byte) type;
         bytes[4] = 0x01;
         bytes[5] = (byte) value;
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
+    }
+
+    /**
+     * 恢复出厂设置
+     *
+     * @return SendDataBean
+     */
+    public static SendDataBean setDeviceReset() {
+        byte[] bytes = new byte[3 + 3];
+        initSettingBytes(bytes);
+        bytes[3] = AirConst.AIR_RESTORE_FACTORY_SETTINGS;
+        bytes[4] = 0x01;
+        bytes[5] = 0x01;
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -262,7 +279,7 @@ public class AirSendUtil {
         bytes[3] = AirConst.AIR_SETTING_BIND_DEVICE;
         bytes[4] = 0x01;
         bytes[5] = (byte) mode;
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -280,7 +297,7 @@ public class AirSendUtil {
         int autoStatus = (auto & 0x01) << 7;
         int myValue = value & 0x7f;
         bytes[5] = (byte) (myValue | autoStatus);
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -311,7 +328,7 @@ public class AirSendUtil {
         int myOperate = (operate & 0x01) << 7;
         int myReset = (reset & 0x01) << 6;
         bytes[6] = (byte) (myOperate | myReset);
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
     /**
@@ -347,13 +364,29 @@ public class AirSendUtil {
         int day6 = (days[6] & 0x01) << 6;
         int day7 = (days[7] & 0x01) << 7;
         bytes[9] = (byte) (day7 | day6 | day5 | day4 | day3 | day2 | day1);
-        return setBytes(bytes);
+        return setA7Bytes(bytes);
     }
 
-    private static SendMcuBean setBytes(byte[] bytes) {
+    /**
+     * 检查 WiFi 状态
+     * @return
+     */
+    public static SendDataBean checkWiFiState() {
+        byte[] bytes = new byte[1];
+        bytes[0] = 0x26;
+        return setA6Bytes(bytes);
+    }
+
+    private static SendMcuBean setA7Bytes(byte[] bytes) {
         SendMcuBean sendMcuBean = new SendMcuBean();
         sendMcuBean.setHex(AirConst.DEVICE_CID, bytes);
         return sendMcuBean;
+    }
+
+    private static SendBleBean setA6Bytes(byte[] bytes) {
+        SendBleBean sendBleBean = new SendBleBean();
+        sendBleBean.setHex(bytes);
+        return sendBleBean;
     }
 
 }

@@ -2,6 +2,7 @@ package cn.net.aicare.modulelibrary.module.weightscale;
 
 import android.util.Log;
 
+import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
@@ -13,7 +14,7 @@ import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
 import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
-import java.util.Calendar;
+import java.util.List;
 
 /**
  * @auther ljl
@@ -41,6 +42,11 @@ public class WeightScaleDevice extends BaseBleDeviceData implements OnBleOtherDa
                     mOnWeightScaleDataListener.onVersion(version);
                 }
             }
+
+            @Override
+            public void onSupportUnit(List<SupportUnitBean> list) {
+                //支持的单位列表
+            }
         });
         bleDevice.setOnMcuParameterListener(new OnMcuParameterListener() {
             @Override
@@ -49,7 +55,9 @@ public class WeightScaleDevice extends BaseBleDeviceData implements OnBleOtherDa
                     mOnWeightScaleDataListener.onBattery(status, battery);
                 }
             }
+
         });
+
     }
 
     public static void init(BleDevice bleDevice) {
@@ -64,8 +72,6 @@ public class WeightScaleDevice extends BaseBleDeviceData implements OnBleOtherDa
     public interface OnWeightScaleDataListener {
 
         void onVersion(String version);
-
-        void onSyncTime(int quest);
 
         void onBattery(int status, int battery);
 
@@ -84,6 +90,8 @@ public class WeightScaleDevice extends BaseBleDeviceData implements OnBleOtherDa
         void onDataA6(String A6DataStr);
 
         void onDataA7(String A7DataStr);
+
+        void onSupportUnit(List<SupportUnitBean> list);
     }
 
     public void setOnWeightScaleDataListener(OnWeightScaleDataListener onWeightScaleDataListener) {
@@ -169,21 +177,21 @@ public class WeightScaleDevice extends BaseBleDeviceData implements OnBleOtherDa
         if (mOnWeightScaleDataListener != null) {
             mOnWeightScaleDataListener.onDataA6(BleStrUtils.byte2HexStr(hex));
         }
-        switch (hex[0]) {
-            case 0x38:
-                //请求APP同步时间
-                int quest = hex[1] & 0xff;
-                if (mOnWeightScaleDataListener != null) {
-                    mOnWeightScaleDataListener.onSyncTime(quest);
-                }
-                break;
-            case 0x2C:
-                //支持的单位 重量 0-不支持 1-支持
-                int weightStatus = hex[1] & 0xff;
-                break;
-            default:
-                break;
-        }
+//        switch (hex[0]) {
+//            case 0x38:
+//                //请求APP同步时间
+//                int quest = hex[1] & 0xff;
+//                if (mOnWeightScaleDataListener != null) {
+//                    mOnWeightScaleDataListener.onSyncTime(quest);
+//                }
+//                break;
+//            case 0x2C:
+//                //支持的单位 重量 0-不支持 1-支持
+//                int weightStatus = hex[1] & 0xff;
+//                break;
+//            default:
+//                break;
+//        }
     }
 
     /**
@@ -221,44 +229,19 @@ public class WeightScaleDevice extends BaseBleDeviceData implements OnBleOtherDa
      * APP查询单位 A6
      */
     public void queryUnit() {
-        byte[] bytes = new byte[2];
-        bytes[0] = 0x2C;
-        bytes[1] = 0x01;
-        sendCmdA6(bytes);
+        sendCmdA6(BleSendCmdUtil.getInstance().getSupportUnit());
     }
+
 
     /**
      * APP同步时间
      */
     public void appSyncTime() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int moth = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DATE);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
-        int week = calendar.get(Calendar.DAY_OF_WEEK);
-        if (calendar.getFirstDayOfWeek() == Calendar.SUNDAY) {
-            week = week - 1;
-            if (week == 0) {
-                week = 7;
-            }
-        }
-
-        byte[] bytes = new byte[8];
-        bytes[0] = 0x37;
-        bytes[1] = (byte) (year - 2000);
-        bytes[2] = (byte) moth;
-        bytes[3] = (byte) day;
-        bytes[4] = (byte) hour;
-        bytes[5] = (byte) minute;
-        bytes[6] = (byte) second;
-        bytes[7] = (byte) week;
-
+        byte[] bytes=BleSendCmdUtil.getInstance().setDeviceTime();
         Log.e("ljl", "同步时间: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA6(bytes);
     }
+
 
     /**
      * 获取电量

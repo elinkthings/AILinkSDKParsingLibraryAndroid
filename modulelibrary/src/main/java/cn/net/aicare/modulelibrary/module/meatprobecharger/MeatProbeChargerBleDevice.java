@@ -592,7 +592,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                              int ambientMinTemperature_F, int ambientMaxTemperature_C, int ambientMaxTemperature_F,
                              double alarmTemperaturePercent, long timeStart, long timeEnd, int currentUnit,
                              int alarmTemperature_C, int alarmTemperature_F) {
-        byte[] bytes = new byte[48];
+        byte[] bytes = new byte[136];
         bytes[0] = 0x03;
         //设置探针数据
         bytes[1] = 0x01;
@@ -707,7 +707,10 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
             bytes[46] = (byte) (alarmTempBytesF[0] | 80);
         }
         bytes[47] = alarmTempBytesF[1];
-
+        //剩余未用上字节全补0
+        for (int i = 48; i < bytes.length; i++) {
+            bytes[i] = 0x00;
+        }
         Log.e("ljl", "设置探针参数: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA7(bytes);
 //        SendMcuBean sendMcuBean = new SendMcuBean();

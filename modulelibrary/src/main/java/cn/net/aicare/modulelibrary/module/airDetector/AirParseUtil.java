@@ -28,7 +28,7 @@ public class AirParseUtil {
         List<BleAirTLVBean> list = new ArrayList<>();
         byte[] tlvBytesAll = new byte[bytes.length - 2];
         System.arraycopy(bytes, 2, tlvBytesAll, 0, tlvBytesAll.length);
-        BleLog.e(TAG, BleStrUtils.byte2HexStr(tlvBytesAll));
+        BleLog.i(TAG, BleStrUtils.byte2HexStr(tlvBytesAll));
         for (int i = 0; i < tlvBytesAll.length; i++) {
             byte type = tlvBytesAll[i];
             int newLength = tlvBytesAll[i + 1];
@@ -86,6 +86,8 @@ public class AirParseUtil {
                     supportBean.setPoint(pointTemp);
                     break;
                 case AirConst.AIR_SETTING_WARM:
+                    supportBean.setCurValue(bytes[0] & 0x03);
+                    break;
                 case AirConst.AIR_SETTING_DEVICE_ERROR:
                 case AirConst.AIR_SETTING_DEVICE_SELF_TEST:
                 case AirConst.AIR_RESTORE_FACTORY_SETTINGS:
@@ -148,10 +150,14 @@ public class AirParseUtil {
                 case AirConst.AIR_SETTING_SWITCH_TEMP_UNIT:
                     // 单位支持(byte[1] 预留)
                     supportBean.setCurValue(bytes[0] & 0x01);
+                    break;
+                case AirConst.AIR_PROTOCOL_VERSION:
+                    supportBean.setCurValue(bytes[0] & 0xff);
+                    break;
                 default:
                     break;
             }
-            supportList.append(type, supportBean);
+            supportList.put(type, supportBean);
         }
         return supportList;
     }
@@ -200,7 +206,8 @@ public class AirParseUtil {
                             (bytes[1] & 0x10) >> 4, (bytes[1] & 0x20) >> 5,
                             (bytes[1] & 0x40) >> 6, (bytes[1] & 0x80) >> 7,
                             bytes[2] & 0x01, (bytes[2] & 0x02) >> 1,
-                            (bytes[2] & 0x04) >> 2, (bytes[2] & 0x08) >> 3};
+                            (bytes[2] & 0x04) >> 2, (bytes[2] & 0x08) >> 3,
+                            (bytes[2] & 0x10) >> 4};
                     statusBean.setExtentObject(warm);
                     break;
                 case AirConst.AIR_SETTING_VOICE:
@@ -295,14 +302,18 @@ public class AirParseUtil {
                 case AirConst.AIR_TYPE_AQI:
                 case AirConst.AIR_TYPE_TVOC:
                 case AirConst.AIR_TYPE_CO:
-                        int switchWarm = bytes[0] & 0x01;
-                        int warm = (bytes[1] & 0xff) + ((bytes[2] & 0xff) << 8);
-                        statusBean.setWarmMax(warm);
-                        statusBean.setOpen(switchWarm == 1);
+                    int switchWarm = bytes[0] & 0x01;
+                    int warm = (bytes[1] & 0xff) + ((bytes[2] & 0xff) << 8);
+                    statusBean.setWarmMax(warm);
+                    statusBean.setOpen(switchWarm == 1);
                     break;
                 case AirConst.AIR_TYPE_HUMIDITY:
-                        statusBean.setWarmMax((bytes[2] & 0xff) + ((bytes[3] & 0xff) << 8));
-                        statusBean.setWarmMin((bytes[0] & 0xff) + ((bytes[1] & 0xff) << 8));
+                    statusBean.setWarmMax((bytes[2] & 0xff) + ((bytes[3] & 0xff) << 8));
+                    statusBean.setWarmMin((bytes[0] & 0xff) + ((bytes[1] & 0xff) << 8));
+                    // 开关
+                    if (bytes.length == 5) {
+                        statusBean.setOpen((bytes[4] & 0x01) == 1);
+                    }
                     break;
                 case AirConst.AIR_TYPE_TEMP:
                     int pointTemp = bytes[0] & 0x03;
@@ -312,14 +323,17 @@ public class AirParseUtil {
                     int signMax = (bytes[0] >> 3) & 0x01;
                     // 当前单位 0=℃. 1=℉.
                     int unit = (bytes[0] >> 4) & 0x01;
+                    // 开关
+                    int switchTemp = (bytes[0] >> 5) & 0x01;
                     float warmMin = (float) (((bytes[1] & 0xff) + ((bytes[2] & 0xff) << 8)) / Math.pow(10, pointTemp));
                     float warmMax = (float) (((bytes[3] & 0xff) + ((bytes[4] & 0xff) << 8)) / Math.pow(10, pointTemp));
                     warmMax = signMax == 0 ? warmMax : -warmMax;
                     warmMin = signMin == 0 ? warmMin : -warmMin;
                     statusBean.setWarmMax(warmMax);
                     statusBean.setWarmMin(warmMin);
-                    statusBean.setPoint(pointTemp);
                     statusBean.setUnit(unit);
+                    statusBean.setPoint(pointTemp);
+                    statusBean.setOpen(switchTemp == 1);
                     break;
                 case AirConst.AIR_SETTING_VOICE:
                     statusBean.setOpen((bytes[0] & 0x01) == 1);
@@ -327,6 +341,11 @@ public class AirParseUtil {
                     break;
                 case AirConst.AIR_SETTING_WARM_DURATION:
                     statusBean.setValue((bytes[0] & 0xff) + ((bytes[1] & 0xff) << 8));
+                    break;
+                case AirConst.AIR_SETTING_WARM:
+                    if (bytes.length == 1) {
+                        statusBean.setOpen((bytes[0] & 0x01) == 1);
+                    }
                     break;
                 case AirConst.AIR_SETTING_WARM_VOICE:
                 case AirConst.AIR_SETTING_DEVICE_SELF_TEST:

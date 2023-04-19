@@ -164,7 +164,7 @@ public class AICareWatchData extends BaseWatchData {
                 callbackHandLight(typeStatus, value);
                 break;
             case 0x0D:
-//                callbackSleep(typeStatus, value);
+                callbackSleep(typeStatus, value);
                 break;
             case 0x0E:
                 callbackHourSystem(typeStatus, value);
@@ -387,6 +387,31 @@ public class AICareWatchData extends BaseWatchData {
         }
     }
 
+    /**
+     * 解析系统时区
+     *
+     * @param hex 0x02
+     * @deprecated
+     */
+    private void callbackSystemTimeZone(byte[] hex) {
+        if (hex[2] == 0x00) {
+            int status = hex[3];
+            if (mOnCallbackList != null) {
+                for (OnCallback onCallback : mOnCallbackList) {
+                    onCallback.onCallbackSetSystemTimeZone(status);
+                }
+            }
+        } else {
+            int min15 = hex[3] ^= (1 << 7);// 有符号
+            long ms = min15 * 15 * 60 * 1000;
+            if (mOnCallbackList != null) {
+                for (OnCallback onCallback : mOnCallbackList) {
+                    onCallback.onCallbackSystemTimeZone(ms);
+                }
+            }
+        }
+
+    }
 
     /**
      * 解析电量
@@ -614,7 +639,25 @@ public class AICareWatchData extends BaseWatchData {
         }
     }
 
+    /**
+     * 解析睡眠
+     *
+     * @param hex 0x0D
+     * @deprecated
+     */
+    private void callbackSleep(int typeStatus, byte[] hex) {
+        int status = -1;
+        if (typeStatus == 0x00) {
+            status = hex[hex.length - 1];
+        }
 
+        int value = hex[0];
+        if (mOnCallbackList != null) {
+            for (OnCallback onCallback : mOnCallbackList) {
+                onCallback.onCallbackSleep(value);
+            }
+        }
+    }
 
     /**
      * 解析小时制
@@ -2403,7 +2446,13 @@ public class AICareWatchData extends BaseWatchData {
 
 
 
-
+        /**
+         * 睡眠辅助
+         * @param value
+         * @deprecated
+         */
+        default void onCallbackSleep(int value) {
+        }
 
 
         /**

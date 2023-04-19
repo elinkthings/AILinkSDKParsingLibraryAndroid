@@ -143,6 +143,10 @@ public class AirConst {
      * 数据显示模式
      */
     public static final int AIR_DATA_DISPLAY_MODE = 0x1F;
+    /**
+     * 协议版本
+     */
+    public static final int AIR_PROTOCOL_VERSION = 0x80;
 
     // ***********************************************************  //
 
