@@ -9,7 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 31
-        versionCode 27
+        versionCode 28
         versionName "1.8.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -45,7 +45,6 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.11.5'
-    implementation 'com.github.elinkthings:AILinkSDKOtaLibraryAndroid:1.0.4'//OTA库
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')
     api files('libs/getmorefatdata.jar')
