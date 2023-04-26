@@ -91,7 +91,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
     @Override
     public void onNotifyOtherData(String uuid, byte[] data) {
         byte one = data[0];
-        if (one== CmdConfig.SEND_MCU_START){
+        if (one == CmdConfig.SEND_MCU_START) {
             byte sum = 0;
             for (int i = 1; i < data.length - 2; i++) {
                 sum += data[i];
@@ -105,7 +105,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
                     int type = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
                     byte[] returnData = new byte[two];
                     System.arraycopy(data, startIndex, returnData, 0, two);
-                    onNotifyData(returnData,type);
+                    onNotifyData(returnData, type);
                 }
             }
         }
@@ -200,6 +200,17 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
                     bleToothBrushCallback.onBleSendCurGear(mode, gear, step, workTime, defaultTime);
                 }
                 break;
+
+
+            case ToothBrushBleCmd.GET_SECONDARY_CMD:
+                //二级指令
+                boolean support = (bytes[1] & 0xFF) == 0x01;
+                boolean status = (bytes[2] & 0xFF) == 0x01;
+                if (bleToothBrushCallback != null) {
+                    bleToothBrushCallback.onPreventSplash(support, status);
+                }
+                break;
+
             default:
                 break;
 
@@ -435,6 +446,18 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
 
 
         /**
+         * 设备返回防飞溅模式
+         *
+         * @param support 是否支持
+         *                true:支持
+         *                false:不支持
+         * @param status  状态
+         *                true:防飞溅已关闭
+         *                false:防飞溅已打开
+         */
+        void onPreventSplash(boolean support, boolean status);
+
+        /**
          * 蓝牙返回的数据
          * Data returned by Bluetooth
          *
@@ -593,6 +616,33 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
     }
 
     /**
+     * 获取防止飞溅模式
+     */
+    public void getPreventSplash() {
+        byte[] bytes = new byte[3];
+        bytes[0] = (byte) ToothBrushBleCmd.SET_SECONDARY_CMD;
+        bytes[1] = (byte) 0x00;
+        bytes[2] = (byte) 0x00;
+        sendA7(bytes);
+    }
+
+    /**
+     * 设置防止飞溅模式
+     *
+     * @param status 状态
+     *               true:打开防飞溅模式
+     *               false:关闭防飞溅模式
+     */
+    public void setPreventSplash(boolean status) {
+        byte[] bytes = new byte[3];
+        bytes[0] = (byte) ToothBrushBleCmd.SET_SECONDARY_CMD;
+        bytes[1] = (byte) 0x01;
+        bytes[2] = (byte) (status ? 0x01 : 0x00);
+        sendA7(bytes);
+    }
+
+
+    /**
      * APP 请求授权 Payload
      * Request authorization
      *
@@ -600,15 +650,15 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
      */
     public void requestToken(long toothbrushId) {
         //long 长度8 byte  时间搓是6个byte 所以去后面6位
-        byte[] timebyte = long2Bytes(toothbrushId);
+        byte[] timeByte = long2Bytes(toothbrushId);
         byte[] bytes = new byte[7];
         bytes[0] = ToothBrushBleCmd.REQUEST_TOKEN;
-        bytes[1] = timebyte[2];
-        bytes[2] = timebyte[3];
-        bytes[3] = timebyte[4];
-        bytes[4] = timebyte[5];
-        bytes[5] = timebyte[6];
-        bytes[6] = timebyte[7];
+        bytes[1] = timeByte[2];
+        bytes[2] = timeByte[3];
+        bytes[3] = timeByte[4];
+        bytes[4] = timeByte[5];
+        bytes[5] = timeByte[6];
+        bytes[6] = timeByte[7];
         sendA6(bytes);
 
     }

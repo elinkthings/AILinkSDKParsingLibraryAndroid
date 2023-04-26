@@ -24,7 +24,8 @@ public class ToothBrushBleCmd {
      * 牙刷请求专用指令
      */
     public final static int REQUEST_CODE = 0xC0;
-    //===================================A7
+
+    //===================================A7=================================
     /**
      * 设置默认刷牙时长和工作档位
      * Set the default brushing time and working gear
@@ -67,6 +68,7 @@ public class ToothBrushBleCmd {
      */
     public final static int GET_MANUAL_MODE = 0x0A;
 
+
     /**
      * APP 启动/关闭牙刷
      * APP turn on/off toothbrush
@@ -77,7 +79,7 @@ public class ToothBrushBleCmd {
      * APP 设置二级档位默认值
      * APP sets the default value of the second gear
      */
-    public final static int Set_Second_GEARS=0x0c;
+    public final static int Set_Second_GEARS=0x0C;
 
 
     /**
@@ -86,11 +88,21 @@ public class ToothBrushBleCmd {
      */
     public  final static int GET_SECOND_GEARS =0x0D;
 
+    /**
+     * APP 设置二级指令标记
+     * APP Secondary instruction mark
+     */
+    public final static byte SET_SECONDARY_CMD = 0x10;
+    /**
+     * 获取二级指令标记
+     */
+    public final static byte GET_SECONDARY_CMD = 0x11;
+
 
     /**
      * app 获取刷牙最终结果
      */
-    public final static int REPORT_CURRENT_GEARS_BLE=0xfc;
+    public final static int REPORT_CURRENT_GEARS_BLE=0xFC;
 
     /**
      * APP 下发数据上报完成
@@ -101,7 +113,7 @@ public class ToothBrushBleCmd {
      * app 获取刷牙最终结果
      * app gets the final result of brushing
      */
-    public final static int BRUSH_TEETH_TO_COMPLETE =0xfd;
+    public final static int BRUSH_TEETH_TO_COMPLETE =0xFD;
 
     /**
      *     0：没有授权
@@ -136,7 +148,7 @@ public class ToothBrushBleCmd {
     public final static int STATUS_FAIL = 0x01;
     public final static int STATUS_NOSUPORT = 0x02;
 
-//-----------历史记录
+//-----------历史记录================
 
 
     /**
