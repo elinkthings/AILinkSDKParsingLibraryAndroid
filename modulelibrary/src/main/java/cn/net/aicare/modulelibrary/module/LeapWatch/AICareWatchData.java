@@ -391,7 +391,7 @@ public class AICareWatchData extends BaseWatchData {
      * 解析系统时区
      *
      * @param hex 0x02
-     * @deprecated
+     * @Deprecated
      */
     private void callbackSystemTimeZone(byte[] hex) {
         if (hex[2] == 0x00) {
@@ -643,7 +643,7 @@ public class AICareWatchData extends BaseWatchData {
      * 解析睡眠
      *
      * @param hex 0x0D
-     * @deprecated
+     * @Deprecated
      */
     private void callbackSleep(int typeStatus, byte[] hex) {
         int status = -1;
@@ -2449,7 +2449,7 @@ public class AICareWatchData extends BaseWatchData {
         /**
          * 睡眠辅助
          * @param value
-         * @deprecated
+         * @Deprecated
          */
         default void onCallbackSleep(int value) {
         }
