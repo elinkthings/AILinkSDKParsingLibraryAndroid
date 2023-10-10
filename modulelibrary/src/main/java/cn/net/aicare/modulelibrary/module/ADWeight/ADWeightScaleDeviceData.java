@@ -291,8 +291,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
                 byte[] sendData;
                 if (i == groupSize) {
                     int a = userSize % 3;
-                    if (a == 0)
+                    if (a == 0) {
                         a = 3;
+                    }
                     sendData = new byte[a * 4 + 3];
                     System.arraycopy(data, dataIndex1, sendData, 3, (a * 4));
                     dataIndex1 += (a * 4);
@@ -325,8 +326,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
 
     //--------------数据接收-------
 
+
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (mType == type) {
             if (hex == null) {
                 BleLog.i(TAG, "接收到的数据:null");
@@ -337,7 +339,6 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
             //校验解析
             dataCheck(hex);
         }
-
     }
 
     @Override
@@ -356,8 +357,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
      * @param data Payload数据
      */
     private void dataCheck(byte[] data) {
-        if (data == null)
+        if (data == null) {
             return;
+        }
         switch (data[0]) {
             //稳定重量
             case ADWeightScaleBleConfig.GET_WEIGHT_STABLE:
@@ -451,6 +453,8 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
             case ADWeightScaleBleConfig.BLE_SYN_USER_HISTORY_RECORD:
                 getBleUserHistoryRecordResult(data);
                 break;
+
+            default:break;
         }
 
 
@@ -482,6 +486,8 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
                 BleLog.i(TAG, "结束发送历史记录");
                 break;
 
+            default:break;
+
         }
 
         runOnMainThread(() -> {
@@ -508,8 +514,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
         switch (cmdType) {
 
             case 0x01:
-                if (mADWeightScaleBodyFatDataRecord == null)
+                if (mADWeightScaleBodyFatDataRecord == null) {
                     mADWeightScaleBodyFatDataRecord = new ADWeightScaleBodyFatDataRecord();
+                }
 
                 int year = (data[3] & 0xff) + 2000;
                 int month = data[4] & 0xff;
@@ -541,8 +548,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
                 break;
 
             case 0x02:
-                if (mADWeightScaleBodyFatDataRecord == null)
+                if (mADWeightScaleBodyFatDataRecord == null) {
                     return;
+                }
 
                 int adc = ((data[3] & 0xff) << 8 | (data[4] & 0xff));
                 float bfr = ((data[5] & 0xff) << 8 | (data[6] & 0xff)) * 0.1F;
@@ -561,8 +569,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
 
                 break;
             case 0x03:
-                if (mADWeightScaleBodyFatDataRecord == null)
+                if (mADWeightScaleBodyFatDataRecord == null) {
                     return;
+                }
                 float bm = ((data[3] & 0xff) << 8 | (data[4] & 0xff)) * 0.1F;
                 float vwc = ((data[5] & 0xff) << 8 | (data[6] & 0xff)) * 0.1F;
                 float pp = ((data[7] & 0xff) << 8 | (data[8] & 0xff)) * 0.1F;
@@ -588,6 +597,8 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
                         }
                     }
                 });
+                break;
+            default:
                 break;
 
 
@@ -678,8 +689,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
             //第二部分数据
             case 2:
 
-                if (adWeightScaleBodyFatData == null)
+                if (adWeightScaleBodyFatData == null) {
                     return;
+                }
                 float bm = ((data[2] & 0xff) << 8 | (data[3] & 0xff)) * 0.1F;
                 float vwc = ((data[4] & 0xff) << 8 | (data[5] & 0xff)) * 0.1F;
                 float pp = ((data[6] & 0xff) << 8 | (data[7] & 0xff)) * 0.1F;
@@ -688,6 +700,8 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
                 adWeightScaleBodyFatData.setVwc(vwc);
                 adWeightScaleBodyFatData.setPp(pp);
                 adWeightScaleBodyFatData.setHr(hr);
+                break;
+            default:
                 break;
 
         }
@@ -730,6 +744,8 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
                 });
                 break;
 
+            default:break;
+
 
         }
 
@@ -763,6 +779,7 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
             case ADWeightScaleBleConfig.GET_IMPEDANCE_SUCCESS_APP:
                 BleLog.i(TAG, "测阻抗成功,使用app算法");
                 break;
+            default:break;
         }
 
         runOnMainThread(() -> {
@@ -828,6 +845,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
             case ADWeightScaleBleConfig.WEIGHT_LB_LB:
                 unitStr = "LB";
                 break;
+
+            default:
+                break;
         }
         runOnMainThread(() -> {
             if (mOnNotifyData != null) {
@@ -842,8 +862,9 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
      * 实时重量
      */
     private void getWeightNow(byte[] data) {
-        if (data.length < 4)
+        if (data.length < 4) {
             return;
+        }
         int weight = ((data[1] & 0xff) << 16) | ((data[2] & 0xff) << 8) | (data[3] & 0xff);
         int unit = BleStrUtils.getBits(data[4], 0, 4);
         int decimal = BleStrUtils.getBits(data[4], 4, 4);
@@ -870,6 +891,8 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
             case ADWeightScaleBleConfig.WEIGHT_LB_LB:
                 unitStr = "LB";
                 break;
+
+            default:break;
 
         }
         runOnMainThread(() -> {
@@ -1110,19 +1133,22 @@ public class ADWeightScaleDeviceData extends BaseBleDeviceData {
 
 
     //-----------------set/get-----------------
+
     public void setOnNotifyData(onNotifyData onNotifyData) {
         mOnNotifyData = onNotifyData;
     }
 
 
     public void setOnBleVersionListener(OnBleVersionListener bleVersionListener) {
-        if (mBleDevice != null)
+        if (mBleDevice != null) {
             mBleDevice.setOnBleVersionListener(bleVersionListener);
+        }
     }
 
     public void setOnMcuParameterListener(OnMcuParameterListener mcuParameterListener) {
-        if (mBleDevice != null)
+        if (mBleDevice != null) {
             mBleDevice.setOnMcuParameterListener(mcuParameterListener);
+        }
     }
 
     public void setOnCompanyListener(OnBleCompanyListener companyListener) {

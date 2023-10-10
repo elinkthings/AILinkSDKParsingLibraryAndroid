@@ -114,7 +114,7 @@ public class BLDBodyFatBleUtilsData extends BaseBleDeviceData {
 
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
 
         int cmd = hex[0] & 0xFF;
 

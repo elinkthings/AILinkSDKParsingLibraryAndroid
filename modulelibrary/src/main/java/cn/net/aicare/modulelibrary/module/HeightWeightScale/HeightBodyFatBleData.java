@@ -23,14 +23,16 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
             @Override
             public void onBmVersion(String version) {
                 //蓝牙版本号
-                if (mOnHeightBodyFatDataCallback != null)
+                if (mOnHeightBodyFatDataCallback != null) {
                     mOnHeightBodyFatDataCallback.onVersion(version);
+                }
             }
 
             @Override
             public void onSupportUnit(List<SupportUnitBean> list) {
-                if (mOnHeightBodyFatDataCallback != null)
+                if (mOnHeightBodyFatDataCallback != null) {
                     mOnHeightBodyFatDataCallback.onSupportUnitList(list);
+                }
             }
         });
 
@@ -42,7 +44,9 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
     }
 
     public void sendData(SendMcuBean sendMcuBean) {
-        if (mBleDevice != null) mBleDevice.sendData(sendMcuBean);
+        if (mBleDevice != null) {
+            mBleDevice.sendData(sendMcuBean);
+        }
     }
 
     public static void init(BleDevice bleDevice) {
@@ -58,7 +62,7 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
 
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (mOnHeightBodyFatDataCallback != null) {
             int cmd = hex[0] & 0xff;
             switch (cmd) {

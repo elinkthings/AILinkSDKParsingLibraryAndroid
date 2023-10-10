@@ -1,13 +1,13 @@
 package cn.net.aicare.modulelibrary.module.ailinkScooter;
 
+import static java.lang.System.arraycopy;
+
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.nio.charset.StandardCharsets;
-
-import static java.lang.System.arraycopy;
 
 public class AilinkScooterBleData extends BaseBleDeviceData {
     private static AilinkScooterBleData ailinkScooterBleData;
@@ -18,7 +18,7 @@ public class AilinkScooterBleData extends BaseBleDeviceData {
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         int cmd = hex[0] & 0xff;
         switch (cmd) {
             case 0x00:
@@ -158,6 +158,7 @@ public class AilinkScooterBleData extends BaseBleDeviceData {
 
         }
     }
+
 
     public static void init(BleDevice bleDevice) {
         ailinkScooterBleData = null;

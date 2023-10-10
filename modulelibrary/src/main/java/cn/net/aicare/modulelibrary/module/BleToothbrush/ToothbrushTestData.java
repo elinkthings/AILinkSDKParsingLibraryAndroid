@@ -18,7 +18,7 @@ public class ToothbrushTestData extends BaseBleDeviceData {
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         switch (hex[0] & 0xFF) {
             case 0x02:
                 mcuSetDefaultMode(hex);

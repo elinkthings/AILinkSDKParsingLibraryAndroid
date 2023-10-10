@@ -11,6 +11,7 @@ import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
 import com.pingwang.bluetoothlib.utils.BleDataUtils;
+import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.lang.ref.WeakReference;
@@ -112,148 +113,159 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
     }
 
     @Override
-    public void onNotifyData(byte[] bytes, int type) {
-        if (bleToothBrushCallback != null) {
-            bleToothBrushCallback.onShowData("蓝牙返回的A7: " + BleStrUtils.byte2HexStr(bytes));
-        }
-        switch (bytes[0]) {
-            case ToothBrushBleCmd.GET_TOOTHBRUSH_TIME_GEARS:
-                if (bytes.length >= 5) {
-                    int highTime = (bytes[1] & 0xff) << 8;
-                    int lowTime = bytes[2] & 0xff;
-                    int gears = bytes[3] & 0xff;
-                    int gearsfrom = bytes[4] & 0xff;
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onGetDefaultGearAndDuration(highTime + lowTime, gears, gearsfrom);
-                    }
-                }
-                break;
-            case ToothBrushBleCmd.SET_TOOTHBRUSH_TIME_GEARS:
-            case ToothBrushBleCmd.SET_MANUAL_MODE:
-                if (bytes.length >= 2) {
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onSetDefaultModeAndManualModeResult(bytes[0], bytes[1] & 0xff);
-                    }
-
-                }
-                break;
-            case ToothBrushBleCmd.GET_MANUAL_MODE:
-                if (bytes.length >= 7) {
-                    int hzH = (bytes[2] & 0xff) << 8;
-                    int hzl = bytes[3] & 0xff;
-                    int duty = bytes[4] & 0xff;
-                    int timeH = (bytes[5] & 0xff) << 8;
-                    int timeL = bytes[6] & 0xff;
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onGetManualParameter(timeH + timeL, hzH + hzl, duty);
-                    }
-                }
-                break;
-            case (byte) ToothBrushBleCmd.REPORT_CURRENT_GEARS: {
-                int mode = bytes[1] & 0xff;
-                int gear = bytes[2] & 0xff;
-                int step = bytes[3] & 0xff;
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onMcuSendCurGear(mode, gear, step);
-                }
+    public void onNotifyData(String uuid, byte[] bytes, int type) {
+        try {
+            if (bleToothBrushCallback != null) {
+                bleToothBrushCallback.onShowData("蓝牙返回的A7: " + BleStrUtils.byte2HexStr(bytes));
             }
-            break;
-            case (byte) ToothBrushBleCmd.BRUSH_TEETH_TO_COMPLETE:
-                if (bytes.length >= 9) {
+            switch (bytes[0]) {
+                case ToothBrushBleCmd.GET_TOOTHBRUSH_TIME_GEARS:
+                    if (bytes.length >= 5) {
+                        int highTime = (bytes[1] & 0xff) << 8;
+                        int lowTime = bytes[2] & 0xff;
+                        int gears = bytes[3] & 0xff;
+                        int gearsfrom = bytes[4] & 0xff;
+                        if (bleToothBrushCallback != null) {
+                            bleToothBrushCallback.onGetDefaultGearAndDuration(highTime + lowTime, gears, gearsfrom);
+                        }
+                    }
+                    break;
+                case ToothBrushBleCmd.SET_TOOTHBRUSH_TIME_GEARS:
+                case ToothBrushBleCmd.SET_MANUAL_MODE:
+                    if (bytes.length >= 2) {
+                        if (bleToothBrushCallback != null) {
+                            bleToothBrushCallback.onSetDefaultModeAndManualModeResult(bytes[0], bytes[1] & 0xff);
+                        }
+
+                    }
+                    break;
+                case ToothBrushBleCmd.GET_MANUAL_MODE:
+                    if (bytes.length >= 7) {
+                        int hzH = (bytes[2] & 0xff) << 8;
+                        int hzl = bytes[3] & 0xff;
+                        int duty = bytes[4] & 0xff;
+                        int timeH = (bytes[5] & 0xff) << 8;
+                        int timeL = bytes[6] & 0xff;
+                        if (bleToothBrushCallback != null) {
+                            bleToothBrushCallback.onGetManualParameter(timeH + timeL, hzH + hzl, duty);
+                        }
+                    }
+                    break;
+                case (byte) ToothBrushBleCmd.REPORT_CURRENT_GEARS: {
                     int mode = bytes[1] & 0xff;
-                    int timeH = (bytes[2] & 0xff) << 8;
-                    int timeL = bytes[3] & 0xff;
-                    int lTimeH = (bytes[4] & 0xff) << 8;
-                    int lTimeL = bytes[5] & 0xff;
-                    int rTimeH = (bytes[6] & 0xff) << 8;
-                    int rTimeL = bytes[7] & 0xff;
-                    int battery = bytes[8] & 0xff;
+                    int gear = bytes[2] & 0xff;
+                    int step = bytes[3] & 0xff;
                     if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onTestFinish(timeH + timeL, lTimeH + lTimeL, rTimeH + rTimeL, mode, battery);
-                    }
-                }
-
-                break;
-            case ToothBrushBleCmd.THE_TRIAL_ORDER:
-                //试用指令
-                if (bytes.length >= 2) {
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onTryOutResult(bytes[1] & 0xff);
+                        bleToothBrushCallback.onMcuSendCurGear(mode, gear, step);
                     }
                 }
                 break;
-            case ToothBrushBleCmd.GET_SECOND_GEARS:
-                if (bytes.length >= 2) {
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onTwoLevelModeDefault(bytes[1] & 0xff);
+                case (byte) ToothBrushBleCmd.BRUSH_TEETH_TO_COMPLETE:
+                    if (bytes.length >= 9) {
+                        int mode = bytes[1] & 0xff;
+                        int timeH = (bytes[2] & 0xff) << 8;
+                        int timeL = bytes[3] & 0xff;
+                        int lTimeH = (bytes[4] & 0xff) << 8;
+                        int lTimeL = bytes[5] & 0xff;
+                        int rTimeH = (bytes[6] & 0xff) << 8;
+                        int rTimeL = bytes[7] & 0xff;
+                        int battery = bytes[8] & 0xff;
+                        if (bleToothBrushCallback != null) {
+                            bleToothBrushCallback.onTestFinish(timeH + timeL, lTimeH + lTimeL, rTimeH + rTimeL, mode, battery);
+                        }
                     }
-                }
 
-            case (byte) ToothBrushBleCmd.REPORT_CURRENT_GEARS_BLE:
-                int mode = bytes[1] & 0xff;
-                int gear = bytes[2] & 0xff;
-                int step = bytes[3] & 0xff;
-                int workTime = (bytes[5] & 0xff) + ((bytes[4] & 0xff) << 8);
-                int defaultTime = (bytes[7] & 0xff) + ((bytes[6] & 0xff) << 8);
+                    break;
+                case ToothBrushBleCmd.THE_TRIAL_ORDER:
+                    //试用指令
+                    if (bytes.length >= 2) {
+                        if (bleToothBrushCallback != null) {
+                            bleToothBrushCallback.onTryOutResult(bytes[1] & 0xff);
+                        }
+                    }
+                    break;
+                case ToothBrushBleCmd.GET_SECOND_GEARS:
+                    if (bytes.length >= 2) {
+                        if (bleToothBrushCallback != null) {
+                            bleToothBrushCallback.onTwoLevelModeDefault(bytes[1] & 0xff);
+                        }
+                    }
+                    break;
 
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onBleSendCurGear(mode, gear, step, workTime, defaultTime);
-                }
-                break;
+                case (byte) ToothBrushBleCmd.REPORT_CURRENT_GEARS_BLE:
+                    int mode = bytes[1] & 0xff;
+                    int gear = bytes[2] & 0xff;
+                    int step = bytes[3] & 0xff;
+                    int workTime = (bytes[5] & 0xff) + ((bytes[4] & 0xff) << 8);
+                    int defaultTime = (bytes[7] & 0xff) + ((bytes[6] & 0xff) << 8);
+
+                    if (bleToothBrushCallback != null) {
+                        bleToothBrushCallback.onBleSendCurGear(mode, gear, step, workTime, defaultTime);
+                    }
+                    break;
 
 
-            case ToothBrushBleCmd.GET_SECONDARY_CMD:
-                //二级指令
-                boolean support = (bytes[1] & 0xFF) == 0x01;
-                boolean status = (bytes[2] & 0xFF) == 0x01;
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onPreventSplash(support, status);
-                }
-                break;
+                case ToothBrushBleCmd.GET_SECONDARY_CMD:
+                    //二级指令
+                    boolean support = (bytes[1] & 0xFF) == 0x01;
+                    boolean status = (bytes[2] & 0xFF) == 0x01;
+                    if (bleToothBrushCallback != null) {
+                        bleToothBrushCallback.onPreventSplash(support, status);
+                    }
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
 
+            }
+        } catch (Exception e) {
+            BleLog.e("指令解析异常:"+e.toString()+"  "+BleStrUtils.byte2HexStr(bytes));
+            e.printStackTrace();
         }
     }
 
 
     @Override
     public void onNotifyDataA6(byte[] hex) {
-        if (bleToothBrushCallback != null) {
-            bleToothBrushCallback.onShowData("蓝牙返回的A6: " + BleStrUtils.byte2HexStr(hex));
-        }
-        switch (hex[0]) {
-            case (byte) ToothBrushBleCmd.GET_TOOTHBRUSH_GEARS:
-                disposeSupportGears(hex);
-                break;
-            case ToothBrushBleCmd.REQUEST_TOKEN:
-                int result = hex[1] & 0xff;
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onGetTokenResult(result);
-                }
-                break;
-            //牙刷请求专用指令
-            case (byte) ToothBrushBleCmd.REQUEST_CODE:
-                if (hex[1] == ToothBrushBleCmd.REQUEST_OFFLINE_HISTORY_NUM) {
-                    // MCU回复历史记录条数
-                    mcuCallbackOfflineHistoryNum(hex);
-                } else if (hex[1] == ToothBrushBleCmd.MCU_SEND_OFFLINE_HISTORY) {
-                    // MCU发送离线历史记录
-                    //历史记录每次只会返回一条,需要APP主动请求下一条
-                    mcuSendOfflineHistory(hex);
-                } else if (hex[1] == ToothBrushBleCmd.MCU_SEND_OFFLINE_HISTORY_STATE) {
-                    int state = hex[2] & 0xff;
-                    if (state == 0x00 || state == 0x01) {
-                        appRequestClearOfflineHistory();
+        try {
+            if (bleToothBrushCallback != null) {
+                bleToothBrushCallback.onShowData("蓝牙返回的A6: " + BleStrUtils.byte2HexStr(hex));
+            }
+            switch (hex[0]) {
+                case (byte) ToothBrushBleCmd.GET_TOOTHBRUSH_GEARS:
+                    disposeSupportGears(hex);
+                    break;
+                case ToothBrushBleCmd.REQUEST_TOKEN:
+                    int result = hex[1] & 0xff;
+                    if (bleToothBrushCallback != null) {
+                        bleToothBrushCallback.onGetTokenResult(result);
                     }
-                }
-                break;
+                    break;
+                //牙刷请求专用指令
+                case (byte) ToothBrushBleCmd.REQUEST_CODE:
+                    if (hex[1] == ToothBrushBleCmd.REQUEST_OFFLINE_HISTORY_NUM) {
+                        // MCU回复历史记录条数
+                        mcuCallbackOfflineHistoryNum(hex);
+                    } else if (hex[1] == ToothBrushBleCmd.MCU_SEND_OFFLINE_HISTORY) {
+                        // MCU发送离线历史记录
+                        //历史记录每次只会返回一条,需要APP主动请求下一条
+                        mcuSendOfflineHistory(hex);
+                    } else if (hex[1] == ToothBrushBleCmd.MCU_SEND_OFFLINE_HISTORY_STATE) {
+                        int state = hex[2] & 0xff;
+                        if (state == 0x00 || state == 0x01) {
+                            appRequestClearOfflineHistory();
+                        }
+                    }
+                    break;
 
-            default:
+                default:
 
-                break;
+                    break;
 
+            }
+        } catch (Exception e) {
+            BleLog.e("指令解析异常:"+e.toString()+"  "+BleStrUtils.byte2HexStr(hex));
+            e.printStackTrace();
         }
     }
 
@@ -294,7 +306,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          *
          * @param Version 版本号
          */
-        void onVersion(String Version);
+       default void onVersion(String Version){}
 
         /**
          * 牙刷支持的档位
@@ -303,7 +315,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param staif       一级档位 First gear
          * @param secondLevel 二级档位 Second gear
          */
-        void onGetSupportGears(List<Integer> staif, List<Integer> secondLevel);
+        default  void onGetSupportGears(List<Integer> staif, List<Integer> secondLevel){}
 
         /**
          * 获取电量
@@ -316,7 +328,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          *                        0x03：充电异常 0x03: abnormal charging
          * @param batteryQuantity 电池电量百分比 （0—100） Battery power percentage (0-100)
          */
-        void onGetBattery(int batteryStatus, int batteryQuantity);
+        default void onGetBattery(int batteryStatus, int batteryQuantity){}
 
         /**
          * 获得到默认的刷牙档位和时长
@@ -326,7 +338,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param gear     刷牙档位  Brushing gear
          * @param gearFrom 刷牙档位级别  Brushing gear level
          */
-        void onGetDefaultGearAndDuration(int time, int gear, int gearFrom);
+        default   void onGetDefaultGearAndDuration(int time, int gear, int gearFrom){}
 
         /**
          * 请求授权的回调
@@ -334,7 +346,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          *
          * @param result 0：没有 1：已经授权 2：不需要授权 3：授权成功 {@link ToothBrushBleCmd#NO_TOKEN}
          */
-        void onGetTokenResult(int result);
+        default   void onGetTokenResult(int result){}
 
         /**
          * 获取手动档位的参数
@@ -344,7 +356,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param hz   频率  frequency
          * @param duty 占空比 Duty cycle
          */
-        void onGetManualParameter(int time, int hz, int duty);
+        default  void onGetManualParameter(int time, int hz, int duty){}
 
 
         /**
@@ -360,7 +372,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param step 工作阶段 1-4，不支持填 0xFF（阶段切换时，牙刷需停止工作
          *             1s，以提示用户切换刷牙方向）
          */
-        void onMcuSendCurGear(int mode, int gear, int step);
+        default  void onMcuSendCurGear(int mode, int gear, int step){}
 
         /**
          * 设置默认档位和手动模式结果回调
@@ -368,7 +380,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param type   类型 {@link ToothBrushBleCmd#SET_TOOTHBRUSH_TIME_GEARS} And {@link ToothBrushBleCmd#SET_MANUAL_MODE}
          * @param result 0：设置成功 1：设置失败 2：不支持设置
          */
-        void onSetDefaultModeAndManualModeResult(byte type, int result);
+        default void onSetDefaultModeAndManualModeResult(byte type, int result){}
 
         /**
          * 刷牙完成
@@ -380,7 +392,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param mode      刷牙模式 Brushing mode
          * @param battery   电量 Power
          */
-        void onTestFinish(int totalTime, int leftTime, int rightTime, int mode, int battery);
+        default void onTestFinish(int totalTime, int leftTime, int rightTime, int mode, int battery){}
 
         /**
          * 试用回调
@@ -390,7 +402,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          *               1：设置失败，原因未知  1: Setting fails, the reason is unknown
          *               2：不支持设置   2: Setting is not supported
          */
-        void onTryOutResult(int result);
+        default  void onTryOutResult(int result){}
 
         /**
          * 获取二级档位默认值
@@ -400,7 +412,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          *             0x01-0xfe：工作档位编号 0x01-0xfe: working gear number
          *             0xFF：手动设置档位 0xFF: manual setting of gear
          */
-        void onTwoLevelModeDefault(int mode);
+        default void onTwoLevelModeDefault(int mode){}
 
 
         /**
@@ -419,7 +431,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param workTime    已工作时长(单位S)
          * @param defaultTime 默认工作时长（单位 s）
          */
-        void onBleSendCurGear(int mode, int gear, int step, int workTime, int defaultTime);
+        default void onBleSendCurGear(int mode, int gear, int step, int workTime, int defaultTime){}
 
 
         /**
@@ -428,7 +440,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param result 结果
          * @param num    数量
          */
-        void onMcuCallbackOfflineHistoryNum(int result, int num);
+        default  void onMcuCallbackOfflineHistoryNum(int result, int num){}
 
 
         /**
@@ -442,7 +454,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          * @param battery     电池
          * @param defaultTime 默认时间 S
          */
-        void onMcuSendOfflineHistory(long createTime, int totalTime, int leftTime, int rightTime, int mode, int battery, int defaultTime);
+        default void onMcuSendOfflineHistory(long createTime, int totalTime, int leftTime, int rightTime, int mode, int battery, int defaultTime){}
 
 
         /**
@@ -455,7 +467,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          *                true:防飞溅已关闭
          *                false:防飞溅已打开
          */
-        void onPreventSplash(boolean support, boolean status);
+        default   void onPreventSplash(boolean support, boolean status){}
 
         /**
          * 蓝牙返回的数据
@@ -463,7 +475,7 @@ public class ToothBrushBleUtilsData extends BaseBleDeviceData implements OnBleOt
          *
          * @param data
          */
-        void onShowData(String data);
+        default   void onShowData(String data){}
 
 
     }

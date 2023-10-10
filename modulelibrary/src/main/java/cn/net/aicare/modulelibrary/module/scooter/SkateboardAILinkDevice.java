@@ -1,5 +1,7 @@
 package cn.net.aicare.modulelibrary.module.scooter;
 
+import static java.lang.System.arraycopy;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -12,8 +14,6 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-
-import static java.lang.System.arraycopy;
 
 
 /**
@@ -293,7 +293,7 @@ public class SkateboardAILinkDevice extends BaseBleDeviceData implements OnBleOt
     //----------
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (hex == null) {
             return;
         } else {

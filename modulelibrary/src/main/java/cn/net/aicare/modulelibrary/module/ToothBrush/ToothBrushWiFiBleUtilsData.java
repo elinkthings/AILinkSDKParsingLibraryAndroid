@@ -129,7 +129,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
     }
 
     @Override
-    public void onNotifyData(byte[] bytes, int type) {
+    public void onNotifyData(String uuid, byte[] bytes, int type) {
 
         if (bleToothBrushCallback != null) {
             bleToothBrushCallback.onShowData("蓝牙返回的A7: " + BleStrUtils.byte2HexStr(bytes));
@@ -600,7 +600,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
      * @param mac
      * @return
      */
-    public void setWifimac(String mac) {
+    public void setWifiMac(String mac) {
         byte[] bytes = new byte[7];
         bytes[0] = (byte) 0x84;
         String[] s = mac.split(":");

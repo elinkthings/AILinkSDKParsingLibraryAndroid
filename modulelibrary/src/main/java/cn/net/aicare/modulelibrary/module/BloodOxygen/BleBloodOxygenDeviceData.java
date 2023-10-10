@@ -41,7 +41,7 @@ public class BleBloodOxygenDeviceData extends BaseBleDeviceData implements OnBle
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (mDataCallback != null)
             mDataCallback.onData(hex, 0);
         int cmd = hex[0] & 0xff;

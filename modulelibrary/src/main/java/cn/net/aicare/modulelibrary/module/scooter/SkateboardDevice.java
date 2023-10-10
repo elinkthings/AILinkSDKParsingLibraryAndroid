@@ -1103,7 +1103,7 @@ public class SkateboardDevice extends BaseBleDeviceData implements OnBleOtherDat
     //----------
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (hex == null) {
             BleLog.i(TAG, "接收到的数据:null");
             return;

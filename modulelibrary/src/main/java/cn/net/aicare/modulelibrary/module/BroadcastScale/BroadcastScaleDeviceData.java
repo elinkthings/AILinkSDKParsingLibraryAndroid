@@ -59,7 +59,7 @@ public class BroadcastScaleDeviceData {
      * @param vid              vid
      * @param pid              pid
      */
-    public void onNotifyData(byte[] manufacturerData, int cid, int vid, int pid) {
+    public void onNotifyData(String uuid, byte[] manufacturerData, int cid, int vid, int pid) {
         if (mType == cid|| BroadcastScaleBleConfig.BROADCAST_SCALE_LING_YANG_CID==cid) {
             if (manufacturerData == null) {
                 BleLog.i(TAG, "接收到的数据:null");

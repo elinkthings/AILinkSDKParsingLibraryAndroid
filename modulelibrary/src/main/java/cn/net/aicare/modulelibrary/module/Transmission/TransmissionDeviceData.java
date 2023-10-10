@@ -68,7 +68,7 @@ public class TransmissionDeviceData extends BaseBleDeviceData {
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
 
         if (mMyBleCallback!=null){
             mMyBleCallback.showData(BleStrUtils.byte2HexStr(hex),type);

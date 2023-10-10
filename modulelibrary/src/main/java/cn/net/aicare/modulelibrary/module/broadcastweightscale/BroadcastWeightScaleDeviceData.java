@@ -2,11 +2,9 @@ package cn.net.aicare.modulelibrary.module.broadcastweightscale;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
-import com.pinwang.ailinkble.AiLinkPwdUtil;
 
 /**
  * @auther ljl
@@ -46,47 +44,28 @@ public class BroadcastWeightScaleDeviceData {
     //-------------------接收-----------------
 
     /**
-     * @param manufacturerData 自定义厂商数据0xFF后面的数据
-     * @param cid              cid 设备类型
-     * @param vid              vid
-     * @param pid              pid
+     * @param payload payload数据
+     * @param cid     cid 设备类型
+     * @param vid     vid
+     * @param pid     pid
      */
-    public void onNotifyData(byte[] manufacturerData, int cid, int vid, int pid) {
-        Log.e("ljl", "onNotifyData: " + manufacturerData.length);
+    public void onNotifyData(byte[] manufacturerData, byte[] payload, int cid, int vid, int pid) {
         if (mType == cid) {
-            if (manufacturerData == null) {
+            if (payload == null) {
                 BleLog.i("ljl", "接收到的数据:null");
                 return;
             }
-            if (manufacturerData.length >= 20) {
-                byte sum = manufacturerData[9];
-                byte[] data = new byte[10];
-                System.arraycopy(manufacturerData, 10, data, 0, data.length);
-                byte newSum = cmdSum(data);
-                if (newSum == sum) {
-                    BleLog.i("ljl", "接收到的数据:原始数据:" + BleStrUtils.byte2HexStr(data));
-                    byte[] bytes;
-                    byte[] dataOriginal = data.clone();
-                    if (cid != 0 || vid != 0 || pid != 0) {
-                        //数据需要解密
-                        bytes = AiLinkPwdUtil.decryptBroadcast(cid, vid, pid, data);
-                    } else {
-                        bytes = data;
+
+            if (payload.length > 1) {
+                int numberId = payload[0] & 0xff;//数据ID
+                runOnMainThread(() -> {
+                    if (mOnNotifyData != null) {
+                        mOnNotifyData.onData(manufacturerData, payload, numberId);
                     }
-                    BleLog.i("ljl", "接收到的数据:" + BleStrUtils.byte2HexStr(bytes));
-                    if (bytes.length > 1) {
-                        int numberId = bytes[0] & 0xff;//数据ID
-                        runOnMainThread(() -> {
-                            if (mOnNotifyData != null) {
-                                mOnNotifyData.onData(dataOriginal, bytes, numberId);
-                            }
-                        });
-                    }
-                    dataCheck(bytes, cid, vid, pid);
-                } else {
-                    BleLog.i("ljl", "校验和错误");
-                }
+                });
             }
+            dataCheck(payload, cid, vid, pid);
+
         }
     }
 
@@ -182,8 +161,8 @@ public class BroadcastWeightScaleDeviceData {
          * 不能识别的透传数据
          * Unrecognized pass-through data
          *
-         * @param dataOriginal 原始数据
-         * @param data         解密后的数据
+         * @param dataOriginal 原始自定义厂商数据
+         * @param data         解密后的payload数据
          * @param type         数据ID
          */
         default void onData(byte[] dataOriginal, byte[] data, int type) {

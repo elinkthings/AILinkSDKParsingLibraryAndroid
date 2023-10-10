@@ -66,10 +66,7 @@ public class NoiseMeterWifiBleDevice extends BaseBleDeviceData implements OnBleO
         return sNoiseMeter;
     }
 
-    @Override
-    public void onNotifyData(byte[] hex, int type) {
 
-    }
 
     @Override
     public void onNotifyOtherData(String uuid, byte[] hex) {

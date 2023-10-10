@@ -568,7 +568,7 @@ public class BodyFatDataUtil {
      */
     public SendBleBean updataPresentUser(User users) {
         byte[] bytes = new byte[9];
-        bytes[0] = 0x2b;
+        bytes[0] = 0x2B;
         bytes[1] = 0x03;
         int mode = users.getModeType();
 

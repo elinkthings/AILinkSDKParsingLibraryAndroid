@@ -4,7 +4,7 @@ import com.pingwang.bluetoothlib.device.SendMcuBean;
 
 public class HeightBodyFatBleUntils {
 
-    public final static int DeviceType=0x26;
+    public final static int DEVICE_TYPE =0x0026;
     public final static int MODE_HEiGHT_BODY_FAT=0x01;
     public final static int MODE_BABY=0x02;
     public final static int MODE_WEIGHT=0x03;
@@ -78,6 +78,7 @@ public class HeightBodyFatBleUntils {
      */
     public final static int MCU_WORK_STATUS_RESULT=0x0C;
     /**
+     * 单片机体重身体脂肪结果
      * MCU 上报身高称重状态
      */
     public final static int MCU_WEIGHT_STATUS_BODY_FAT_RESULT=0x10;
@@ -234,7 +235,7 @@ public class HeightBodyFatBleUntils {
 
     private static SendMcuBean getSendMcuBean(byte[] bytes){
         SendMcuBean sendMcuBean=new SendMcuBean();
-        sendMcuBean.setHex(DeviceType, bytes);
+        sendMcuBean.setHex(DEVICE_TYPE, bytes);
         return sendMcuBean;
     }
 

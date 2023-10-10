@@ -10,7 +10,7 @@ import java.util.Locale;
  */
 public class WeightScaleUtil {
 
-    public static float valueToNum(String value, int point) {
+    public static String valueToNum(String value, int point) {
         DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.US);
         String pattern = "0.0";
         float myNum = Float.parseFloat(value);
@@ -33,6 +33,6 @@ public class WeightScaleUtil {
             pattern = pattern + ".000";
         }
         decimalFormat.applyPattern(pattern);
-        return Float.parseFloat(decimalFormat.format(myNum));
+        return decimalFormat.format(myNum);
     }
 }

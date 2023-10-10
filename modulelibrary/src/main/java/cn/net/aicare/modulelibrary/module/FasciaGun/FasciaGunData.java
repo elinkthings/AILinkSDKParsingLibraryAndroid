@@ -16,7 +16,7 @@ public class FasciaGunData extends BaseBleDeviceData {
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (type == CID) {
             switch (hex[0] & 0xFF) {
                 case 0x04:

@@ -82,7 +82,7 @@ public class SphyDeviceData extends BaseBleDeviceData {
 
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (mType == type) {
             BleLog.i(TAG, "接收到的原始数据:" + Arrays.toString(hex));
             String data = BleStrUtils.byte2HexStr(hex);

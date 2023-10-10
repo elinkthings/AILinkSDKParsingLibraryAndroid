@@ -427,7 +427,7 @@ public class TempInstrumentDeviceData extends BaseBleDeviceData implements OnBle
     //----------------------接收
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (mType == type) {
             String data = BleStrUtils.byte2HexStr(hex);
             BleLog.i(TAG, "接收到的数据:0x[" + data + "]");

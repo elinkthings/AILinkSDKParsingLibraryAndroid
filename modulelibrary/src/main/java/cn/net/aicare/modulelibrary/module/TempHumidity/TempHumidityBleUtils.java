@@ -17,18 +17,24 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
     private static TempHumidityBleUtils mTempHumidityBleUtils;
     private BleDataCallBack bleDataCallBack;
 
+    @Override
+    public void onHandshake(boolean status) {
+        super.onHandshake(status);
+        BleLog.i("握手状态:" + status);
+    }
 
     private TempHumidityBleUtils(BleDevice bleDevice) {
         super(bleDevice);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             bleDevice.setConnectPriority(BluetoothGatt.CONNECTION_PRIORITY_HIGH);
+            bleDevice.setMtu(512);
         }
 
     }
 
 
     @Override
-    public void onNotifyData(byte[] bytes, int type) {
+    public void onNotifyData(String uuid, byte[] bytes, int type) {
         BleLog.e("接收到的数据" + BleStrUtils.byte2HexStr(bytes));
         int status = bytes[0] & 0xff;
         switch (status) {
@@ -49,9 +55,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
                 int humidityH = (bytes[9] & 0xff) << 8;
                 int humidityL = (bytes[8] & 0xff);
                 if (bleDataCallBack != null) {
-                    bleDataCallBack.onDeviceStatus(battery, startUp1 + startUp2 + startUp3 + startUp4,
-                            Float.parseFloat(String.format(Locale.US, "%.1f", tempFloat)),
-                            Float.parseFloat(String.format(Locale.US, "%.1f", (humidityH + humidityL) / 10f)));
+                    bleDataCallBack.onDeviceStatus(battery, startUp1 + startUp2 + startUp3 + startUp4, Float.parseFloat(String.format(Locale.US, "%.1f", tempFloat)), Float.parseFloat(String.format(Locale.US, "%.1f", (humidityH + humidityL) / 10f)));
                 }
                 break;
 
@@ -100,7 +104,8 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
             int humidityH = (historyByte[7 + i * 8] & 0xff) << 8;
             int humidityL = (historyByte[6 + i * 8] & 0xff);
             float tempFloat = (tempH + tempL) / 10f;
-            if (symbol == 1) tempFloat = 0 - tempFloat;
+            if (symbol == 1)
+                tempFloat = 0 - tempFloat;
             float tempValue = Float.parseFloat(String.format(Locale.US, "%.1f", tempFloat));
             float humidityValue = Float.parseFloat(String.format(Locale.US, "%.1f", (humidityH + humidityL) / 10f));
             if (bleDataCallBack != null) {
@@ -139,14 +144,14 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
     }
 
     //03 00 00 00
-//    0701010A
+    //    0701010A
     public void sendSlowData() {
         SendMcuBean sendBleBean = new SendMcuBean();
         byte[] bytes = new byte[4];
-//        bytes[0] = 0x03;
-//        bytes[1] = 0x03;
-//        bytes[2] = 0x1E;
-//        bytes[3] = 0x00;
+        //        bytes[0] = 0x03;
+        //        bytes[1] = 0x03;
+        //        bytes[2] = 0x1E;
+        //        bytes[3] = 0x00;
         bytes[0] = 0x03;
         bytes[1] = 0x03;
         bytes[2] = 0x14;
@@ -155,10 +160,10 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         sendData(sendBleBean);
         SendMcuBean sendBleBean1 = new SendMcuBean();
         byte[] bytes1 = new byte[4];
-//        bytes1[0] = 0x07;
-//        bytes1[1] = 0x02;
-//        bytes1[2] = 0x3C;
-//        bytes1[3] = 0x0a;
+        //        bytes1[0] = 0x07;
+        //        bytes1[1] = 0x02;
+        //        bytes1[2] = 0x3C;
+        //        bytes1[3] = 0x0a;
         bytes1[0] = 0x07;
         bytes1[1] = 0x01;
         bytes1[2] = 0x1E;
@@ -191,8 +196,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
 
 
     public interface BleDataCallBack {
-        void onDeviceStatus(int battery, long time,
-                            float temp, float humidity);
+        void onDeviceStatus(int battery, long time, float temp, float humidity);
 
         void onOffLineRecordNum(long total, long sendNum);
 

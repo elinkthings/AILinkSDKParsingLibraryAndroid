@@ -12,6 +12,10 @@ public class SphyBleConfig {
      *
      */
     public final static int BLOOD_PRESSURE =0x01;
+    /**
+     * 血压计wifi+ble
+     */
+    public final static int BLOOD_PRESSURE_WIFI_BLE =0x0038;
 
     /**
      * 稳定血压数据(Stabilize blood pressure data)

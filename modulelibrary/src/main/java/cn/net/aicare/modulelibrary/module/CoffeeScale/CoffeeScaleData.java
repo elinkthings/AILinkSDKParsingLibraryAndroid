@@ -28,7 +28,7 @@ public class CoffeeScaleData extends BaseBleDeviceData implements OnBleVersionLi
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (type == CID) {
             switch (hex[0]) {
                 case CoffeeScaleConfig.ON_RESULT:

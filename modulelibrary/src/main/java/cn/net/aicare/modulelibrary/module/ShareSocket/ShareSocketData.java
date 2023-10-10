@@ -17,7 +17,7 @@ public class ShareSocketData extends BaseBleDeviceData implements OnBleVersionLi
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (type == CID) {
             switch (hex[0]) {
                 case (byte) ShareSocketConfig.SET_SOCKET_TIME_CALLBACK:

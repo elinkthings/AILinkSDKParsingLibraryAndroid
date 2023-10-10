@@ -104,7 +104,7 @@ public class WeightScaleDevice extends BaseBleDeviceData implements OnBleOtherDa
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (type != DEVICE_CID) {
             BleLog.e("CID不正确");
             return;

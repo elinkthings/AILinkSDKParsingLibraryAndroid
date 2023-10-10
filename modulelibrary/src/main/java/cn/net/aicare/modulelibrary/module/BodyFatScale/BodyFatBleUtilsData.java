@@ -119,11 +119,12 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
     private BodyFatRecord bodyFatRecord;
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
 
         int cmd = hex[0] & 0xFF;
-        if (mBleBodyFatCallback != null)
+        if (mBleBodyFatCallback != null) {
             mBleBodyFatCallback.onStatus(cmd);
+        }
         switch (cmd) {
             //实时体重
             case BodyFatDataUtil.WEIGHT_TESTING:
@@ -152,38 +153,46 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 //                break;
             //心率
             case BodyFatDataUtil.HEART_SUCCESS:
-                if (mBleBodyFatCallback != null)
+                if (mBleBodyFatCallback != null) {
                     mBleBodyFatCallback.onHeartRate(BodyFatDataUtil.getInstance().getHeart(hex));
+                }
 
                 break;
             //体脂数据
             case BodyFatDataUtil.BODY_FAT:
-                if (bodyFatRecord == null)
+                if (bodyFatRecord == null) {
                     bodyFatRecord = new BodyFatRecord();
+                }
                 bodyFatRecord = BodyFatDataUtil.getInstance().getBodyFat(hex, bodyFatRecord);
                 if ((hex[1] & 0xff) != 1) {
-                    if (mBleBodyFatCallback != null)
+                    if (mBleBodyFatCallback != null) {
                         mBleBodyFatCallback.onBodyFat(bodyFatRecord);
+                    }
                     bodyFatRecord = null;
                 }
                 break;
 
 
             case BodyFatDataUtil.SET_UNIT_CALLBAKC:
-                if (mBleBodyFatCallback != null)
+                if (mBleBodyFatCallback != null) {
                     mBleBodyFatCallback.setUnitCallback(BodyFatDataUtil.getInstance().setUnitCallback(hex));
+                }
                 break;
             case BodyFatDataUtil.MUC_REQUEST_USER_INFO:
-                if (mBleBodyFatCallback != null)
+                if (mBleBodyFatCallback != null) {
                     mBleBodyFatCallback.requestUserData(BodyFatDataUtil.getInstance().requestUserDataCallback(hex));
+                }
                 break;
             case BodyFatDataUtil.ERROR_CODE:
                 if (hex.length > 2) {
                     //错误码
-                    if (mBleBodyFatCallback != null)
+                    if (mBleBodyFatCallback != null) {
                         mBleBodyFatCallback.onError((hex[1] & 0xff));
+                    }
                 }
                 break;
+
+            default:break;
 
 
         }

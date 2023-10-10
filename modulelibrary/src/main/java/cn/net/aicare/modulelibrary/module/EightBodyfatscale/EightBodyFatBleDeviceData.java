@@ -38,7 +38,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (mEightBodyFatCallback!=null){
             mEightBodyFatCallback.showData(BleStrUtils.byte2HexStr(hex));
         }

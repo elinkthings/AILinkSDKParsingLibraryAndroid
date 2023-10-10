@@ -27,14 +27,16 @@ public class RopeSkippingBleData extends BaseBleDeviceData {
             @Override
             public void onHandshake(boolean status) {
                 BleLog.i("握手状态：" + status);
-
+                if (!status) {
+                    bleDevice.disconnect();
+                }
             }
         });
 
     }
 
     @Override
-    public void onNotifyData(byte[] bytes, int type) {
+    public void onNotifyData(String uuid, byte[] bytes, int type) {
         BleLog.i("接收到的数据：" + BleStrUtils.byte2HexStr(bytes));
         if (mOnRopeSkipCallBack != null) {
             int cmd = bytes[0] & 0xff;
@@ -155,6 +157,8 @@ public class RopeSkippingBleData extends BaseBleDeviceData {
 
         }
     }
+
+
 
     public OnRopeSkipCallBack getOnRopeSkipCallBack() {
         return mOnRopeSkipCallBack;

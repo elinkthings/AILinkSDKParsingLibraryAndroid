@@ -57,10 +57,6 @@ public class NoiseMeterBleDevice extends BaseBleDeviceData {
         return sNoiseMeter;
     }
 
-    @Override
-    public void onNotifyData(byte[] hex, int type) {
-
-    }
 
     @Override
     public void onNotifyData(String uuid, byte[] hex, int type) {

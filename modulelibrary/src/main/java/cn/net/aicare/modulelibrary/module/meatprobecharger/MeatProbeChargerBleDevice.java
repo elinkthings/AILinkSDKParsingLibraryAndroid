@@ -1,7 +1,5 @@
 package cn.net.aicare.modulelibrary.module.meatprobecharger;
 
-import android.util.Log;
-
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
@@ -32,7 +30,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
 
     @Override
     public void OnMtu(int mtu) {
-        Log.e("ljl", "OnMtu: mtu is " + mtu);
+//        Log.e("ljl", "OnMtu: mtu is " + mtu);
         if (mtu > 100) {
             //如果mtu设置成功，则去发送超128字节的指令
             if (mOnMeatProbeChargerDataListener != null) {
@@ -114,7 +112,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (type != DEVICE_CID) {
             BleLog.e("CID不正确");
             return;
@@ -159,23 +157,23 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                         bytes[5] = hex[10 + i * 15];
                         String mac = bytes2Mac(bytes);
                         // 食物温度单位
-                        int foodUnit = hex[16 + i * 15] >> 7;
+                        int foodUnit = (hex[16 + i * 15] & 0xFF) >> 7;
                         // 食物温度正负
                         int foodPositive = hex[16 + i * 15] & 0x40;
                         // 食物温度绝对值
-                        int foodTemp = hex[17 + i * 15] & 0xFF + hex[16 + i * 15] & 0x3F;
+                        int foodTemp = (hex[17 + i * 15] & 0xFF) + ((hex[16 + i * 15] << 8) & 0x3FFF);
                         // 环境温度单位
-                        int ambientUnit = hex[18 + i * 15] >> 7;
+                        int ambientUnit = (hex[18 + i * 15] & 0xFF) >> 7;
                         // 环境温度正负
                         int ambientPositive = hex[18 + i * 15] & 0x40;
                         // 环境温度绝对值
-                        int ambientTemp = hex[19 + i * 15] & 0xFF + hex[18 + i * 15] & 0x3F;
+                        int ambientTemp = (hex[19 + i * 15] & 0xFF) + ((hex[18 + i * 15] << 8) & 0x3FFF);
                         // 探针充电状态
-                        int chargerState = hex[20 + i * 15] >> 7;
+                        int chargerState = (hex[20 + i * 15] & 0xFF) >> 7;
                         // 探针电量
                         int probeBattery = hex[20 + i * 15] & 0x7F;
                         // 探针插入食物状态 插入1 未插入0 不支持255
-                        int insertState = hex[21 + i * 15];
+                        int insertState = hex[21 + i * 15] & 0xFF;
                         //数据类负值
                         ChargerProbeBean chargerProbeBean = new ChargerProbeBean();
                         chargerProbeBean.setNum(num);
@@ -228,22 +226,76 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                         cookingIdBytes[3] = hex[12];
                         long cookingId = ChargerProbeByteUtils.byteToInt(cookingIdBytes) * 1000L;
                         //食物类型
-                        int foodType = hex[13];
+                        int foodType = hex[13] & 0xFF;
                         //食物熟度
-                        int foodRawness = hex[14];
-//                        食物目标温度：℃
-                        int foodTempC = (hex[15] << 8) + hex[16] & 0xff;
-//                        食物目标温度：℉
-//                        炉温目标下限：℃
-//                        炉温目标下限：℉
-//                        炉温目标上限：℃
-//                        炉温目标上限：℉
-//                        提醒温度对目标温度百分比 0~1.0
-//                        计时开始时间戳
-//                        计时结束时间戳
-//                        当前温度单位
-//                        食物提醒温度：℃
-//                        食物提醒温度：℉
+                        int foodRawness = hex[14] & 0xFF;
+                        //食物目标温度：℃ 正负判断不需要，APP不会设置负值
+                        byte[] foodTempCBytes = new byte[2];
+                        foodTempCBytes[0] = hex[15];
+                        foodTempCBytes[1] = hex[16];
+                        int foodTempC = ChargerProbeByteUtils.byteToShort(foodTempCBytes);
+                        //食物目标温度：℉
+                        byte[] foodTempFBytes = new byte[2];
+                        foodTempFBytes[0] = hex[17];
+                        foodTempFBytes[1] = hex[18];
+                        int foodTempF = ChargerProbeByteUtils.byteToShort(foodTempFBytes);
+                        //炉温目标下限：℃
+                        byte[] ambientMinCBytes = new byte[2];
+                        ambientMinCBytes[0] = hex[19];
+                        ambientMinCBytes[1] = hex[20];
+                        int ambientMinC = ChargerProbeByteUtils.byteToShort(ambientMinCBytes);
+                        //炉温目标下限：℉
+                        byte[] ambientMinFBytes = new byte[2];
+                        ambientMinFBytes[0] = hex[21];
+                        ambientMinFBytes[1] = hex[22];
+                        int ambientMinF = ChargerProbeByteUtils.byteToShort(ambientMinFBytes);
+                        //炉温目标上限：℃
+                        byte[] ambientMaxCBytes = new byte[2];
+                        ambientMaxCBytes[0] = hex[23];
+                        ambientMaxCBytes[1] = hex[24];
+                        int ambientMaxC = ChargerProbeByteUtils.byteToShort(ambientMaxCBytes);
+                        //炉温目标上限：℉
+                        byte[] ambientMaxFBytes = new byte[2];
+                        ambientMaxFBytes[0] = hex[25];
+                        ambientMaxFBytes[1] = hex[26];
+                        int ambientMaxF = ChargerProbeByteUtils.byteToShort(ambientMaxFBytes);
+                        //提醒温度对目标温度百分比 0~1.0
+                        byte[] alarmPercentBytes = new byte[8];
+                        alarmPercentBytes[0] = hex[27];
+                        alarmPercentBytes[1] = hex[28];
+                        alarmPercentBytes[2] = hex[29];
+                        alarmPercentBytes[3] = hex[30];
+                        alarmPercentBytes[4] = hex[31];
+                        alarmPercentBytes[5] = hex[32];
+                        alarmPercentBytes[6] = hex[33];
+                        alarmPercentBytes[7] = hex[34];
+                        double alarmPercent = ChargerProbeByteUtils.byteToDouble(alarmPercentBytes);
+                        //计时开始时间戳
+                        byte[] startTampBytes = new byte[4];
+                        startTampBytes[0] = hex[35];
+                        startTampBytes[1] = hex[36];
+                        startTampBytes[2] = hex[37];
+                        startTampBytes[3] = hex[38];
+                        long startTamp = ChargerProbeByteUtils.byteToInt(startTampBytes);
+                        //计时结束时间戳
+                        byte[] endTampBytes = new byte[4];
+                        endTampBytes[0] = hex[39];
+                        endTampBytes[1] = hex[40];
+                        endTampBytes[2] = hex[41];
+                        endTampBytes[3] = hex[42];
+                        long endTamp = ChargerProbeByteUtils.byteToInt(endTampBytes);
+                        //当前温度单位
+                        int currentUnit = hex[43] & 0xFF;
+                        //食物提醒温度：℃
+                        byte[] alarmTempCBytes = new byte[2];
+                        alarmTempCBytes[0] = hex[44];
+                        alarmTempCBytes[1] = hex[45];
+                        int alarmTempC = ChargerProbeByteUtils.byteToShort(alarmTempCBytes);
+                        //食物提醒温度：℉
+                        byte[] alarmTempFBytes = new byte[2];
+                        alarmTempFBytes[0] = hex[44];
+                        alarmTempFBytes[1] = hex[45];
+                        int alarmTempF = ChargerProbeByteUtils.byteToShort(alarmTempFBytes);
                         //
                     } else {
                         //数据长度不对，有问题
@@ -391,7 +443,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         SendBleBean sendBleBean = new SendBleBean();
         sendBleBean.setHex(bytes);
         sendData(sendBleBean);
-        Log.e("ljl", "sendCmdA6: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "sendCmdA6: " + BleStrUtils.byte2HexStr(bytes));
         if (mOnMeatProbeChargerDataListener != null) {
             mOnMeatProbeChargerDataListener.sendDataA6(BleStrUtils.byte2HexStr(bytes));
         }
@@ -403,7 +455,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
     public void getVersion() {
         byte[] bytes = new byte[1];
         bytes[0] = (byte) 0x46;
-        Log.e("ljl", "获取版本号: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "获取版本号: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA6(bytes);
 //        SendBleBean sendBleBean = new SendBleBean();
 //        sendBleBean.setHex(bytes);
@@ -439,7 +491,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         bytes[6] = (byte) second;
         bytes[7] = (byte) week;
 
-        Log.e("ljl", "同步时间: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "同步时间: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA6(bytes);
 //        SendBleBean sendBleBean = new SendBleBean();
 //        sendBleBean.setHex(bytes);
@@ -450,7 +502,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         SendMcuBean sendMcuBean = new SendMcuBean();
         sendMcuBean.setHex(0x55, bytes);
         sendData(sendMcuBean);
-        Log.e("ljl", "sendCmdA7: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "sendCmdA7: " + BleStrUtils.byte2HexStr(bytes));
         if (mOnMeatProbeChargerDataListener != null) {
             mOnMeatProbeChargerDataListener.sendDataA7(BleStrUtils.byte2HexStr(bytes));
         }
@@ -463,7 +515,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         byte[] bytes = new byte[2];
         bytes[0] = 0x01;
         bytes[1] = 0x01;
-        Log.e("ljl", "APP获取设备状态数据: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "APP获取设备状态数据: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA7(bytes);
 //        SendMcuBean sendMcuBean = new SendMcuBean();
 //        sendMcuBean.setHex(0x55, bytes);
@@ -483,7 +535,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         } else {
             bytes[1] = 0x01;
         }
-        Log.e("ljl", "单位切换: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "单位切换: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA7(bytes);
 //        SendMcuBean sendMcuBean = new SendMcuBean();
 //        sendMcuBean.setHex(0x55, bytes);
@@ -512,7 +564,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                 | ((isHighAmbient ? 0x01 : 0x00) << 1)
                 | ((isTimeCount ? 0x01 : 0x00) << 2));
 
-        Log.e("ljl", "发送报警状态数据: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "发送报警状态数据: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA7(bytes);
 //        SendMcuBean sendMcuBean = new SendMcuBean();
 //        sendMcuBean.setHex(0x55, bytes);
@@ -536,7 +588,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         bytes[6] = macBytes[5];
         bytes[7] = (byte) 0xFF;
 
-        Log.e("ljl", "取消警报: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "取消警报: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA7(bytes);
 //        SendMcuBean sendMcuBean = new SendMcuBean();
 //        sendMcuBean.setHex(0x55, bytes);
@@ -561,7 +613,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         bytes[6] = macBytes[4];
         bytes[7] = macBytes[5];
 
-        Log.e("ljl", "获取或者清除探针数据: " + BleStrUtils.byte2HexStr(bytes));
+//        Log.e("ljl", "获取或者清除探针数据: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA7(bytes);
 //        SendMcuBean sendMcuBean = new SendMcuBean();
 //        sendMcuBean.setHex(0x55, bytes);
@@ -708,10 +760,10 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         }
         bytes[47] = alarmTempBytesF[1];
         //剩余未用上字节全补0
-        for (int i = 48; i < bytes.length; i++) {
-            bytes[i] = 0x00;
-        }
-        Log.e("ljl", "设置探针参数: " + BleStrUtils.byte2HexStr(bytes));
+//        for (int i = 48; i < bytes.length; i++) {
+//            bytes[i] = 0x00;
+//        }
+//        Log.e("ljl", "设置探针参数: " + BleStrUtils.byte2HexStr(bytes));
         sendCmdA7(bytes);
 //        SendMcuBean sendMcuBean = new SendMcuBean();
 //        sendMcuBean.setHex(0x55, bytes);

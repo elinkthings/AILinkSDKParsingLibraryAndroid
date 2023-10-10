@@ -13,7 +13,7 @@ public class ShareCondomData extends BaseBleDeviceData {
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         if (type == CID) {
             switch (hex[0]) {
                 case (byte) ShareCondomConfig.SET_CONDOM_TIME_CALLBACK:

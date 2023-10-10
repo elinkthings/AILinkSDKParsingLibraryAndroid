@@ -11,6 +11,12 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.List;
 
+/**
+ * 血糖仪,ble设备数据
+ *
+ * @author xing
+ * @date 2023/09/28
+ */
 public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
 
     private BloodGlucoseCallback mBloodGlucoseCallback;
@@ -37,7 +43,7 @@ public class BloodGlucoseBleDeviceData extends BaseBleDeviceData {
     }
 
     @Override
-    public void onNotifyData(byte[] hex, int type) {
+    public void onNotifyData(String uuid, byte[] hex, int type) {
         int cmd = hex[0] & 0xff;
         if (mBloodGlucoseCallback!=null){
             mBloodGlucoseCallback.onData(BleStrUtils.byte2HexStr(hex));

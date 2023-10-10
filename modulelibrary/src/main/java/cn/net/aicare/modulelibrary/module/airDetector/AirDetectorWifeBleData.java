@@ -117,10 +117,6 @@ public class AirDetectorWifeBleData extends BaseBleDeviceData implements OnBleOt
         this.curKey = key;
     }
 
-    @Override
-    public void onNotifyData(byte[] hex, int type) {
-
-    }
 
     @Override
     public void onNotifyData(String uuid, byte[] hex, int type) {
