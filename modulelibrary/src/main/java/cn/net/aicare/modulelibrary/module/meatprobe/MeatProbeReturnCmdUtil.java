@@ -48,7 +48,7 @@ public class MeatProbeReturnCmdUtil {
                 probeNowBean.setRealTimePositive(realTimePositive);
 
                 // 实时温度值
-                int realTimeTemp = (hex[4] & 0xFF) + ((hex[3] << 8) & 0x3FFF);
+                int realTimeTemp = (hex[4] & 0xFF) + (hex[3] & 0x3F);
                 probeNowBean.setRealTimeTemp(realTimeTemp);
 
                 // 环境温度单位 0->℃ 1->℉
@@ -64,7 +64,7 @@ public class MeatProbeReturnCmdUtil {
                 if ((hex[6] & 0xFF) == 255 & (hex[5] & 0xFF) == 255) {
                     ambientTemp = 10000;
                 } else {
-                    ambientTemp = (hex[6] & 0xFF) + ((hex[5] << 8) & 0x3FFF);
+                    ambientTemp = (hex[6] & 0xFF) + (hex[5] & 0x3F);
                 }
                 probeNowBean.setAmbientTemp(ambientTemp);
 
@@ -81,7 +81,7 @@ public class MeatProbeReturnCmdUtil {
                 if ((hex[8] & 0xFF) == 255 & (hex[7] & 0xFF) == 255) {
                     targetTemp = 10000;
                 } else {
-                    targetTemp = (hex[8] & 0xFF) + ((hex[7] << 8) & 0x3FFF);
+                    targetTemp = (hex[8] & 0xFF) + (hex[7] & 0x3F);
                 }
                 probeNowBean.setTargetTemp(targetTemp);
 

@@ -129,7 +129,8 @@ public class BroadCastHeightDeviceData {
 
         runOnMainThread(() -> {
             if (mOnNotifyHeightData != null) {
-                mOnNotifyHeightData.notifyData(hex, flag, heightOrigin, heightUnit, heightDecimal, weightOrigin, weightUnit, weightSymbol, weightDecimal, battery);
+                mOnNotifyHeightData.notifyData(hex, flag, heightOrigin, heightUnit, heightDecimal,
+                        weightOrigin, weightUnit, weightSymbol, weightDecimal, battery);
             }
         });
 
@@ -140,18 +141,20 @@ public class BroadCastHeightDeviceData {
     public interface OnNotifyHeightData {
 
         /**
-         * @param hex           解析后的数据
-         * @param flag          测量标识
-         * @param heightOrigin  身高原始数据
-         * @param heightUnit    身高单位
+         *
+         * @param hex 解析后的数据
+         * @param flag 测量标识
+         * @param heightOrigin 身高原始数据
+         * @param heightUnit 身高单位
          * @param heightDecimal 身高小数点
-         * @param weightOrigin  体重原始数据
-         * @param weightUnit    体重单位
-         * @param weightSymbol  体重正负号
+         * @param weightOrigin 体重原始数据
+         * @param weightUnit 体重单位
+         * @param weightSymbol 体重正负号
          * @param weightDecimal 体重小数点
-         * @param battery       体重最终值
+         * @param battery 体重最终值
          */
-        void notifyData(byte[] hex, int flag, int heightOrigin, int heightUnit, int heightDecimal, int weightOrigin, int weightUnit, int weightSymbol, int weightDecimal, int battery);
+        void notifyData(byte[] hex, int flag, int heightOrigin, int heightUnit, int heightDecimal,
+                        int weightOrigin, int weightUnit, int weightSymbol, int weightDecimal, int battery);
     }
 
 
