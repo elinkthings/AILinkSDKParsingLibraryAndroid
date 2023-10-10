@@ -135,6 +135,10 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
             byte[][] sendSubcontract = getSendSubcontract(password);
             if (sendSubcontract != null) {
                 int size = sendSubcontract.length;
+                if (size == 0) {
+                    setConnectWifiPwd(0, null);
+                    return;
+                }
                 for (int i = 0; i < size; i++) {
                     byte[] bytes = sendSubcontract[i];
                     setConnectWifiPwd((i == size - 1) ? 0 : 1, bytes);
@@ -282,8 +286,8 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
             bytes1[1] = (byte) subpackage;
             System.arraycopy(password, 0, bytes1, 2, password.length);
         } else {
-            bytes1 = new byte[1];
-            bytes1[0] = (byte) 0x86;
+            bytes1 = new byte[2];
+            bytes1[0] = (byte) CmdConfig.SET_WIFI_PAW;
         }
         sendBleData(bytes1);
     }
@@ -375,6 +379,10 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
         byte[][] sendSubcontract = getSendSubcontract(path);
         if (sendSubcontract != null) {
             int size = sendSubcontract.length;
+            if (size == 0) {
+                environmentPath(0, null);
+                return;
+            }
             for (int i = 0; i < size; i++) {
                 byte[] bytes = sendSubcontract[i];
                 environmentPath((i == size - 1) ? 0 : 1, bytes);
@@ -397,7 +405,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
             bytes1[1] = (byte) subpackage;
             System.arraycopy(bytesPath, 0, bytes1, 2, bytesPath.length);
         } else {
-            bytes1 = new byte[1];
+            bytes1 = new byte[2];
             bytes1[0] = (byte) CmdConfig.SET_SERVICE_PATH;
         }
 
@@ -424,6 +432,10 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
         byte[][] sendSubcontract = getSendSubcontract(ips);
         if (sendSubcontract != null) {
             int size = sendSubcontract.length;
+            if (size == 0) {
+                environmentIp(0, null);
+                return;
+            }
             for (int i = 0; i < size; i++) {
                 byte[] bytes = sendSubcontract[i];
                 environmentIp((i == size - 1) ? 0 : 1, bytes);
@@ -477,7 +489,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
             bytes1[1] = (byte) subpackage;
             System.arraycopy(bytesIp, 0, bytes1, 2, bytesIp.length);
         } else {
-            bytes1 = new byte[1];
+            bytes1 = new byte[2];
             bytes1[0] = (byte) CmdConfig.SET_SERVICE_IP;
         }
         sendBleData(bytes1);
