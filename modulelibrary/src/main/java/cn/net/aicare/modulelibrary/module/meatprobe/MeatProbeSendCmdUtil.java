@@ -5,8 +5,6 @@ import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendDataBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 
-import java.util.Set;
-
 import cn.net.aicare.modulelibrary.module.utils.ByteUtils;
 
 /**
