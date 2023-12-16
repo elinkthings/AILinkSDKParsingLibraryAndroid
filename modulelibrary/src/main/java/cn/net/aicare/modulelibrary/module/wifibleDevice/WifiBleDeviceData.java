@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.pingwang.bluetoothlib.config.CmdConfig;
 import com.pingwang.bluetoothlib.device.BleDevice;
+import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
 import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.listener.OnBleConnectStatus;
 import com.pingwang.bluetoothlib.listener.OnServerInfoListener;
@@ -233,7 +234,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
      *
      * @return payload数据
      */
-    public void getConnectWifiName() {
+    public void getConnectWifiSsid() {
         byte[] bytes = new byte[1];
         bytes[0] = (byte) CmdConfig.GET_WIFI_NAME;
         sendBleData(bytes);
@@ -252,11 +253,20 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
 
 
     /**
+     * 获取连接wifi mac
+     */
+    public void getConnectWifiMac() {
+        byte[] bytes = new byte[1];
+        bytes[0] = (byte) CmdConfig.GET_WIFI_MAC;
+        sendBleData(bytes);
+    }
+
+    /**
      * 设置连接wifi mac
      *
      * @param mac mac
      */
-    public void setConnectWifiMac(String mac) {
+    private void setConnectWifiMac(String mac) {
         byte[] bytes = new byte[7];
         bytes[0] = (byte) CmdConfig.SET_WIFI_MAC;
         if (!mac.contains(":")) {
@@ -514,6 +524,22 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
         return tmp;
     }
 
+    /**
+     * 重启设备
+     *
+     * @return {@link SendBleBean}
+     */
+    public void setRestart() {
+        sendBleData(BleSendCmdUtil.getInstance().setBleRestart());
+    }
+
+    /**
+     * 恢复出厂设置
+     */
+    public void setReset() {
+        sendBleData(BleSendCmdUtil.getInstance().setBleReset());
+    }
+
 
     /**
      * 获取发送ble bean
@@ -571,6 +597,12 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
     }
 
     @Override
+    public void onConnectedWifiPwd(String pwd) {
+
+
+    }
+
+    @Override
     public void onWifiListInfo(int no, String mac, int db, int type, int wifiStatus) {
         WifiBleInfoBean wifiBleInfoBean = getWifiBleInfoBean(no);
         wifiBleInfoBean.setMac(mac);
@@ -616,7 +648,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
     }
 
     @Override
-    public void getSelectWifiMac(String mac) {
+    public void onConnectedWifiMac(String mac) {
         if (mOnWiFiBleCallback != null) {
             mOnWiFiBleCallback.onConnectWifiMac(mac);
         }
@@ -784,6 +816,13 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
          *            wifiMac address
          */
         void onConnectWifiMac(String mac);
+
+        /**
+         * 在连接wifi密码
+         *
+         * @param pwd 密码
+         */
+        void onConnectWifiPwd(String pwd);
 
         /**
          * 在设备sn

@@ -3,11 +3,9 @@ package cn.net.aicare.modulelibrary.module.BodyFatScale;
 
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
-import com.pingwang.bluetoothlib.listener.OnBleConnectStatus;
 import com.pingwang.bluetoothlib.listener.OnBleSettingListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
-import com.pingwang.bluetoothlib.listener.OnWifiInfoListener;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.lang.ref.WeakReference;
@@ -20,12 +18,10 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
     private volatile static BodyFatBleUtilsData bodyfatble = null;
 
 
-    private BodyFatBleUtilsData(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback, BleBodyFatWiFiCallback bleBodyFatWiFiCallback) {
+    private BodyFatBleUtilsData(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback) {
         super(bleDevice);
         mBleDevice = bleDevice;
         this.mBleBodyFatCallback = bleBodyFatCallback;
-        this.mBleBodyFatWiFiCallback = bleBodyFatWiFiCallback;
-
 
         mBleDevice.setOnBleVersionListener(new OnBleVersionListener() {
             @Override
@@ -52,11 +48,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
         });
 
 
-        if (mBleBodyFatCallback != null) {
-            mBleDevice.setOnBleConnectListener(mOnBleConnectStatus);
-            mBleDevice.setOnWifiInfoListener(onWifiInfoListener);
 
-        }
         //通用指令的回调
         mBleDevice.setOnBleSettingListener(new OnBleSettingListener() {
             @Override
@@ -77,23 +69,12 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
      *
      * @param bleDevice              {@link BleDevice} 蓝牙设备
      * @param bleBodyFatCallback     {@link BleBodyFatCallback} 体脂秤接口回调
-     * @param bleBodyFatWiFiCallback {@link BleBodyFatWiFiCallback} 体脂秤关于wifi部分接口回调
-     */
-    public static void init(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback, BleBodyFatWiFiCallback bleBodyFatWiFiCallback) {
-
-        bodyfatble = new BodyFatBleUtilsData(bleDevice, bleBodyFatCallback, bleBodyFatWiFiCallback);
-    }
-
-    /**
-     * 初始化
-     *
-     * @param bleDevice          {@link BleDevice} 蓝牙设备
-     * @param bleBodyFatCallback {@link BleBodyFatCallback} 体脂秤接口回调
      */
     public static void init(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback) {
 
-        init(bleDevice, bleBodyFatCallback, null);
+        bodyfatble = new BodyFatBleUtilsData(bleDevice, bleBodyFatCallback);
     }
+
 
 
     /**
@@ -208,21 +189,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
             if (mBleBodyFatCallback != null)
                 mBleBodyFatCallback.onOtaCallback(hex[1] & 0xff);
 
-        } else if ((hex[0] & 0xff) == 0x8b) {
-            // 设置IP地址。47.113.114.70
-            if (mBleBodyFatCallback != null) {
-                mBleBodyFatCallback.onSetIpStatus(hex[1] & 0xff);
-            }
-        } else if ((hex[0] & 0xff) == 0x8d) {
-            // 设置端口。8092
-            if (mBleBodyFatCallback != null) {
-                mBleBodyFatCallback.onSetPortStatus(hex[1] & 0xff);
-            }
-        } else if ((hex[0] & 0xff) == 0x96) {
-            // 设置路径。/index/
-            if (mBleBodyFatCallback != null) {
-                mBleBodyFatCallback.onSetIpUrlStatus(hex[1] & 0xff);
-            }
         } else if ((hex[0] & 0xff) == 0x8c) {
             if (mBleBodyFatCallback != null) {
                 byte[] name = new byte[hex.length - 1];
@@ -308,73 +274,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
 
     private BleBodyFatCallback mBleBodyFatCallback;
-
-    private OnWifiInfoListener onWifiInfoListener = new OnWifiInfoListener() {
-        @Override
-        public void onScanWiFiStatus(int status) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.OnWifiScanStatus(status);
-        }
-
-        @Override
-        public void onWifiListName(int no, String name) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.OnWifiListName(no, name);
-        }
-
-        @Override
-        public void onConnectedWifiName(String name) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.OnWifiCurrentConnect(name);
-        }
-
-        @Override
-        public void onWifiListInfo(int no, String mac, int db, int type, int wifistatus) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.OnWifiListInfo(no, mac, db, type, wifistatus);
-        }
-
-        @Override
-        public void onWifiScanFinish(int wifiNum) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.OnWifiScanFinish(wifiNum);
-
-        }
-
-        @Override
-        public void onSetWifiNameOrPawOrConnectCallback(int type, int status) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.OnSetWifiNameOrPwdOrConnectCallback(type, status);
-        }
-
-        @Override
-        public void getSelectWifiMac(String mac) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.getSelectWifiMac(mac);
-        }
-
-        @Override
-        public void getSelectWifiPaw(String pwd) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.getSelectWifiPaw(pwd);
-        }
-
-
-        @Override
-        public void getSN(long sn) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.getDid(sn);
-        }
-    };
-
-    private OnBleConnectStatus mOnBleConnectStatus = new OnBleConnectStatus() {
-        @Override
-        public void onBleConnectStatus(int bleStatus, int wifiStatus, int workStatus) {
-            if (mBleBodyFatWiFiCallback != null)
-                mBleBodyFatWiFiCallback.OnBleAndWifiStatus(bleStatus, wifiStatus, workStatus);
-        }
-    };
-
 
     public interface BleBodyFatCallback {
         /**
@@ -544,11 +443,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
         void onOtaCallback(int status);
 
-        void onSetIpStatus(int status);
-
-        void onSetPortStatus(int status);
-
-        void onSetIpUrlStatus(int status);
 
         /**
          * 回调ip
@@ -573,113 +467,5 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
     }
 
 
-    private BleBodyFatWiFiCallback mBleBodyFatWiFiCallback;
 
-    public interface BleBodyFatWiFiCallback {
-
-
-        /**
-         * 查询蓝牙和wifi状态
-         * Check Bluetooth and wifi status
-         *
-         * @param blestatus  蓝牙状态 0 无连接 1：已连接 2：配对完成
-         *                   Bluetooth status0 No connection 1: Connected 2: Pairing completed
-         * @param wifistatus wifi状态 0：没连接热点；1：尝试连接热点，但是失败，连接时密码错误、热点信号不好、主动断开都会是这个状态；2：连接的热点无网络或者信号不好；3：成功连接上热点；4：有热点信息，还没连接
-         *                   wifi status 0: No hotspot connection; 1: Attempt to connect to the hotspot, but failure, wrong password when connecting, bad hotspot signal, active disconnection will
-         *                   be this state; 2: No connection to the hotspot or signal ; 3: Successfully connected to the hotspot; 4: There is hotspot information, not connected yet
-         * @param workstatus 工作状态 0：唤醒 1：进入休眠 2：模块准备就绪
-         *                   working status 0: wake up 1: go to sleep 2: module is ready
-         */
-        void OnBleAndWifiStatus(int blestatus, int wifistatus, int workstatus);
-
-        /**
-         * 扫描wifi状态
-         * Scan wifi status
-         *
-         * @param Status {@link BodyFatDataUtil#STATUS_SUCCESS} 0x00：成功 0x01：失败 0x02：不支持
-         *               0x00: success 0x01: failure 0x02: not supported
-         */
-        void OnWifiScanStatus(int Status);
-
-        /**
-         * 扫描到的wifi名称
-         * Scanned wifi name
-         *
-         * @param no   wifi编号 跟wifi信息的编号一致
-         *             wifi number is consistent with wifi information number
-         * @param name wifi名称
-         *             wifi name
-         */
-        void OnWifiListName(int no, String name);
-
-        /**
-         * 扫描到的wifi信息
-         * Scanned wifi information
-         *
-         * @param no         wifi编号 跟wifi名称的编号一致
-         *                   wifi number is consistent with the number of wifi name
-         * @param mac        wifi的mac地址
-         *                   wifi mac address
-         * @param db         wifi的信号强度
-         *                   he signal strength of wifi
-         * @param type       wifi安全类型 0x00：开放 0x01：WEP 0x02：WPA_PSK 0x03：WPA2_PSK 0x04：WPA_WPA_2_PSK 0x05：WPA2_ENTERPRISE
-         *                   wifi security type 0x00: open 0x01: WEP 0x02: WPA_PSK 0x03: WPA2_PSK 0x04: WPA_WPA_2_PSK 0x05: WPA2_ENTERPRISE
-         * @param wifistatus wifi的状态 0x00：陌生wifi 0x01：保存过密码的wifi 0x02：目前连接着的wifi
-         *                   wifi status 0x00: unfamiliar wifi 0x01: password saved wifi 0x02: currently connected wifi
-         */
-        void OnWifiListInfo(int no, String mac, int db, int type, int wifistatus);
-
-        /**
-         * 当前连接的wifi名称
-         * The name of the currently connected wifi
-         *
-         * @param name wifi名称  wifi name
-         */
-        void OnWifiCurrentConnect(String name);
-
-
-        /**
-         * 扫描wifi结束
-         * End of scanning wifi
-         *
-         * @param wifiNum 扫描的的wifi数量 The number of wifi scanned
-         */
-        void OnWifiScanFinish(int wifiNum);
-
-        /**
-         * 设置wifimac ,密码和连接或断开的回调
-         * Set callback for wifimac, password and connection or disconnection
-         *
-         * @param type   设置的类型 0x84 设置 wifimac 0x86 设置wifi密码 0x88 断开或者连接
-         *               ype Set type 0x84 Set wifimac 0x86 Set wifi password 0x88 Disconnect or connect
-         * @param status {@link BodyFatDataUtil#STATUS_SUCCESS} 0x00：成功 0x01：失败 0x02：不支持
-         *               0x00: success 0x01: failure 0x02: not supported
-         */
-        void OnSetWifiNameOrPwdOrConnectCallback(int type, int status);
-
-        /**
-         * 获取已设置的wifi的Mac
-         * Get Mac with wifi set
-         *
-         * @param mac wifiMac地址
-         *            wifiMac address
-         */
-        void getSelectWifiMac(String mac);
-
-        /**
-         * 获取已设置的wifi密码
-         * Get Password with wifi set
-         *
-         * @param paw wifi密码  Password
-         */
-        void getSelectWifiPaw(String paw);
-
-        /**
-         * 获取到did号
-         * Get did
-         *
-         * @param did did
-         */
-        void getDid(long did);
-    }
 }

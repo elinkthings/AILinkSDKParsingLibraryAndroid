@@ -9,8 +9,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 31
-        versionCode 31
-        versionName "1.9.2"
+        versionCode 32
+        versionName "1.9.3"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -44,7 +44,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.14.1'
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.14.5'
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')
     api files('libs/getmorefatdata.jar')
@@ -61,7 +61,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.elinkthings'
                 artifactId = 'AILinkSDKParsingLibraryAndroid'
-                version = "1.9.2"
+                version = "1.9.3"
             }
         }
     }

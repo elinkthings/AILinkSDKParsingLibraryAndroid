@@ -308,11 +308,6 @@ public class SkateboardAILinkDevice extends BaseBleDeviceData implements OnBleOt
     }
 
 
-    @Override
-    public void onReadResult(UUID uuid, boolean result) {
-        super.onReadResult(uuid, result);
-    }
-
 
     private void dataCheckAilnk(byte[] data) {
         int type = data[0] & 0xff;

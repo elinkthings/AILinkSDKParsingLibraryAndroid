@@ -303,14 +303,14 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
         }
 
         @Override
-        public void getSelectWifiMac(String mac) {
+        public void onConnectedWifiMac(String mac) {
             if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.getSelectWifiMac(mac);
             }
         }
 
         @Override
-        public void getSelectWifiPaw(String pwd) {
+        public void onConnectedWifiPwd(String pwd) {
             if (bleToothBrushWiFiCallback != null) {
                 bleToothBrushWiFiCallback.getSelectWifiPaw(pwd);
             }
