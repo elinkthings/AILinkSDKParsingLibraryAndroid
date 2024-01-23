@@ -48,4 +48,22 @@ public class WifiBleConfig {
         int TYPE_CONNECT=0x02;
     }
 
+    @IntDef({StatusType.STATUS_SUCCESS, StatusType.STATUS_FAIL,
+            StatusType.STATUS_NOT_SUPPORT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StatusType{
+        /**
+         * 成功
+         */
+        int STATUS_SUCCESS=0x00;
+        /**
+         * 失败
+         */
+        int STATUS_FAIL=0x01;
+        /**
+         * 不支持
+         */
+        int STATUS_NOT_SUPPORT=0x02;
+    }
+
 }

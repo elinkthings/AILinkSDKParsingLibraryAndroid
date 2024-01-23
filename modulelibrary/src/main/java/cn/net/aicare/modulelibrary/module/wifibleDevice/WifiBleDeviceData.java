@@ -17,8 +17,6 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.net.aicare.modulelibrary.module.BodyFatScale.BodyFatDataUtil;
-import cn.net.aicare.modulelibrary.module.ToothBrush.ToothBrushBleCmd;
 
 /**
  * wifi+ble设备对象
@@ -28,7 +26,7 @@ import cn.net.aicare.modulelibrary.module.ToothBrush.ToothBrushBleCmd;
  */
 public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus, OnServerInfoListener {
     private String TAG = WifiBleDeviceData.class.getName();
-    private static BleDevice mBleDevice;
+    private static BleDevice sBleDevice;
 
     private static WifiBleDeviceData sWifiBleDeviceData = null;
 
@@ -42,7 +40,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
 
     public static WifiBleDeviceData getInstance(BleDevice bleDevice) {
         synchronized (BleDevice.class) {
-            if (mBleDevice == bleDevice) {
+            if (sBleDevice == bleDevice) {
                 if (sWifiBleDeviceData == null) {
                     sWifiBleDeviceData = new WifiBleDeviceData(bleDevice);
                 }
@@ -53,6 +51,9 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
         return sWifiBleDeviceData;
     }
 
+    public BleDevice getBleDevice() {
+        return sBleDevice;
+    }
 
     /**
      * 退出模块时需要清空单例赋值
@@ -67,12 +68,12 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
      * 断开连接(Disconnect)
      */
     public void disconnect() {
-        if (mBleDevice != null)
-            mBleDevice.disconnect();
+        if (sBleDevice != null)
+            sBleDevice.disconnect();
     }
 
     private WifiBleDeviceData(BleDevice bleDevice) {
-        mBleDevice = bleDevice;
+        sBleDevice = bleDevice;
         bleDevice.setOnWifiInfoListener(this);
         bleDevice.setOnServerInfoListener(this);
         bleDevice.setOnBleConnectListener(this);
@@ -292,12 +293,12 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
         if (password != null) {
             length = password.length + 1;
             bytes1 = new byte[length + 1];
-            bytes1[0] = (byte) CmdConfig.SET_WIFI_PAW;
+            bytes1[0] = (byte) CmdConfig.SET_WIFI_PWD;
             bytes1[1] = (byte) subpackage;
             System.arraycopy(password, 0, bytes1, 2, password.length);
         } else {
             bytes1 = new byte[2];
-            bytes1[0] = (byte) CmdConfig.SET_WIFI_PAW;
+            bytes1[0] = (byte) CmdConfig.SET_WIFI_PWD;
         }
         sendBleData(bytes1);
     }
@@ -550,8 +551,8 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
     private boolean sendBleData(byte[] bytes) {
         SendBleBean sendBleBean = new SendBleBean();
         sendBleBean.setHex(bytes);
-        if (mBleDevice != null) {
-            mBleDevice.sendData(sendBleBean);
+        if (sBleDevice != null) {
+            sBleDevice.sendData(sendBleBean);
             return true;
         }
         return false;
@@ -592,7 +593,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
     @Override
     public void onConnectedWifiName(String name) {
         if (mOnWiFiBleCallback != null) {
-            mOnWiFiBleCallback.onConnectWifiName(name);
+            mOnWiFiBleCallback.onConnectWifiName(name.trim());
         }
     }
 
@@ -624,12 +625,12 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
     @Override
     public void onSetWifiNameOrPawOrConnectCallback(int type, int status) {
         BleLog.i(TAG, "type:0x" + Integer.toHexString(type) + "  status:" + status);
-        if (type == CmdConfig.SET_WIFI_MAC && status == BodyFatDataUtil.STATUS_SUCCESS) {
+        if (type == CmdConfig.SET_WIFI_MAC && status == WifiBleConfig.StatusType.STATUS_SUCCESS) {
             if (mConnectWifiStep == 0) {
                 //设置mac成功,去设置密码
                 setConnectWifiMac(1);
             }
-        } else if (type == CmdConfig.SET_WIFI_PAW && status == BodyFatDataUtil.STATUS_SUCCESS) {
+        } else if (type == CmdConfig.SET_WIFI_PWD && status == WifiBleConfig.StatusType.STATUS_SUCCESS) {
             if (mConnectWifiStep == 1) {
                 //设置密码成功,去连接
                 setConnectWifiMac(2);
@@ -664,7 +665,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
     @Override
     public void getSN(long sn) {
         if (mOnWiFiBleCallback != null) {
-            mOnWiFiBleCallback.onDeviceSn(String.valueOf(sn));
+            mOnWiFiBleCallback.onDeviceSn(sn);
         }
     }
 
@@ -754,16 +755,18 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
          * @param workStatus 工作状态 0：唤醒 1：进入休眠 2：模块准备就绪
          *                   working status 0: wake up 1: go to sleep 2: module is ready
          */
-        void onBleAndWifiStatus(int bleStatus, int wifiStatus, int workStatus);
+        default void onBleAndWifiStatus(int bleStatus, int wifiStatus, int workStatus) {
+        }
 
         /**
          * 扫描wifi状态
          * Scan wifi status
          *
-         * @param status {@link ToothBrushBleCmd#STATUS_SUCCESS} 0x00：成功 0x01：失败 0x02：不支持
+         * @param status {@link WifiBleConfig.StatusType#STATUS_SUCCESS} 0x00：成功 0x01：失败 0x02：不支持
          *               0x00: success 0x01: failure 0x02: not supported
          */
-        void onWifiScanStatus(int status);
+        default void onWifiScanStatus(int status) {
+        }
 
 
         /**
@@ -772,7 +775,8 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
          *
          * @param name wifi名称  wifi name
          */
-        void onConnectWifiName(String name);
+        default void onConnectWifiName(String name) {
+        }
 
         /**
          * 在wifi扫描豆
@@ -780,7 +784,8 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
          *
          * @param wifiBleInfoBean wifi ble信息
          */
-        void onWifiScanBean(WifiBleInfoBean wifiBleInfoBean);
+        default void onWifiScanBean(WifiBleInfoBean wifiBleInfoBean) {
+        }
 
         /**
          * wifi扫描完成
@@ -788,7 +793,8 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
          *
          * @param list 列表
          */
-        void onWifiScanFinish(List<WifiBleInfoBean> list);
+        default void onWifiScanFinish(List<WifiBleInfoBean> list) {
+        }
 
         /**
          * 设置wifi mac ,密码和连接或断开的回调
@@ -796,17 +802,19 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
          *
          * @param type   设置的类型 0x84 设置 wifimac 0x86 设置wifi密码 0x88 断开或者连接
          *               ype Set type 0x84 Set wifimac 0x86 Set wifi password 0x88 Disconnect or connect
-         * @param status {@link ToothBrushBleCmd#STATUS_SUCCESS} 0x00：成功 0x01：失败 0x02：不支持
+         * @param status {@link WifiBleConfig.StatusType#STATUS_SUCCESS} 0x00：成功 0x01：失败 0x02：不支持
          *               0x00: success 0x01: failure 0x02: not supported
          */
-        void onSetWifiNameOrPwdOrConnectCallback(int type, int status);
+        default void onSetWifiNameOrPwdOrConnectCallback(int type, int status) {
+        }
 
         /**
          * wifi连接中
          *
          * @param status 状态
          */
-        void onWifiConnecting(int status);
+        default void onWifiConnecting(int status) {
+        }
 
         /**
          * 获取已设置的wifi的Mac
@@ -815,49 +823,56 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
          * @param mac wifiMac地址
          *            wifiMac address
          */
-        void onConnectWifiMac(String mac);
+        default void onConnectWifiMac(String mac) {
+        }
 
         /**
          * 在连接wifi密码
          *
          * @param pwd 密码
          */
-        void onConnectWifiPwd(String pwd);
+        default void onConnectWifiPwd(String pwd) {
+        }
 
         /**
          * 在设备sn
          *
          * @param sn sn
          */
-        void onDeviceSn(String sn);
+        default void onDeviceSn(long sn) {
+        }
 
         /**
          * 在服务器IP地址
          *
          * @param ip IP地址
          */
-        void onServerIp(String ip);
+        default void onServerIp(String ip) {
+        }
 
         /**
          * 服务器端口
          *
          * @param port 端口
          */
-        void onServerPort(int port);
+        default void onServerPort(int port) {
+        }
 
         /**
          * 在服务器路径
          *
          * @param path 路径
          */
-        void onServerPath(String path);
+        default void onServerPath(String path) {
+        }
 
         /**
          * 服务器设置信息
          *
          * @param status 状态
          */
-        void onServerSettingInfo(boolean status);
+        default void onServerSettingInfo(boolean status) {
+        }
 
 
     }
