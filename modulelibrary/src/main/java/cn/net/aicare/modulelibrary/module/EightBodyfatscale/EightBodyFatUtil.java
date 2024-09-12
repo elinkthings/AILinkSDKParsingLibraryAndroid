@@ -2,9 +2,14 @@ package cn.net.aicare.modulelibrary.module.EightBodyfatscale;
 
 public class EightBodyFatUtil {
     /**
-     * wifi+ble体脂秤(wifi + ble body fat scale)
+     * 八电极体脂秤 APP算法
      */
-    public final static int WEIGHT_BODY_FAT_SCALE_WIFI_BLE=0x11;
+    public final static int EIGHT_BODY_FAT_SCALE =0x13;
+
+    /**
+     * 八电极体脂秤 MCU算法
+     */
+    public final static int EIGHT_BODY_FAT_SCALE_MCU = 0x32;
 
     /**
      * 称量体重
@@ -44,6 +49,12 @@ public class EightBodyFatUtil {
     public static final int IMPEDANCE_FINISH=0x04;
 
     /**
+     * 阻抗测量成功(MCU)
+     */
+    public static final int IMPEDANCE_SUCCESS_MCU=0x05;
+
+
+    /**
      * 测量心率
      */
     public static final int HEART_RATE =0x03;
@@ -71,10 +82,28 @@ public class EightBodyFatUtil {
 
     public static final int TEMP_MEASUREMENT=0x04;
 
+
+    /**
+     * 身高数据
+     */
+    public static final int TYPE_HEIGHT=0x05;
+    /**
+     * 请求同步用户信息
+     */
+    public static final int TYPE_SYNC_USER_INFO=0x08;
+    /**
+     * 体脂信息
+     */
+    public static final int TYPE_BODY_FAT_INFO=0x09;
+    /**
+     * MCU请求APP补全数据
+     */
+    public static final int TYPE_COMPLETE_DATA =0x0E;
+
     /**
      * 测量完成
      */
-    public static final int MEASUREMENT_END =0x0f;
+    public static final int MEASUREMENT_END =0x0F;
 
     /**
      * MCU回复操作结果

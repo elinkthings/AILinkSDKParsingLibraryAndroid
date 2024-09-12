@@ -3,14 +3,14 @@ plugins {
     id 'maven-publish'
 }
 android {
-    compileSdkVersion 31
+    compileSdkVersion 34
 
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 33
-        versionName "1.9.4"
+        targetSdkVersion 34
+        versionCode 52
+        versionName "1.9.6"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -44,7 +44,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.14.6'
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.14.17'
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')
     api files('libs/getmorefatdata.jar')
@@ -61,7 +61,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.elinkthings'
                 artifactId = 'AILinkSDKParsingLibraryAndroid'
-                version = "1.9.4"
+                version = "1.9.6"
             }
         }
     }

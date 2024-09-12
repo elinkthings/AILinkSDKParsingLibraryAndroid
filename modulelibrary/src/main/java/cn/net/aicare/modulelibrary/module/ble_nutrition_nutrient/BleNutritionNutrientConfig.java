@@ -1,14 +1,14 @@
-package cn.net.aicare.modulelibrary.module.BleNutrition;
+package cn.net.aicare.modulelibrary.module.ble_nutrition_nutrient;
 
 /**
  * 蓝牙营养秤
  */
-public class BleNutritionConfig {
+public class BleNutritionNutrientConfig {
 
     /**
-     * CID
+     * 支持下发营养元素的营养秤
      */
-    public static final int BLE_NUTRITION = 0x0034;
+    public static final int CID = 0x006C;
 
     /**
      * MCU 上报重量
@@ -20,10 +20,6 @@ public class BleNutritionConfig {
      */
     public static final int MCU_UNIT_RESULT = 0x03;
 
-    /**
-     * MCU 上报异常报警
-     */
-    public static final int MCU_ERR = 0x05;
 
     /**
      * APP 下发单位
@@ -34,9 +30,16 @@ public class BleNutritionConfig {
      * APP 下发归零 / 去皮
      */
     public static final int SET_ZERO = 0x04;
+
+
     /**
-     * 设置蜂鸣器频率
+     * MCU 上报异常报警
      */
-    public static final int SET_BUZZ = 0x06;
+    public static final int MCU_ERR = 0x05;
+
+    /**
+     * 下发营养
+     */
+    public static final int SET_NUTRIENT = 0x06;
 
 }

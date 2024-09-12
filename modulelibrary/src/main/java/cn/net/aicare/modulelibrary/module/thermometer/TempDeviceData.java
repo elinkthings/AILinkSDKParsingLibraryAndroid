@@ -105,8 +105,8 @@ public class TempDeviceData extends BaseBleDeviceData {
 
 
                     if ((hex[1] & 0xff) == 0x02) {
-                        long allNum = ((hex[2] & 0xffL) << 24) + ((hex[3] & 0xffL) << 16) + ((hex[4] & 0xffL) << 24) + ((hex[5] & 0xffL));
-                        long sendNum = ((hex[6] & 0xffL) << 24) + ((hex[7] & 0xffL) << 16) + ((hex[8] & 0xffL) << 24) + ((hex[9] & 0xffL));
+                        long allNum = ((hex[2] & 0xffL) << 24) + ((hex[3] & 0xffL) << 16) + ((hex[4] & 0xffL) << 8) + ((hex[5] & 0xffL));
+                        long sendNum = ((hex[6] & 0xffL) << 24) + ((hex[7] & 0xffL) << 16) + ((hex[8] & 0xffL) << 8) + ((hex[9] & 0xffL));
                         if (allNum==0){
                             mOnNotifyData.onHistoryNum(allNum, sendNum);
                             return;
@@ -127,7 +127,7 @@ public class TempDeviceData extends BaseBleDeviceData {
                         }
                         mOnNotifyData.onHistoryNum(allNum, sendNum);
                     } else if ((hex[1] & 0xff) == 0x03) {
-                        mOnNotifyData.onDelHistory(hex[hex[2] & 0xff]);
+                        mOnNotifyData.onDelHistory(hex[2] & 0xff);
                     }
 
                     break;

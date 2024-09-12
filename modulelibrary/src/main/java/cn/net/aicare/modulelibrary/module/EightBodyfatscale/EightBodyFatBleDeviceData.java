@@ -10,10 +10,16 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.List;
 
+/**
+ * 八电极APP算法
+ *
+ * @author xing
+ * @date 2024/08/28
+ */
 public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
     private EightBodyFatCallback mEightBodyFatCallback;
-    private int cid= EightBodyFatUtil.WEIGHT_BODY_FAT_SCALE_WIFI_BLE;
+    private final int cid= EightBodyFatUtil.EIGHT_BODY_FAT_SCALE;
     public EightBodyFatBleDeviceData(BleDevice bleDevice) {
         super(bleDevice);
         bleDevice.setOnBleVersionListener(new OnBleVersionListener() {
@@ -47,6 +53,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
         switch (cmd) {
             case EightBodyFatUtil.WEIGHING:
+                //0x01
 
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onWeight(status, getWeight(hex),  getUnit(hex),getDecimal(hex));
@@ -58,7 +65,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onState(cmd, status, hex[2] & 0xff);
                 }
-                if (status == EightBodyFatUtil.IMPEDANCE_SUCCESS) {
+                if (status == EightBodyFatUtil.IMPEDANCE_SUCCESS || status == EightBodyFatUtil.IMPEDANCE_SUCCESS_MCU) {
                     if (mEightBodyFatCallback != null) {
                         mEightBodyFatCallback.onImpedance(getAdc(hex), hex[2] & 0xff, hex[7] & 0xff);
                     }

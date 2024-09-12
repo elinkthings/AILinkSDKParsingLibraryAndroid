@@ -6,6 +6,7 @@ import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.listener.OnBleSettingListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
+import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.lang.ref.WeakReference;
@@ -48,7 +49,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
         });
 
 
-
         //通用指令的回调
         mBleDevice.setOnBleSettingListener(new OnBleSettingListener() {
             @Override
@@ -67,14 +67,13 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
     /**
      * wifi+ble
      *
-     * @param bleDevice              {@link BleDevice} 蓝牙设备
-     * @param bleBodyFatCallback     {@link BleBodyFatCallback} 体脂秤接口回调
+     * @param bleDevice          {@link BleDevice} 蓝牙设备
+     * @param bleBodyFatCallback {@link BleBodyFatCallback} 体脂秤接口回调
      */
     public static void init(BleDevice bleDevice, BleBodyFatCallback bleBodyFatCallback) {
 
         bodyfatble = new BodyFatBleUtilsData(bleDevice, bleBodyFatCallback);
     }
-
 
 
     /**
@@ -101,7 +100,7 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
 
     @Override
     public void onNotifyData(String uuid, byte[] hex, int type) {
-
+        BleLog.i("体脂秤:" + BleStrUtils.byte2HexStr(hex));
         int cmd = hex[0] & 0xFF;
         if (mBleBodyFatCallback != null) {
             mBleBodyFatCallback.onStatus(cmd);
@@ -173,7 +172,8 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
                 }
                 break;
 
-            default:break;
+            default:
+                break;
 
 
         }
@@ -209,8 +209,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
         }
 
     }
-
-
 
 
     private AppHistoryRecordBean appHistoryRecordBean;
@@ -465,7 +463,6 @@ public class BodyFatBleUtilsData extends BaseBleDeviceData {
          */
         void onUrlData(String url);
     }
-
 
 
 }

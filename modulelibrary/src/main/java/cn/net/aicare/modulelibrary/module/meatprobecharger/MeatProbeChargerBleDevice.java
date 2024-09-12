@@ -1,5 +1,6 @@
 package cn.net.aicare.modulelibrary.module.meatprobecharger;
 
+
 import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
@@ -14,6 +15,7 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
 
 /**
  * @auther ljl
@@ -30,7 +32,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
 
     @Override
     public void OnMtu(int mtu) {
-//        Log.e("ljl", "OnMtu: mtu is " + mtu);
+
         if (mtu > 100) {
             //如果mtu设置成功，则去发送超128字节的指令
             if (mOnMeatProbeChargerDataListener != null) {
@@ -91,7 +93,10 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
         bleDevice.setOnMcuParameterListener(this);
         bleDevice.setOnBleMtuListener(this);
         bleDevice.setOnBleOtherDataListener(this);
+        //电量获取
         bleDevice.sendData(new SendBleBean(BleSendCmdUtil.getInstance().getMcuBatteryStatus()));
+        //同步时间
+        sendData(new SendBleBean(BleSendCmdUtil.getInstance().setDeviceTimeUnix((int) (System.currentTimeMillis() / 1000))));
     }
 
     public static void init(BleDevice bleDevice) {
@@ -124,17 +129,17 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
             case 0x02:
                 //mcu上报设备状态数据
                 //数据协议版本
-                int version = hex[1];
+                int version = hex[1] & 0xFF;
                 //盒子支持的探针数量
-                int supportNum = hex[2];
+                int supportNum = hex[2] & 0xFF;
                 //当前连接的探针数量
-                int currentNum = hex[3];
+                int currentNum = hex[3] & 0xFF;
                 // 盒子电池状态 0->未充电  1->在充电
-                int chargingState = (hex[4] << 7);
+                int chargingState = (hex[4] >> 7) & 0x01;
                 // 电池电量百分比
                 int battery = (hex[4] & 0x7F);
                 // 盒子当前的温度单位
-                int boxUnit = hex[5];
+                int boxUnit = hex[5] & 0xFF;
                 // hex[6],hex[7],hex[8]字节暂时无用,判断探针数量是否大于0，是的话循环拿出每一个探针的信息
                 //第一根探针 9探针编号 10-15mac地址 16-17食物温度 18-19环境温度 20电池状态 21探针插入食物状态 22-23预留
                 //第二根 24探针编号 25-30mac地址 31-32食物温度 33-34环境温度 35电池状态 36探针插入食物状态 37-38预留
@@ -146,7 +151,7 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                     }
                     for (int i = 0; i < currentNum; i++) {
                         //探针编号
-                        int num = hex[9 + i * 15];
+                        int num = hex[9 + i * 15] & 0xFF;
                         //mac 地址
                         byte[] bytes = new byte[6];
                         bytes[0] = hex[15 + i * 15];
@@ -155,19 +160,20 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                         bytes[3] = hex[12 + i * 15];
                         bytes[4] = hex[11 + i * 15];
                         bytes[5] = hex[10 + i * 15];
+                        //盒子连接的探针Mac地址
                         String mac = bytes2Mac(bytes);
                         // 食物温度单位
                         int foodUnit = (hex[16 + i * 15] & 0xFF) >> 7;
                         // 食物温度正负
                         int foodPositive = hex[16 + i * 15] & 0x40;
                         // 食物温度绝对值
-                        int foodTemp = (hex[17 + i * 15] & 0xFF) + ((hex[16 + i * 15] << 8) & 0x3FFF);
+                        int foodTemp = (hex[17 + i * 15] & 0xFF) + ((hex[16 + i * 15] & 0x3F) << 8);
                         // 环境温度单位
                         int ambientUnit = (hex[18 + i * 15] & 0xFF) >> 7;
                         // 环境温度正负
                         int ambientPositive = hex[18 + i * 15] & 0x40;
                         // 环境温度绝对值
-                        int ambientTemp = (hex[19 + i * 15] & 0xFF) + ((hex[18 + i * 15] << 8) & 0x3FFF);
+                        int ambientTemp = (hex[19 + i * 15] & 0xFF) + ((hex[18 + i * 15] & 0x3F) << 8);
                         // 探针充电状态
                         int chargerState = (hex[20 + i * 15] & 0xFF) >> 7;
                         // 探针电量
@@ -312,6 +318,26 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                     mOnMeatProbeChargerDataListener.switchUnitResult(unitResult);
                 }
                 break;
+            case 0x05:
+                //mcu上报报警状态数据
+                //探针mac地址(小端序)
+                byte[] acBytes_0x05 = new byte[6];
+                acBytes_0x05[0] = hex[6];
+                acBytes_0x05[1] = hex[5];
+                acBytes_0x05[2] = hex[4];
+                acBytes_0x05[3] = hex[3];
+                acBytes_0x05[4] = hex[2];
+                acBytes_0x05[5] = hex[1];
+                String mac = bytes2Mac(acBytes_0x05);
+                //报警状态
+                //计时时间 bit2 0-未到 1-到了
+                int timeOut_0x05 = (hex[7] & 0x04) >> 2;
+                //环境温度是否过高bit1 0-否 1-是
+                int isAmbient_0x05 = (hex[7] & 0x02) >> 1;
+                //食物目标温度是否达到bit0 0-否 1-是
+                int isTarget_0x05 = hex[7] & 0x01;
+
+                break;
             case 0x06:
                 //mcu回复报警状态成功或失败 0->成功 1->失败 2->不支持
                 byte[] macBytes = new byte[6];
@@ -325,6 +351,19 @@ public class MeatProbeChargerBleDevice extends BaseBleDeviceData implements OnMc
                 if (mOnMeatProbeChargerDataListener != null) {
                     mOnMeatProbeChargerDataListener.setAlarmresult(bytes2Mac(macBytes), alarmResult);
                 }
+                break;
+            case 0x07:
+                //mcu发送取消报警
+                byte[] macBytes2 = new byte[6];
+                macBytes2[0] = hex[6];
+                macBytes2[1] = hex[5];
+                macBytes2[2] = hex[4];
+                macBytes2[3] = hex[3];
+                macBytes2[4] = hex[2];
+                macBytes2[5] = hex[1];
+
+                int alarmResult_0x07 = hex[7] & 0xFF;
+
                 break;
             case 0x08:
                 //mcu回复取消报警 0->成功 1->失败 2->不支持

@@ -124,64 +124,16 @@ public class MeatProbeSendCmdUtil {
         bytes[2] = 0x01;
         //烧烤id 选择食物的时间戳long型/1000 转为 int类型再转字节数组
         int intCookingId = (int) (cookingId / 1000);
-        byte[] cookingBytes = ByteUtils.reverseByteArr(ByteUtils.intToBytes(intCookingId));
+        byte[] cookingBytes = ByteUtils.changeBytes(ByteUtils.intToBytes(intCookingId));
         bytes[3] = cookingBytes[0];
         bytes[4] = cookingBytes[1];
         bytes[5] = cookingBytes[2];
         bytes[6] = cookingBytes[3];
-        //食物类型 牛肉 0->0x00 小牛肉 1->0x01 羊肉 2->0x02 猪肉 3->0x03 鸡肉 4-0x04 火鸡肉 5-> 鱼肉 6-0x06 汉堡包 7-0x07 其他 8-0x08
-        switch (foodType) {
-            case FoodConfig.FOOD_TYPE_BEEF:
-                bytes[7] = 0x00;
-                break;
-            case FoodConfig.FOOD_TYPE_VEAL:
-                bytes[7] = 0x01;
-                break;
-            case FoodConfig.FOOD_TYPE_LAMB:
-                bytes[7] = 0x02;
-                break;
-            case FoodConfig.FOOD_TYPE_PORK:
-                bytes[7] = 0x03;
-                break;
-            case FoodConfig.FOOD_TYPE_CHICKEN:
-                bytes[7] = 0x04;
-                break;
-            case FoodConfig.FOOD_TYPE_TURKEY:
-                bytes[7] = 0x05;
-                break;
-            case FoodConfig.FOOD_TYPE_FISH:
-                bytes[7] = 0x06;
-                break;
-            case FoodConfig.FOOD_TYPE_HAMBURGER:
-                bytes[7] = 0x07;
-                break;
-            case FoodConfig.FOOD_TYPE_OTHER:
-                bytes[7] = 0x08;
-                break;
-            default:
-                bytes[7] = 0x09;
-                break;
-        }
-        //食物熟度 三分熟 0->0x00 五分熟 1->0x01 七分熟 2->0x02 全熟 3->0x03 DIY 4->0x04
-        switch (foodRawness) {
-            case FoodConfig.FOOD_DEGREE_MRATE:
-                bytes[8] = 0x00;
-                break;
-            case FoodConfig.FOOD_DEGREE_MEDIUM:
-                bytes[8] = 0x01;
-                break;
-            case FoodConfig.FOOD_DEGREE_MWELL:
-                bytes[8] = 0x02;
-                break;
-            case FoodConfig.FOOD_DEGREE_WELL:
-                bytes[8] = 0x03;
-                break;
-            case FoodConfig.FOOD_DEGREE_DIY:
-                bytes[8] = 0x04;
-                break;
-            default:
-                break;
-        }
+        //食物类型
+        bytes[7] = (byte) foodType;
+
+        //食物熟度
+        bytes[8] = (byte) foodRawness;
 
         //先判断单位是℃还是℉
         short sTargetTempC = (short) targetTempC;

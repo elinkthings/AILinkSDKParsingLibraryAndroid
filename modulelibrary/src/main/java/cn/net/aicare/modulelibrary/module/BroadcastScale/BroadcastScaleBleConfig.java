@@ -19,6 +19,8 @@ public class BroadcastScaleBleConfig {
      * 凌阳定制的cid
      */
     public final static int BROADCAST_SCALE_LING_YANG_CID =0x16;
+    public final static int BROADCAST_SCALE_T6 =0x09;
+
 
 
     /**

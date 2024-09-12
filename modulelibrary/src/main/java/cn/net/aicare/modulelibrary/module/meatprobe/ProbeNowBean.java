@@ -28,7 +28,7 @@ public class ProbeNowBean implements Serializable {
     /**
      * 实时温度值
      */
-    private int mRealTimeTemp;
+    private int mRealTimeTemp = 65535;
     /**
      * 环境温度单位 0->℃ 1->℉
      */
@@ -40,7 +40,7 @@ public class ProbeNowBean implements Serializable {
     /**
      * 环境温度值 若无 则为0xFFFF
      */
-    private int mAmbientTemp;
+    private int mAmbientTemp = 65535;
     /**
      * 目标温度单位 0->℃ 1->℉
      */
@@ -63,6 +63,16 @@ public class ProbeNowBean implements Serializable {
      */
     private long mCreationTime;
 
+    /**
+     * 充电状态
+     */
+    private int chargerState;
+
+    /**
+     * 探针电量
+     */
+    private int probeBattery;
+
 
     public ProbeNowBean() {
     }
@@ -80,6 +90,25 @@ public class ProbeNowBean implements Serializable {
         mTargetPositive = targetPositive;
         mTargetTemp = targetTemp;
         mProbeState = probeState;
+    }
+
+    public ProbeNowBean(int id, int realTimeUnit, int realTimePositive, int realTimeTemp, int ambientUnit, int ambientPositive,
+                        int ambientTemp, int targetUnit, int targetPositive, int targetTemp, int probeState, long creationTime,
+                        int chargerState, int probeBattery) {
+        mId = id;
+        mRealTimeUnit = realTimeUnit;
+        mRealTimePositive = realTimePositive;
+        mRealTimeTemp = realTimeTemp;
+        mAmbientUnit = ambientUnit;
+        mAmbientPositive = ambientPositive;
+        mAmbientTemp = ambientTemp;
+        mTargetUnit = targetUnit;
+        mTargetPositive = targetPositive;
+        mTargetTemp = targetTemp;
+        mProbeState = probeState;
+        mCreationTime = creationTime;
+        this.chargerState = chargerState;
+        this.probeBattery = probeBattery;
     }
 
     public int getId() {
@@ -178,9 +207,36 @@ public class ProbeNowBean implements Serializable {
         mCreationTime = creationTime;
     }
 
+    public int getChargerState() {
+        return chargerState;
+    }
+
+    public void setChargerState(int chargerState) {
+        this.chargerState = chargerState;
+    }
+
+    public int getProbeBattery() {
+        return probeBattery;
+    }
+
+    public void setProbeBattery(int probeBattery) {
+        this.probeBattery = probeBattery;
+    }
+
     @Override
     public String toString() {
-        //不包含创建时间
-        return "ProbeNowBean{" + "mId=" + mId + ", mRealTimeUnit=" + mRealTimeUnit + ", mRealTimePositive=" + mRealTimePositive + ", mRealTimeTemp=" + mRealTimeTemp + ", mAmbientUnit=" + mAmbientUnit + ", mAmbientPositive=" + mAmbientPositive + ", mAmbientTemp=" + mAmbientTemp + ", mTargetUnit=" + mTargetUnit + ", mTargetPositive=" + mTargetPositive + ", mTargetTemp=" + mTargetTemp + ", mProbeState=" + mProbeState + '}';
+        return "ProbeNowBean{" +
+                "mId=" + mId +
+                ", mRealTimeUnit=" + mRealTimeUnit +
+                ", mRealTimePositive=" + mRealTimePositive +
+                ", mRealTimeTemp=" + mRealTimeTemp +
+                ", mAmbientUnit=" + mAmbientUnit +
+                ", mAmbientPositive=" + mAmbientPositive +
+                ", mAmbientTemp=" + mAmbientTemp +
+                ", mTargetUnit=" + mTargetUnit +
+                ", mTargetPositive=" + mTargetPositive +
+                ", mTargetTemp=" + mTargetTemp +
+                ", mProbeState=" + mProbeState +
+                '}';
     }
 }

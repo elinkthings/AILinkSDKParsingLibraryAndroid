@@ -6,6 +6,11 @@ public class FoodConfig {
      * 食物探针
      */
     public static final int DEVICE_CID = 0x003F;
+    public static final int MEAT_PROBE = 0x003F;
+    /**
+     * 探针充电盒
+     */
+    public static final int MEAT_PROBE_CHARGER = 0x0055;
 
     /**
      * 摄氏度

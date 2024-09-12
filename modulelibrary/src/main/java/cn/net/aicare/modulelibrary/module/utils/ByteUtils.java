@@ -1,5 +1,6 @@
 package cn.net.aicare.modulelibrary.module.utils;
 
+
 /**
  * @auther ljl
  * 字节转换工具类
@@ -18,14 +19,31 @@ public class ByteUtils {
         int temp = num;
         byte[] b = new byte[2];
         for (int i = 0; i < b.length; i++) {
-            b[i] = Integer.valueOf(temp).byteValue();
+            b[i] = new Integer(temp & 0xff).byteValue();
             temp = temp >> 8;
         }
         byte[] bytes = reverseByteArr(b);
         return bytes;
     }
+
     /**
-     * int 转 byte数组(大端序)
+     * 字节数组转 short 类型
+     *
+     * @param b
+     * @return
+     */
+    public static short byteToShort(byte[] b) {
+        short s = 0;
+        short s0 = (short) (b[0] & 0xff);
+        short s1 = (short) (b[1] & 0xff);
+
+        s1 <<= 8;
+        s = (short) (s0 | s1);
+        return s;
+    }
+
+    /**
+     * int 转 byte数组
      *
      * @param num
      * @return
@@ -34,24 +52,7 @@ public class ByteUtils {
         int temp = num;
         byte[] b = new byte[4];
         for (int i = 0; i < b.length; i++) {
-            b[i] = Integer.valueOf(temp).byteValue();
-            temp = temp >> 8;
-        }
-        byte[] bytes = reverseByteArr(b);
-        return bytes;
-    }
-
-    /**
-     * long 转 byte数组(大端序)
-     *
-     * @param l
-     * @return
-     */
-    public static byte[] longToByte(long l) {
-        byte[] b = new byte[8];
-        long temp = l;
-        for (int i = 0; i < b.length; i++) {
-            b[i] = Long.valueOf(temp).byteValue();
+            b[i] = new Integer(temp & 0xff).byteValue();
             temp = temp >> 8;
         }
         byte[] bytes = reverseByteArr(b);
@@ -60,19 +61,19 @@ public class ByteUtils {
 
     /**
      * 字节数组转 int
-     * 小端序byte数组转int
      *
      * @param b
      * @return
      */
     public static int byteToInt(byte[] b) {
+//        byte[] bytes = reverseByteArr(b);
         byte[] bytes = b;
         int s = 0;
         //最低位
-        int s0 = bytes[0] & 0xFF;
-        int s1 = bytes[1] & 0xFF;
-        int s2 = bytes[2] & 0xFF;
-        int s3 = bytes[3] & 0xFF;
+        int s0 = bytes[0] & 0xff;
+        int s1 = bytes[1] & 0xff;
+        int s2 = bytes[2] & 0xff;
+        int s3 = bytes[3] & 0xff;
 
         //s0不变
         s1 <<= 8;
@@ -104,7 +105,22 @@ public class ByteUtils {
         return Float.intBitsToFloat(i);
     }
 
-
+    /**
+     * long 转 byte数组
+     *
+     * @param l
+     * @return
+     */
+    public static byte[] longToByte(long l) {
+        byte[] b = new byte[8];
+        long temp = l;
+        for (int i = 0; i < 8; i++) {
+            b[i] = new Long(temp).byteValue();
+            temp = temp >> 8;
+        }
+        byte[] bytes = reverseByteArr(b);
+        return bytes;
+    }
 
     /**
      * byte数组转 long
@@ -113,18 +129,19 @@ public class ByteUtils {
      * @return
      */
     public static long byteToLong(byte[] b) {
+//        byte[] bytes = reverseByteArr(b);
         byte[] bytes = b;
         long s = 0;
         //最低位
-        long s0 = bytes[0] & 0xFF;
-        long s1 = bytes[1] & 0xFF;
-        long s2 = bytes[2] & 0xFF;
-        long s3 = bytes[3] & 0xFF;
+        long s0 = bytes[0] & 0xff;
+        long s1 = bytes[1] & 0xff;
+        long s2 = bytes[2] & 0xff;
+        long s3 = bytes[3] & 0xff;
         //最低位
-        long s4 = bytes[4] & 0xFF;
-        long s5 = bytes[5] & 0xFF;
-        long s6 = bytes[6] & 0xFF;
-        long s7 = bytes[7] & 0xFF;
+        long s4 = bytes[4] & 0xff;
+        long s5 = bytes[5] & 0xff;
+        long s6 = bytes[6] & 0xff;
+        long s7 = bytes[7] & 0xff;
 
         //s0不变
         s1 <<= 8;
@@ -161,22 +178,6 @@ public class ByteUtils {
     }
 
     /**
-     * 字节数组转 short 类型
-     *
-     * @param b
-     * @return
-     */
-    public static short byteToShort(byte b, byte b2) {
-        short s = 0;
-        short s0 = (short) (b & 0xff);
-        short s1 = (short) (b2 & 0xff);
-
-        s1 <<= 8;
-        s = (short) (s0 | s1);
-        return s;
-    }
-
-    /**
      * 字节翻转
      *
      * @param bytes
@@ -193,6 +194,102 @@ public class ByteUtils {
         return b;
     }
 
+    /**
+     * 切换大小端序
+     *
+     * @param a
+     * @return
+     */
+    public static byte[] changeBytes(byte[] a) {
+        byte[] b = new byte[a.length];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = a[b.length - i - 1];
+        }
+        return b;
+    }
 
+    /**
+     * 十六进制字符串转 byte 数组
+     *
+     * @param hexStr
+     * @return
+     */
+    public static byte[] hexStringToByteArray(String hexStr) {
+        hexStr = hexStr.replaceAll(" ", "");
+        int len = hexStr.length();
+        byte[] bytes = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            bytes[i / 2] = (byte) (Character.digit(hexStr.charAt(i), 16) << 4 + Character.digit(hexStr.charAt(i + 1), 16));
+        }
+        return bytes;
+    }
+
+    /**
+     * 字节数组转mac地址
+     *
+     * @param bytes
+     * @return
+     */
+    public static String bytes2Mac(byte[] bytes) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            if (i != (bytes.length - 1)) {
+                stringBuilder.append(String.format("%02X", bytes[i]).toUpperCase() + ":");
+            } else {
+                stringBuilder.append(String.format("%02X", bytes[i]).toUpperCase());
+            }
+        }
+        return String.valueOf(stringBuilder);
+    }
+
+    /**
+     * mac地址字符串转 byte 数组，因为需要小端序，所有再反转一下
+     *
+     * @param mac
+     * @return
+     */
+    public static byte[] macStr2Bytes(String mac) {
+        String[] macAddress = mac.split(":");
+        int length = macAddress.length;
+        byte[] bytes = new byte[length];
+        for (int i = (length - 1); i >= 0; i--) {
+            bytes[length - 1 - i] = (byte) Integer.parseInt(macAddress[i], 16);
+        }
+        return bytes;
+    }
+
+    /**
+     * 十六进制字符串转byte数组
+     *
+     * @param hexString
+     * @return
+     */
+    public static byte[] hexStrToBytes(String hexString) {
+        hexString = hexString.replace(" ", "");
+        int len = hexString.length();
+        byte[] bytes = new byte[len / 2];
+        for (int i = 0; i < bytes.length; i++) {
+            byte high = (byte) (Character.digit(hexString.charAt(i * 2), 16) & 0xFF);
+            byte low = (byte) (Character.digit(hexString.charAt(i * 2 + 1), 16) & 0xFF);
+            bytes[i] = (byte) (high << 4 | low);
+        }
+        return bytes;
+    }
+
+    /**
+     * 获取校验和
+     *
+     * @param
+     * @return
+     */
+    public static int getCheckSum(byte[] bytes) {
+        int checkSum = 0;
+        for (byte aByte : bytes) {
+            checkSum = checkSum + (aByte & 0xFF);
+        }
+        checkSum = checkSum & 0xFF;
+        return checkSum;
+
+    }
 }
 

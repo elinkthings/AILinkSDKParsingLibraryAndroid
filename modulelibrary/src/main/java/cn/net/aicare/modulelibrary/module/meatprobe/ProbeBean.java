@@ -1,6 +1,5 @@
 package cn.net.aicare.modulelibrary.module.meatprobe;
 
-
 import java.io.Serializable;
 
 /**
@@ -24,15 +23,15 @@ public class ProbeBean implements Serializable {
     /**
      * //烧烤Id（选择食物的时间戳）
      */
-    private long cookingId;
+    private long cookingId = -1L;
 
     /**
-     * //食物类型 {@link FoodConfig#FOOD_TYPE_BEEF}
+     * //食物类型
      */
     private int foodType = FoodConfig.FOOD_TYPE_NO_SETTING;
 
     /**
-     * //食物熟度 {@link FoodConfig#FOOD_DEGREE_MRATE}
+     * //食物熟度
      */
     private int foodRawness = -1;
 
@@ -67,7 +66,7 @@ public class ProbeBean implements Serializable {
     private int ambientMaxTemperature_F;
 
     /**
-     *  //提醒温度对目标温度百分比0.8~1 如果获取到的小于0.8则等于0.8，大于1则等于1
+     * //提醒温度对目标温度百分比0.8~1 如果获取到的小于0.8则等于0.8，大于1则等于1
      */
     private double alarmTemperaturePercent = 0.95;
     /**
@@ -83,6 +82,37 @@ public class ProbeBean implements Serializable {
      * 当前单位
      */
     private int currentUnit;
+
+    /**
+     * 提醒温度℃
+     */
+    private int alarmTemperature_C;
+
+    /**
+     * 提醒温度℉
+     */
+    private int alarmTemperature_F;
+
+    /**
+     * 发送的自定义修改
+     */
+    private String reMark;
+
+    /**
+     * 不修改备注时的默认备注
+     */
+    private String defaultMark;
+
+    /**
+     * 探针盒子连接的探针的电量状态
+     */
+    private int probeBatteryState;
+
+    /**
+     * 探针盒子连接的探针的电量,默认100
+     */
+    private int probeBattery = 255;
+
 
     public ProbeBean(String mac) {
         this.mac = mac;
@@ -105,6 +135,29 @@ public class ProbeBean implements Serializable {
         this.timerStart = timerStart;
         this.timerEnd = timerEnd;
         this.currentUnit = currentUnit;
+    }
+
+    public ProbeBean(String mac, int version, long cookingId, int foodType, int foodRawness, int targetTemperature_C,
+                     int targetTemperature_F, int ambientMinTemperature_C, int ambientMinTemperature_F, int ambientMaxTemperature_C,
+                     int ambientMaxTemperature_F, double alarmTemperaturePercent, long timerStart, long timerEnd, int currentUnit,
+                     int alarmTemperature_C, int alarmTemperature_F) {
+        this.mac = mac;
+        this.version = version;
+        this.cookingId = cookingId;
+        this.foodType = foodType;
+        this.foodRawness = foodRawness;
+        this.targetTemperature_C = targetTemperature_C;
+        this.targetTemperature_F = targetTemperature_F;
+        this.ambientMinTemperature_C = ambientMinTemperature_C;
+        this.ambientMinTemperature_F = ambientMinTemperature_F;
+        this.ambientMaxTemperature_C = ambientMaxTemperature_C;
+        this.ambientMaxTemperature_F = ambientMaxTemperature_F;
+        this.alarmTemperaturePercent = alarmTemperaturePercent;
+        this.timerStart = timerStart;
+        this.timerEnd = timerEnd;
+        this.currentUnit = currentUnit;
+        this.alarmTemperature_C = alarmTemperature_C;
+        this.alarmTemperature_F = alarmTemperature_F;
     }
 
     public String getMac() {
@@ -227,8 +280,76 @@ public class ProbeBean implements Serializable {
         this.currentUnit = currentUnit;
     }
 
+    public int getAlarmTemperature_C() {
+        return alarmTemperature_C;
+    }
+
+    public void setAlarmTemperature_C(int alarmTemperature_C) {
+        this.alarmTemperature_C = alarmTemperature_C;
+    }
+
+    public int getAlarmTemperature_F() {
+        return alarmTemperature_F;
+    }
+
+    public void setAlarmTemperature_F(int alarmTemperature_F) {
+        this.alarmTemperature_F = alarmTemperature_F;
+    }
+
+    public String getReMark() {
+        return reMark;
+    }
+
+    public void setReMark(String reMark) {
+        this.reMark = reMark;
+    }
+
+    public String getDefaultMark() {
+        return defaultMark;
+    }
+
+    public void setDefaultMark(String defaultMark) {
+        this.defaultMark = defaultMark;
+    }
+
+    public int getProbeBatteryState() {
+        return probeBatteryState;
+    }
+
+    public void setProbeBatteryState(int probeBatteryState) {
+        this.probeBatteryState = probeBatteryState;
+    }
+
+    public int getProbeBattery() {
+        return probeBattery;
+    }
+
+    public void setProbeBattery(int probeBattery) {
+        this.probeBattery = probeBattery;
+    }
+
     @Override
     public String toString() {
-        return "ProbeBean{" + "mac='" + mac + '\'' + ", version=" + version + ", cookingId=" + cookingId + ", foodType=" + foodType + ", foodRawness=" + foodRawness + ", targetTemperature_C=" + targetTemperature_C + ", targetTemperature_F=" + targetTemperature_F + ", ambientMinTemperature_C=" + ambientMinTemperature_C + ", ambientMinTemperature_F=" + ambientMinTemperature_F + ", ambientMaxTemperature_C=" + ambientMaxTemperature_C + ", ambientMaxTemperature_F=" + ambientMaxTemperature_F + ", alarmTemperaturePercent=" + alarmTemperaturePercent + ", timerStart=" + timerStart + ", timerEnd=" + timerEnd + ", currentUnit=" + currentUnit + '}';
+        return "ProbeBean{" +
+                "mac='" + mac + '\'' +
+                ", version=" + version +
+                ", cookingId=" + cookingId +
+                ", foodType=" + foodType +
+                ", foodRawness=" + foodRawness +
+                ", targetTemperature_C=" + targetTemperature_C +
+                ", targetTemperature_F=" + targetTemperature_F +
+                ", ambientMinTemperature_C=" + ambientMinTemperature_C +
+                ", ambientMinTemperature_F=" + ambientMinTemperature_F +
+                ", ambientMaxTemperature_C=" + ambientMaxTemperature_C +
+                ", ambientMaxTemperature_F=" + ambientMaxTemperature_F +
+                ", alarmTemperaturePercent=" + alarmTemperaturePercent +
+                ", timerStart=" + timerStart +
+                ", timerEnd=" + timerEnd +
+                ", currentUnit=" + currentUnit +
+                ", alarmTemperature_C=" + alarmTemperature_C +
+                ", alarmTemperature_F=" + alarmTemperature_F +
+                ", defaultMark=" + defaultMark +
+                ", reMark=" + reMark +
+                '}';
     }
 }

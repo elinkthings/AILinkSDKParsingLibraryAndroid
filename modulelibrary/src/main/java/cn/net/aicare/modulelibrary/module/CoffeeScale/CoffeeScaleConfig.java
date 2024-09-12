@@ -90,4 +90,10 @@ public class CoffeeScaleConfig {
      * 退出，进入冲煮模式
      */
     public static final int BREW_MODE = 0x11;
+
+
+    /**
+     * mcu上报当前重量
+     */
+    public static final int MCU_WEIGHT = 0x13;
 }

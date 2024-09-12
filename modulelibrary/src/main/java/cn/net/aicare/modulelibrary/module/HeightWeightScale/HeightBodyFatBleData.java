@@ -120,15 +120,15 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
 
                 case HeightBodyFatBleUntils.MCU_ADC_RESULT:
                     //兼容 之前版本adc 解析错误的问题
-                    if (hex.length>=9){
+                    if (hex.length >= 9) {
                         int mode = hex[1] & 0xff;
                         int status = hex[2] & 0xff;
                         int adcType = hex[3] & 0xff;
-                        long adcH =( (hex[4] & 0xffL) << 24)+((hex[5] & 0xffL)<<16);
-                        long adcL = ((hex[6] & 0xff) << 8)+(hex[7] & 0xff);
+                        long adcH = ((hex[4] & 0xffL) << 24) + ((hex[5] & 0xffL) << 16);
+                        long adcL = ((hex[6] & 0xff) << 8) + (hex[7] & 0xff);
                         int id = hex[8] & 0xff;
                         mOnHeightBodyFatDataCallback.onAdc(mode, status, adcType, adcH + adcL, id);
-                    }else if (hex.length >= 8) {
+                    } else if (hex.length >= 8) {
                         int mode = hex[1] & 0xff;
                         int status = hex[2] & 0xff;
                         int adcType = hex[3] & 0xff;
@@ -230,7 +230,7 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
                     }
                     break;
                 case HeightBodyFatBleUntils.ERROR:
-                    if (hex.length>=2){
+                    if (hex.length >= 2) {
                         mOnHeightBodyFatDataCallback.onError(hex[1] & 0xff);
                     }
             }
@@ -253,6 +253,18 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
 
         void onWeightBaby(int workMode, int weightMode, int adultWeight, int adultBabyWeight, int babyWeight, int decimals, int unit);
 
+        /**
+         * 体重
+         *
+         * @param workMode   工作模式
+         * @param weightMode 体重模式
+         * @param weight     重量
+         * @param decimals   小数
+         * @param unit       单位 0：kg
+         *                   1：斤
+         *                   4：st:lb
+         *                   6：lb
+         */
         void onWeight(int workMode, int weightMode, int weight, int decimals, int unit);
 
         void onAdc(int workMode, int status, int adcType, long adc, int arithmetic);
@@ -261,6 +273,16 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
 
         void onTEMP(int workMode, int sign, int temp, int decimals, int unit);
 
+        /**
+         * 在高度
+         *
+         * @param workMode 工作模式
+         * @param height   高度
+         * @param decimals 小数
+         * @param unit     单位 0：cm
+         *                 1：inch
+         *                 2：ft-in
+         */
         void onHeight(int workMode, int height, int decimals, int unit);
 
         void onBodyfat1(int workMode, int bfr, int sfr, int vfr, int rom, int bmr, int age);
@@ -270,6 +292,7 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
         void onVoice(int status);
 
         void onFinish(int workMode);
+
         void onError(int error);
 
     }

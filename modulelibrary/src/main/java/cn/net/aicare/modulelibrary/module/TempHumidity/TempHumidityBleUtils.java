@@ -14,6 +14,8 @@ import java.util.Locale;
 
 public class TempHumidityBleUtils extends BaseBleDeviceData {
 
+    private int mCid = 0x002e;
+    private int mCidWifi = 0x0036;
     private static TempHumidityBleUtils mTempHumidityBleUtils;
     private BleDataCallBack bleDataCallBack;
 
@@ -127,7 +129,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         bytes[3] = (byte) ((time & 0x00ff0000L) >> 16);
         bytes[2] = (byte) ((time & 0x0000ff00L) >> 8);
         bytes[1] = (byte) (time & 0x000000ffL);
-        sendBleBean.setHex(0x002e, bytes);
+        sendBleBean.setHex(mCid, bytes);
         sendData(sendBleBean);
     }
 
@@ -138,7 +140,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         bytes[0] = 0x01;
         bytes[1] = 0x00;
 
-        sendBleBean.setHex(0x002e, bytes);
+        sendBleBean.setHex(mCid, bytes);
 
         sendData(sendBleBean);
     }
@@ -156,7 +158,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         bytes[1] = 0x03;
         bytes[2] = 0x14;
         bytes[3] = 0x00;
-        sendBleBean.setHex(0x002e, bytes);
+        sendBleBean.setHex(mCid, bytes);
         sendData(sendBleBean);
         SendMcuBean sendBleBean1 = new SendMcuBean();
         byte[] bytes1 = new byte[4];
@@ -168,7 +170,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         bytes1[1] = 0x01;
         bytes1[2] = 0x1E;
         bytes1[3] = 0x14;
-        sendBleBean1.setHex(0x002e, bytes1);
+        sendBleBean1.setHex(mCid, bytes1);
         sendData(sendBleBean1);
 
 
@@ -181,7 +183,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         bytes[1] = 0x00;
         bytes[2] = 0x00;
         bytes[3] = 0x00;
-        sendBleBean.setHex(0x002e, bytes);
+        sendBleBean.setHex(mCid, bytes);
         sendData(sendBleBean);
         SendMcuBean sendBleBean1 = new SendMcuBean();
         byte[] bytes1 = new byte[4];
@@ -189,7 +191,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         bytes1[1] = 0x01;
         bytes1[2] = 0x01;
         bytes1[3] = 0x02;
-        sendBleBean1.setHex(0x002e, bytes1);
+        sendBleBean1.setHex(mCid, bytes1);
         sendData(sendBleBean1);
 
     }
@@ -204,6 +206,11 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
     }
 
 
+    /**
+     * 设置上报间隔(wifi+ble使用)
+     *
+     * @param time 时间
+     */
     public void setReportTime(int time) {
 
         byte[] bytes = new byte[3];
@@ -211,7 +218,7 @@ public class TempHumidityBleUtils extends BaseBleDeviceData {
         bytes[1] = (byte) ((time & 0xff00) >> 8);
         bytes[2] = (byte) (time & 0x00ff);
         SendMcuBean sendBleBean = new SendMcuBean();
-        sendBleBean.setHex(0x0036, bytes);
+        sendBleBean.setHex(mCidWifi, bytes);
         sendData(sendBleBean);
     }
 

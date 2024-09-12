@@ -92,6 +92,10 @@ public class CoffeeScaleData extends BaseBleDeviceData implements OnBleVersionLi
                     // 退出，进入冲煮模式
                     mcuBrewMode(hex);
                     break;
+                case CoffeeScaleConfig.MCU_WEIGHT:
+                    // 重量解析
+                    parseWeight(hex);
+                    break;
             }
         }
     }
@@ -248,6 +252,48 @@ public class CoffeeScaleData extends BaseBleDeviceData implements OnBleVersionLi
         int status = hex[1];
         if (mCoffeeScaleCallback != null) {
             mCoffeeScaleCallback.mcuBrewMode(status);
+        }
+    }
+
+
+    /**
+     * 解析重量
+     *
+     * @param hex 十六进制
+     */
+    private void parseWeight(byte[] hex) {
+        //1：稳定数据。（若设备无稳定数据，则以实时数据格式上报）
+        //2：实时数据。
+        int status = hex[1] & 0xFF;
+        int unit = hex[2] & 0xFF;
+        //0：正重量（重量为正数）
+        //1：负重量（重量为负数）
+        int symbol = (hex[3] >> 4) & 0x01;
+        int decimal = hex[3] & 0x0F;
+        int weight = (hex[4] << 16) | (hex[5] << 8) | (hex[6] & 0xFF);
+        if (symbol == 1) {
+            weight = -weight;
+        }
+        //=0 ：℃
+        //=1 ：℉
+        int tempUnit = hex[7] & 0xFF;
+        //0：正温度（温度为正数）
+        //1：负温度（温度为负数）
+        int tempSymbol = (hex[8] >> 4) & 0x01;
+        int tempDecimal = hex[8] & 0x0F;
+        int temp = (hex[9] << 8) | (hex[10] & 0xFF);
+        if (tempSymbol == 1) {
+            temp = -temp;
+        }
+        int err = hex[11] & 0xFF;
+        if (mCoffeeScaleCallback != null) {
+            mCoffeeScaleCallback.onWeightResult(status, unit, decimal, weight, err);
+        }
+        if (mCoffeeScaleCallback != null) {
+            if (tempUnit == 0xFF || tempDecimal == 0x0F || temp == 0xFFFF) {
+                return;
+            }
+            mCoffeeScaleCallback.onTempResult(tempUnit, tempDecimal, temp);
         }
     }
 
@@ -512,6 +558,27 @@ public class CoffeeScaleData extends BaseBleDeviceData implements OnBleVersionLi
          * @param list 单位列表
          */
         void mcuSupportUnit(List<SupportUnitBean> list);
+
+
+        /**
+         * 体重结果
+         *
+         * @param status        0：退出，1：进入
+         * @param weightUnit    重量单位
+         * @param weightDecimal 体重小数
+         * @param weightSource  体重源
+         * @param err           错误码 0 无异常。 1：超重
+         */
+        void onWeightResult(int status, int weightUnit, int weightDecimal, int weightSource, int err);
+
+        /**
+         * 温度结果
+         *
+         * @param tempUnit    温度单位
+         * @param tempDecimal 温度小数
+         * @param tempSource  温度源
+         */
+        void onTempResult(int tempUnit, int tempDecimal, int tempSource);
     }
 
     private CoffeeScaleCallback mCoffeeScaleCallback;
