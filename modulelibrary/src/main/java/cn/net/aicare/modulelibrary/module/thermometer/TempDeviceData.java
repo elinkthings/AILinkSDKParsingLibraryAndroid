@@ -11,24 +11,32 @@ import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
 import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleCompanyListener;
+import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
+import com.pingwang.bluetoothlib.listener.OnSettingUnit;
 import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * xing<br>
  * 2019/5/11<br>
  * 体温计
  */
-public class TempDeviceData extends BaseBleDeviceData {
+public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataListener {
     private String TAG = TempDeviceData.class.getName();
 
     private onNotifyData mOnNotifyData;
+    private OnSettingUnit mOnSettingUnit;
     private int mType = 0x03;
     private byte[] CID;
     private static BleDevice mBleDevice = null;
@@ -67,6 +75,8 @@ public class TempDeviceData extends BaseBleDeviceData {
     private TempDeviceData(BleDevice bleDevice) {
         super(bleDevice);
         mBleDevice = bleDevice;
+        bleDevice.setOnBleOtherDataListener(this);
+        bleDevice.setMtu(517);
         init();
     }
 
@@ -96,43 +106,17 @@ public class TempDeviceData extends BaseBleDeviceData {
         if (hex != null && hex.length > 0) {
             switch (hex[0] & 0xFF) {
                 case 0x44:
-                case 0x45:
                     // 设备回复设置 Unix 时间戳结果
                     int status = hex[1] & 0xFF;
                     mOnNotifyData.mcuSetUnixStamp(status);
                     break;
-                case 0x48:
-
-
-                    if ((hex[1] & 0xff) == 0x02) {
-                        long allNum = ((hex[2] & 0xffL) << 24) + ((hex[3] & 0xffL) << 16) + ((hex[4] & 0xffL) << 8) + ((hex[5] & 0xffL));
-                        long sendNum = ((hex[6] & 0xffL) << 24) + ((hex[7] & 0xffL) << 16) + ((hex[8] & 0xffL) << 8) + ((hex[9] & 0xffL));
-                        if (allNum==0){
-                            mOnNotifyData.onHistoryNum(allNum, sendNum);
-                            return;
-                        }
-                        int dataLength = (int) ((hex.length - 10) / sendNum);
-                        byte[] dataBytes = new byte[hex.length - 10];
-                        System.arraycopy(hex, 10, dataBytes, 0, dataBytes.length);
-                        for (int i=0;i<sendNum;i++){
-                         long time=((dataBytes[3+dataLength*i] & 0xffL) << 24) + ((dataBytes[2+dataLength*i] & 0xffL) << 16)
-                                 + ((dataBytes[1+dataLength*i] & 0xffL) << 8) + ((dataBytes[0+dataLength*i] & 0xffL));
-                         byte[] bytes=new byte[dataLength-4];
-                         System.arraycopy(dataBytes, 4+dataLength*i, bytes, 0, bytes.length);
-
-                         mOnNotifyData.onHistory(time,bytes);
-                         if (i==sendNum-1){
-                             mOnNotifyData.onHistoryLast(time);
-                         }
-                        }
-                        mOnNotifyData.onHistoryNum(allNum, sendNum);
-                    } else if ((hex[1] & 0xff) == 0x03) {
-                        mOnNotifyData.onDelHistory(hex[2] & 0xff);
-                    }
-
-                    break;
             }
         }
+    }
+
+    @Override
+    public void onNotifyOtherData(String uuid, byte[] data) {
+        BleLog.e(TAG,"onNotifyOtherData: " + BleStrUtils.byte2HexStr(data));
     }
 
     //---------------解析数据------
@@ -175,6 +159,12 @@ public class TempDeviceData extends BaseBleDeviceData {
                 // 设备回复设置高温报警值结果
                 mcuSetTemp(data);
                 break;
+            case 0x11:
+                //新版设备回复历史记录
+                parseHistory(data);
+
+
+                break;
             default:
                 runOnMainThread(new Runnable() {
                     @Override
@@ -210,6 +200,9 @@ public class TempDeviceData extends BaseBleDeviceData {
     }
 
     private void temp(byte[] data) {
+        //APP回复
+        replayTemp();
+        //解析稳定的稳定数据
         int temp = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
         byte unit = data[3];
         int decimal = data[4];
@@ -263,6 +256,14 @@ public class TempDeviceData extends BaseBleDeviceData {
                     }
                 }
             });
+            runOnMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (mOnSettingUnit != null) {
+                        mOnSettingUnit.getUnit(status);
+                    }
+                }
+            });
         }
     }
 
@@ -284,19 +285,12 @@ public class TempDeviceData extends BaseBleDeviceData {
             case 2:
                 statusStr = "测量出错";
                 break;
-
-
         }
 
         BleLog.i(TAG, statusStr);
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mOnNotifyData != null) {
-                    mOnNotifyData.getErr(status);
-                }
-            }
-        });
+        if (mOnNotifyData != null) {
+            mOnNotifyData.getErr(status);
+        }
     }
 
     @Override
@@ -321,8 +315,7 @@ public class TempDeviceData extends BaseBleDeviceData {
             int decimal = (hex[i * 8 + 8] & 0xFF);
             list.add(new HistoryBean(stamp, temp, unit, decimal));
         }
-
-        mOnNotifyData.mcuHistory(maxSize, curSize, list);
+        mOnNotifyData.offlineData(maxSize, curSize, list);
     }
 
     private void mcuGetMode(byte[] hex) {
@@ -347,6 +340,85 @@ public class TempDeviceData extends BaseBleDeviceData {
         mOnNotifyData.mcuSetTemp(status);
     }
 
+
+    /**
+     * 解析历史
+     *
+     * @param data 数据
+     */
+    private void parseHistory(byte[] data) {
+        // 设备回复历史记录 有两种格式的历史记录 unix时间格式和北京时间格式
+        int historyL = data.length - 5;
+
+        if ((historyL) % 8 == 0) {
+            int num = historyL / 8;
+            //unix时间格式的数据
+            //历史数据总量 小端序
+            int totalNum = (data[2] & 0xFF) + ((data[1] & 0xFF) << 8);
+            //已发数量 小端序
+            int sendNum = (data[4] & 0xFF) + ((data[3] & 0xFF) << 8);
+            List<HistoryBean> list = new ArrayList<>();
+            for (int i = 0; i < num; i++) {
+                //unix
+                int unixTime = (data[5 + i * 8] & 0xFF) | ((data[6 + i * 8] & 0xFF) << 8) | ((data[7 + i * 8] & 0xFF) << 16) | ((data[8 + i * 8] & 0xFF) << 24);
+                //unix 时间戳
+                long unixTimeStamp = unixTime * 1000L;
+                //温度原始数据
+                int temp = ((data[9 + i * 8] & 0xff) << 8) + (data[10 + i * 8] & 0xff);
+                //温度单位 0-℃ 1-℉
+                int unit = data[11 + i * 8] & 0xff;
+                //小数点
+                int decimal = data[12 + i * 8] & 0xff;
+                list.add(new HistoryBean(unixTimeStamp, temp, unit, decimal));
+            }
+            runOnMainThread(()->{
+                mOnNotifyData.offlineData(totalNum, sendNum, list);
+            });
+        } else if ((historyL) % 11 == 0) {
+            int num = historyL / 8;
+            //北京时间格式的数据
+            //历史数据总量 小端序
+            int totalNum = (data[2] & 0xFF) + ((data[1] & 0xFF) << 8);
+            //已发数量 小端序
+            int sendNum = (data[4] & 0xFF) + ((data[3] & 0xFF) << 8);
+            List<HistoryBean> list = new ArrayList<>();
+            for (int i = 0; i < num; i++) {
+                //7个字节 年月日时分秒星期
+                int year = (data[5 + i * 11] & 0xff) + 2000;
+                int month = data[6 + i * 11] & 0xff;
+                int day = data[7 + i * 11] & 0xff;
+                int hour = data[8 + i * 11] & 0xff;
+                int minute = data[9 + i * 11] & 0xff;
+                int second = data[10 + i * 11] & 0xff;
+                int week = data[11 + i * 11] & 0xff;
+
+                long unixTimeStamp = -1L;
+                //将年月日时分秒转换为时间戳
+                String beijingTime = year + "-" + String.format("%02d", month) + "-" + String.format("%02d", day)
+                        + " " + String.format("%02d", hour) + ":" + String.format("%02d", minute) + ":" + String.format("%02d", second);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                try {
+                    Date parse = simpleDateFormat.parse(beijingTime);
+                    unixTimeStamp = parse.getTime();
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+
+                //温度原始数据
+                int temp = ((data[12 + i * 8] & 0xff) << 8) + (data[13 + i * 8] & 0xff);
+                //温度单位 0-℃ 1-℉
+                int unit = data[14 + i * 8] & 0xff;
+                //小数点
+                int decimal = data[15 + i * 8] & 0xff;
+                list.add(new HistoryBean(unixTimeStamp, temp, unit, decimal));
+            }
+            runOnMainThread(()->{
+                mOnNotifyData.offlineData(totalNum, sendNum, list);
+            });
+        }
+    }
+
+
     /**
      * 获取历史记录
      *
@@ -368,29 +440,18 @@ public class TempDeviceData extends BaseBleDeviceData {
         sendData(sendMcuBean);
     }
 
-
-    public void getHistoryNew(long time) {
-        SendBleBean sendBleBean = new SendBleBean();
+    /**
+     * 获取历史记录 1.3协议版本
+     *
+     * @param op 0x00-开始获取历史记录 0x01-接收到一帧，请发下一帧 0x02-数据接收完毕 0x03-删除历史记录
+     */
+    public void getHistoryNew(int op) {
+        SendMcuBean sendMcuBean = new SendMcuBean();
         byte[] hex = new byte[6];
-        hex[0] = 0x48;
-        hex[1] = 0x02;
-        hex[5] = (byte) ((time & 0xff000000L) >> 24);
-        hex[4] = (byte) ((time & 0x00ff0000L) >> 16);
-        hex[3] = (byte) ((time & 0x0000ff00L) >> 8);
-        hex[2] = (byte) ((time & 0xffL));
-        sendBleBean.setHex(hex);
-        sendData(sendBleBean);
-    }
-
-
-    public void delHistoryNew() {
-        SendBleBean sendBleBean = new SendBleBean();
-        byte[] hex = new byte[2];
-        hex[0] = 0x48;
-        hex[1] = 0x03;
-
-        sendBleBean.setHex(hex);
-        sendData(sendBleBean);
+        hex[0] = (byte) 0x10;
+        hex[1] = (byte) op;
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
     }
 
     /**
@@ -480,18 +541,68 @@ public class TempDeviceData extends BaseBleDeviceData {
         sendBleBean.setHex(hex);
         sendData(sendBleBean);
     }
-    public void setUnixStampNew(int stamp) {
-        SendBleBean sendBleBean = new SendBleBean();
+
+
+    /**
+     * 设置 Unix 时间戳 1.3协议版本
+     *
+     * @param stamp ms
+     */
+    public void setUnixStampNew(long stamp) {
+        SendMcuBean sendMcuBean = new SendMcuBean();
         byte[] hex = new byte[5];
-        hex[0] = (byte) 0x45;
-        byte[] intToByteLittle = getIntToByteLittle(stamp);
-        hex[4] = (byte) intToByteLittle[0];
-        hex[3] = (byte) intToByteLittle[1];
-        hex[2] = (byte) intToByteLittle[2];
+        hex[0] = (byte) 0x83;
+        int  second= (int) (stamp / 1000);
+        byte[] intToByteLittle = getIntToByteLittle(second);
         hex[1] = (byte) intToByteLittle[3];
-        sendBleBean.setHex(hex);
-        sendData(sendBleBean);
+        hex[2] = (byte) intToByteLittle[2];
+        hex[3] = (byte) intToByteLittle[1];
+        hex[4] = (byte) intToByteLittle[0];
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
     }
+
+    /**
+     * 同步北京时间
+     */
+    public void setUTC8Time() {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] hex = new byte[8];
+        hex[0] = (byte) 0x84;
+
+        TimeZone beijingTimeZone = TimeZone.getTimeZone("Asia/Shanghai");
+        Calendar beijingCalendar = Calendar.getInstance(beijingTimeZone);
+        int year = beijingCalendar.get(Calendar.YEAR) - 2000;
+        int month = beijingCalendar.get(Calendar.MONTH) + 1; // 注意月份是从0开始计数的，所以需要+1
+        int day = beijingCalendar.get(Calendar.DAY_OF_MONTH);
+        int hour = beijingCalendar.get(Calendar.HOUR_OF_DAY);
+        int minute = beijingCalendar.get(Calendar.MINUTE);
+        int second = beijingCalendar.get(Calendar.SECOND);
+        int week = getDayOfWeek(beijingCalendar.get(Calendar.DAY_OF_WEEK));
+
+        hex[1] = (byte) year;
+        hex[2] = (byte) month;
+        hex[3] = (byte) day;
+        hex[4] = (byte) hour;
+        hex[5] = (byte) minute;
+        hex[6] = (byte) second;
+        hex[7] = (byte) week;
+
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
+    }
+
+    /**
+     * 接收到稳定数据时，回复此条
+     */
+    private void replayTemp() {
+        SendMcuBean sendMcuBean = new SendMcuBean();
+        byte[] hex = new byte[1];
+        hex[0] = 0x03;
+        sendMcuBean.setHex(CID, hex);
+        sendData(sendMcuBean);
+    }
+
     /**
      * 请求电量
      */
@@ -536,8 +647,6 @@ public class TempDeviceData extends BaseBleDeviceData {
          */
         void getErr(byte status);
 
-        void mcuHistory(int maxSize, int curSize, List<HistoryBean> list);
-
         void mcuGetMode(int mode);
 
         void mcuSetMode(int status);
@@ -548,32 +657,34 @@ public class TempDeviceData extends BaseBleDeviceData {
 
         void mcuSetUnixStamp(int status);
 
-        void onHistoryNum(long allNum, long sendNum);
-
-        void onHistory(long time, byte[] value);
-        void onHistoryLast(long time);
-
-        void onDelHistory(int result);
+        /**
+         * 离线历史记录
+         *
+         * @param totalNum 最大值大小
+         * @param sendNum 当前大小
+         * @param list    列表
+         */
+        void offlineData(int totalNum, int sendNum, List<HistoryBean> list);
     }
 
     public class HistoryBean {
-        private int stamp;
+        private long stamp;
         private int temp;
         private int unit;
         private int decimal;
 
-        public HistoryBean(int stamp, int temp, int unit, int decimal) {
+        public HistoryBean(long stamp, int temp, int unit, int decimal) {
             this.stamp = stamp;
             this.temp = temp;
             this.unit = unit;
             this.decimal = decimal;
         }
 
-        public int getStamp() {
+        public long getStamp() {
             return stamp;
         }
 
-        public void setStamp(int stamp) {
+        public void setStamp(long stamp) {
             this.stamp = stamp;
         }
 
@@ -620,6 +731,10 @@ public class TempDeviceData extends BaseBleDeviceData {
         }
     }
 
+    public void setOnSettingUnit(OnSettingUnit onSettingUnit) {
+        mOnSettingUnit = onSettingUnit;
+    }
+
     public void setOnNotifyData(onNotifyData onNotifyData) {
         mOnNotifyData = onNotifyData;
     }
@@ -641,10 +756,10 @@ public class TempDeviceData extends BaseBleDeviceData {
      */
     public byte[] getIntToByteLittle(int data) {
         byte[] result = new byte[4];
-        result[0] = (byte) ((data >> 24) & 0xFF);
-        result[1] = (byte) ((data >> 16) & 0xFF);
-        result[2] = (byte) ((data >> 8) & 0xFF);
-        result[3] = (byte) (data & 0xFF);
+        result[3] = (byte) ((data >> 24) & 0xFF);
+        result[2] = (byte) ((data >> 16) & 0xFF);
+        result[1] = (byte) ((data >> 8) & 0xFF);
+        result[0] = (byte) (data & 0xFF);
         return result;
     }
 
@@ -653,5 +768,13 @@ public class TempDeviceData extends BaseBleDeviceData {
         BleSendCmdUtil sendCmdUtil = BleSendCmdUtil.getInstance();
         sendBleBean.setHex(sendCmdUtil.getBleVersion());
         sendData(sendBleBean);
+    }
+
+    private int getDayOfWeek(int dayOfWeek) {
+        if (dayOfWeek == 1) {
+            return 7;
+        } else {
+            return dayOfWeek - 1;
+        }
     }
 }
