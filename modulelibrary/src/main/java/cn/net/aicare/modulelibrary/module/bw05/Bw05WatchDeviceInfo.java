@@ -7,6 +7,8 @@ package cn.net.aicare.modulelibrary.module.bw05;
  */
 public class Bw05WatchDeviceInfo {
 
+    //mac地址
+    private String macStr;
     //时间
     private String timeStr;
     //心率值
@@ -36,6 +38,26 @@ public class Bw05WatchDeviceInfo {
         this.battery = battery;
         this.chargerState = chargerState;
         this.loraRssi = loraRssi;
+    }
+
+    public Bw05WatchDeviceInfo(String macStr, String timeStr, int hr, int spo2, float temp, int curDayStep, int battery, int chargerState, int loraRssi) {
+        this.macStr = macStr;
+        this.timeStr = timeStr;
+        this.hr = hr;
+        this.spo2 = spo2;
+        this.temp = temp;
+        this.curDayStep = curDayStep;
+        this.battery = battery;
+        this.chargerState = chargerState;
+        this.loraRssi = loraRssi;
+    }
+
+    public String getMacStr() {
+        return macStr;
+    }
+
+    public void setMacStr(String macStr) {
+        this.macStr = macStr;
     }
 
     public String getTimeStr() {
@@ -105,7 +127,8 @@ public class Bw05WatchDeviceInfo {
     @Override
     public String toString() {
         return "设备信息{" +
-                "时间='" + timeStr + '\'' +
+                "mac地址=" + macStr +
+                ", 时间=" + timeStr +
                 ", 心率值=" + hr +
                 ", 血氧值=" + spo2 +
                 ", 温度值=" + temp +
@@ -113,6 +136,8 @@ public class Bw05WatchDeviceInfo {
                 ", 电量=" + battery +
                 ", 充电状态=" + chargerState +
                 ", lora信号强度=" + loraRssi +
-                '}';
+                "}";
     }
+
+
 }

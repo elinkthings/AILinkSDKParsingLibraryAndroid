@@ -24,8 +24,20 @@ public class Bw05WatchCMDConfig {
     public final static String APP_QUERY_INFO = "IWCP05";
     //查询阈值
     public final static String APP_QUERY_THRESHOLD = "IWCP06";
+    //查询、设置UI主题
+    public final static String APP_QUERY_SET_THEME = "IWCP07";
+    //查询手环版本号
+    public final static String APP_QUERY_VERSION = "IWCP08";
+    //设置手环进入绑定模式
+    public final static String APP_SET_BINDING_MODE = "IWCP09";
+    //APP主动查询硬件状态
+    public final static String APP_QUERY_HARDWARE_STATE = "IWCP10";
+    //APP设置历史上传间隔
+    public final static String APP_SET_HIS_TIME = "IWCP13,";
     //APP回复手环上传信息
     public final static String APP_REPLAY_INFO = "IWDP04";
+    //手环回复APP设置历史上传间隔
+    public final static String APP_REPLAY_SET_HIS_TIME = "IWDP13";
 
 
 }

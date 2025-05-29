@@ -25,10 +25,36 @@ public class Bw05WatchUtils {
 
     /**
      * 获取时区
+     *
      * @return
      */
     public static int getCurTimeZone() {
         TimeZone aDefault = TimeZone.getDefault();
         return (aDefault.getRawOffset() / 3600000);
+    }
+
+    /**
+     * 获取符合要求的时区格式
+     *
+     * @return
+     */
+    public static String getCurTimeZoneStr() {
+        TimeZone aDefault = TimeZone.getDefault();
+        int order = aDefault.getRawOffset() / 3600000;
+        if (Math.abs(order) < 10) {
+            //小于10
+            if (order < 0) {
+                return "10" + Math.abs(order);
+            } else {
+                return "00" + order;
+            }
+        } else {
+            //大于10
+            if (order < 0) {
+                return "1" + Math.abs(order);
+            } else {
+                return "0" + order;
+            }
+        }
     }
 }

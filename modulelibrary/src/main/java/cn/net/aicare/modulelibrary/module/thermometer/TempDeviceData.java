@@ -359,7 +359,7 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
             int sendNum = (data[4] & 0xFF) + ((data[3] & 0xFF) << 8);
             List<HistoryBean> list = new ArrayList<>();
             for (int i = 0; i < num; i++) {
-                //unix
+                //unix(小端序)
                 int unixTime = (data[5 + i * 8] & 0xFF) | ((data[6 + i * 8] & 0xFF) << 8) | ((data[7 + i * 8] & 0xFF) << 16) | ((data[8 + i * 8] & 0xFF) << 24);
                 //unix 时间戳
                 long unixTimeStamp = unixTime * 1000L;
@@ -371,7 +371,7 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
                 int decimal = data[12 + i * 8] & 0xff;
                 list.add(new HistoryBean(unixTimeStamp, temp, unit, decimal));
             }
-            runOnMainThread(()->{
+            runOnMainThread(() -> {
                 mOnNotifyData.offlineData(totalNum, sendNum, list);
             });
         } else if ((historyL) % 11 == 0) {
@@ -412,7 +412,7 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
                 int decimal = data[15 + i * 8] & 0xff;
                 list.add(new HistoryBean(unixTimeStamp, temp, unit, decimal));
             }
-            runOnMainThread(()->{
+            runOnMainThread(() -> {
                 mOnNotifyData.offlineData(totalNum, sendNum, list);
             });
         }
@@ -430,8 +430,8 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
         byte[] hex = new byte[6];
         hex[0] = (byte) 0x03;
         hex[1] = (byte) size;
-
         byte[] intToByteLittle = getIntToByteLittle(stamp);
+
         hex[2] = (byte) intToByteLittle[0];
         hex[3] = (byte) intToByteLittle[1];
         hex[4] = (byte) intToByteLittle[2];
@@ -525,26 +525,26 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
     }
 
     /**
-     * 设置 Unix 时间戳
+     * 设置 Unix 时间戳(小端序)
      *
      * @param stamp 秒
      */
-    public void setUnixStamp(int stamp) {
+    public void setUnixStamp(long stamp) {
         SendBleBean sendBleBean = new SendBleBean();
         byte[] hex = new byte[5];
         hex[0] = (byte) 0x44;
-        byte[] intToByteLittle = getIntToByteLittle(stamp);
-        hex[1] = (byte) intToByteLittle[0];
-        hex[2] = (byte) intToByteLittle[1];
-        hex[3] = (byte) intToByteLittle[2];
-        hex[4] = (byte) intToByteLittle[3];
+        int second = (int) (stamp / 1000);
+        hex[1] = (byte) second;
+        hex[2] = (byte) (second >> 8);
+        hex[3] = (byte) (second >> 16);
+        hex[4] = (byte) (second >> 24);
         sendBleBean.setHex(hex);
         sendData(sendBleBean);
     }
 
 
     /**
-     * 设置 Unix 时间戳 1.3协议版本
+     * 设置 Unix 时间戳 1.3协议版本(大端序)
      *
      * @param stamp ms
      */
@@ -552,12 +552,11 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
         SendMcuBean sendMcuBean = new SendMcuBean();
         byte[] hex = new byte[5];
         hex[0] = (byte) 0x83;
-        int  second= (int) (stamp / 1000);
-        byte[] intToByteLittle = getIntToByteLittle(second);
-        hex[1] = (byte) intToByteLittle[3];
-        hex[2] = (byte) intToByteLittle[2];
-        hex[3] = (byte) intToByteLittle[1];
-        hex[4] = (byte) intToByteLittle[0];
+        int second = (int) (stamp / 1000);
+        hex[1] = (byte) (second >> 24);
+        hex[2] = (byte) (second >> 16);
+        hex[3] = (byte) (second >> 8);
+        hex[4] = (byte) (second);
         sendMcuBean.setHex(CID, hex);
         sendData(sendMcuBean);
     }
@@ -661,8 +660,8 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
          * 离线历史记录
          *
          * @param totalNum 最大值大小
-         * @param sendNum 当前大小
-         * @param list    列表
+         * @param sendNum  当前大小
+         * @param list     列表
          */
         void offlineData(int totalNum, int sendNum, List<HistoryBean> list);
     }

@@ -104,7 +104,7 @@ public class BleNutritionData extends BaseBleDeviceData implements OnBleVersionL
         if (totalSize == currentSize || 0 == totalSize || currentSize == 0) {
             mHistoryTimeoutCount = 0;
             if (mBleNutritionCallback != null) {
-                if (mHistoryBeanList.size() == 0) {
+                if (mHistoryBeanList.isEmpty()) {
                     mBleNutritionCallback.onHistoryRecord(100, new ArrayList<>());
                 } else {
                     mBleNutritionCallback.onHistoryRecord(100, new ArrayList<>(mHistoryBeanList));
@@ -113,7 +113,7 @@ public class BleNutritionData extends BaseBleDeviceData implements OnBleVersionL
             }
         } else {
             long time = 0;
-            if (mHistoryBeanList.size() > 0) {
+            if (!mHistoryBeanList.isEmpty()) {
                 Collections.sort(mHistoryBeanList, (o1, o2) -> (int) (o1.getTime() - o2.getTime()));
                 BleNutritionHistoryBean bleNutritionHistoryBean = mHistoryBeanList.get(mHistoryBeanList.size() - 1);
                 time = bleNutritionHistoryBean.getTime();

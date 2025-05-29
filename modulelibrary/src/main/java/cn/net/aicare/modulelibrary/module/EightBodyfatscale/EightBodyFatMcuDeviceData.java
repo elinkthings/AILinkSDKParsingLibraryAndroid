@@ -832,6 +832,11 @@ public class EightBodyFatMcuDeviceData extends BaseBleDeviceData {
          */
         private int bodyAge;
 
+        /**
+         * 算术ID(0xFFFF代表请求算法计算)
+         */
+        private int arithmeticId;
+
         public int getWeight() {
             return weight;
         }
@@ -1093,6 +1098,13 @@ public class EightBodyFatMcuDeviceData extends BaseBleDeviceData {
             this.bodyAge = bodyAge;
         }
 
+        public int getArithmeticId() {
+            return arithmeticId;
+        }
+
+        public void setArithmeticId(int arithmeticId) {
+            this.arithmeticId = arithmeticId;
+        }
 
         /**
          * 复制

@@ -166,7 +166,7 @@ public class HeightBodyFatBleData extends BaseBleDeviceData {
                         int heightH = (hex[2] & 0xff) << 8;
                         int heightL = hex[3] & 0xff;
                         int unit = hex[4] & 0xff;
-                        int decimals = (hex[5] & 0xf0) >> 4;
+                        int decimals = hex[5] & 0xff;
                         mOnHeightBodyFatDataCallback.onHeight(mode, heightH + heightL, decimals, unit);
                     }
 

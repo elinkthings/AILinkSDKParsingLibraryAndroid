@@ -153,17 +153,11 @@ public class GasDetectorCurrentInfoBean {
 
     @Override
     public String toString() {
-        return "{" +
-                "co2=" + co2 +
-                ", co=" + co +
-                ", o2=" + o2 +
-                ", tempUnit=" + tempUnit +
-                ", temp=" + temp +
-                ", humidity=" + humidity +
-                ", uv=" + uv +
-                ", pressureUnit=" + pressureUnit +
-                ", pressure=" + pressure +
-                ", battery=" + battery +
-                '}';
+        return "CO2=" + co2 + " PPM" +
+                "\nCO=" + co + " PPM" +
+                "\nTEMP=" + (temp)+ (tempUnit == 0 ? "℃" : "℉") +
+                "\nHUM=" + humidity + "%" +
+                "\nUVI=" + uv
+                ;
     }
 }

@@ -14,6 +14,8 @@ public class Bw05WatchOffLineInfo {
     private int spo2;
     //温度
     private float temp;
+    //步数
+    private int step;
 
     public Bw05WatchOffLineInfo() {
     }
@@ -23,6 +25,14 @@ public class Bw05WatchOffLineInfo {
         this.hr = hr;
         this.spo2 = spo2;
         this.temp = temp;
+    }
+
+    public Bw05WatchOffLineInfo(String timeStr, int hr, int spo2, float temp, int step) {
+        this.timeStr = timeStr;
+        this.hr = hr;
+        this.spo2 = spo2;
+        this.temp = temp;
+        this.step = step;
     }
 
     public String getTimeStr() {
@@ -57,6 +67,14 @@ public class Bw05WatchOffLineInfo {
         this.temp = temp;
     }
 
+    public int getStep() {
+        return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
+    }
+
     @Override
     public String toString() {
         return "本地存储数据{" +
@@ -64,6 +82,7 @@ public class Bw05WatchOffLineInfo {
                 ", 心率=" + hr +
                 ", 血氧=" + spo2 +
                 ", 温度=" + temp +
+                ", 步数=" + step +
                 '}';
     }
 }

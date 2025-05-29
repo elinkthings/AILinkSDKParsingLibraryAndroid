@@ -1,6 +1,6 @@
-package cn.net.aicare.modulelibrary.module.BLDBodyfatScale;
+package cn.net.aicare.modulelibrary.module.BodyFatScale;
 
-public class BLDUser {
+public class HmiBodyFatUserBean {
 
 
     /**
@@ -24,15 +24,17 @@ public class BLDUser {
      */
     private float weight;
     /**
-     * 模式,0普通,1业余运动员 2专业运动员
-     * Mode,0 ordinary,1 amateur and 2 professional athletes
+     * 模式,0普通,1运动员
+     * Mode, 0 Normal, 1 Athlete
      */
     private int modeType;
-
+    /**
+     * 1到8
+     */
     private int id;
     /**
-     * 阻抗值,正常0~0xffff
-     * Impedance value, normal 0 ~ 0xffff
+     * 阻抗值,正常0~1000
+     * Impedance value, normal 0 ~ 1000
      */
     private int adc;
 

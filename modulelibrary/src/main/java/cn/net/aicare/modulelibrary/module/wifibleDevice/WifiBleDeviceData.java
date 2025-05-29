@@ -811,7 +811,7 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
         /**
          * wifi连接中
          *
-         * @param status 状态
+         * @param status 状态 0x00：成功 0x01：失败
          */
         default void onWifiConnecting(int status) {
         }

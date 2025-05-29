@@ -468,22 +468,22 @@ public class BodyFatDataUtil {
      * Muc will send a command, and then send it after receiving the command
      * Passive delivery
      *
-     * @param user       用户 user
+     * @param bodyFatUserBean       用户 bodyFatUserBean
      * @param deviceType 设置类型 蓝牙体脂秤 0x0e  wifi+ble体脂秤 0x11
      *                   deviceType Setting type Bluetooth body fat scale 0x0e wifi + ble body fat scale 0x11
      */
-    public SendMcuBean setUserInfo(User user, int deviceType) {
+    public SendMcuBean setUserInfo(BodyFatUserBean bodyFatUserBean, int deviceType) {
         SendMcuBean sendMcuBean = new SendMcuBean();
         byte[] bytes = new byte[5];
         bytes[0] = (byte) 0x08;
         bytes[1] = 0x02;
-        int mode = user.getModeType();
-        int id = user.getId();
+        int mode = bodyFatUserBean.getModeType();
+        int id = bodyFatUserBean.getId();
         bytes[2] = (byte) (((mode & 0xff) << 4) + (id & 0xff));//高4位是模式，低四位是编号
-        int sex = user.getSex();
-        int age = user.getAge();
+        int sex = bodyFatUserBean.getSex();
+        int age = bodyFatUserBean.getAge();
         bytes[3] = (byte) ((((sex & 0xff)) << 7) + (age & 0x7f));     //最高位是性别，低7位年龄
-        int height = user.getHeight();
+        int height = bodyFatUserBean.getHeight();
 
         bytes[4] = (byte) (height & 0xff);     //身高 cm
         sendMcuBean.setHex(deviceType, bytes);
@@ -509,30 +509,30 @@ public class BodyFatDataUtil {
     /**
      * 更新用户列表
      * 主动下发 连接上设备后下发
-     * Update user list
+     * Update bodyFatUserBean list
      * Actively distributed after connecting to the device
      */
-    public SendBleBean setUserInfoList(User user) {
+    public SendBleBean setUserInfoList(BodyFatUserBean bodyFatUserBean) {
 
         byte[] bytes = new byte[16];
         bytes[0] = 0x2b;
         bytes[1] = 0x01;
-        int mode = user.getModeType();
+        int mode = bodyFatUserBean.getModeType();
 
-        int id = user.getId();
+        int id = bodyFatUserBean.getId();
         bytes[2] = (byte) (((mode & 0xff) << 4) + (id & 0xff));//高4位是模式，低四位是编号
-        int sex = user.getSex();
-        int age = user.getAge();
+        int sex = bodyFatUserBean.getSex();
+        int age = bodyFatUserBean.getAge();
         bytes[3] = (byte) ((((sex & 0xff)) << 7) + (age & 0x7f));     //最高位是性别，低7位年龄
-        int height = user.getHeight();
+        int height = bodyFatUserBean.getHeight();
 
         bytes[4] = (byte) (height & 0xff);     //身高 cm
-        int myweight = (int) (user.getWeight() * Math.pow(10, 1));
+        int myweight = (int) (bodyFatUserBean.getWeight() * Math.pow(10, 1));
 
         bytes[5] = (byte) ((myweight & 0xff00) >> 8);
         bytes[6] = (byte) (myweight & 0xff);
-        bytes[7] = (byte) ((user.getAdc() & 0xff00) >> 8);
-        bytes[8] = (byte) (user.getAdc() & 0xff);
+        bytes[7] = (byte) ((bodyFatUserBean.getAdc() & 0xff00) >> 8);
+        bytes[8] = (byte) (bodyFatUserBean.getAdc() & 0xff);
         bytes[9] = 0x00;
         bytes[10] = 0x00;
         bytes[11] = 0x00;
@@ -566,7 +566,7 @@ public class BodyFatDataUtil {
      * Update current user information
      * Active delivery, can be delivered after the measurement is completed
      */
-    public SendBleBean updataPresentUser(User users) {
+    public SendBleBean updataPresentUser(BodyFatUserBean users) {
         byte[] bytes = new byte[9];
         bytes[0] = 0x2B;
         bytes[1] = 0x03;
