@@ -9,8 +9,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 54
-        versionName "1.9.8"
+        versionCode 55
+        versionName "1.9.9"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -61,7 +61,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.elinkthings'
                 artifactId = 'AILinkSDKParsingLibraryAndroid'
-                version = "1.9.8"
+                version = "1.9.9"
             }
         }
     }
