@@ -9,8 +9,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 55
-        versionName "1.9.9"
+        versionCode 56
+        versionName "1.9.10"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -44,12 +44,11 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.15.02'
+    implementation 'com.github.elinkthings:AILinkSDKRepositoryAndroid:1.15.03'
     api files('libs/AlgorithmUtil.jar')
     api files('libs/HTBodyfat_SDK.jar')
     api files('libs/getmorefatdata.jar')
-    api files('libs/bhBodyComposition120.jar')
-//    api (name: 'bhBodyComposition120', ext: 'aar')
+    api files('libs/AILinkHttpAlgorithmLibrary.jar')
 
 }
 
@@ -61,7 +60,7 @@ afterEvaluate {
                 from components.release
                 groupId = 'com.github.elinkthings'
                 artifactId = 'AILinkSDKParsingLibraryAndroid'
-                version = "1.9.9"
+                version = "1.9.10"
             }
         }
     }

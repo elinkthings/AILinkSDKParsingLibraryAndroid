@@ -7,54 +7,67 @@ import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
 import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
-import com.pingwang.bluetoothlib.listener.OnBleConnectStatus;
+import com.pingwang.bluetoothlib.device.wifibleDevice.WifiBleDeviceData;
+import com.pingwang.bluetoothlib.listener.OnBleMtuListener;
 import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
-import com.pingwang.bluetoothlib.listener.OnWifiInfoListener;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnBleOtherDataListener {
+/**
+ * wifi+ble牙刷工具数据
+ *
+ * @author xing
+ * @date 2025/07/12
+ */
+public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnBleOtherDataListener, WifiBleDeviceData.OnWiFiBleCallback {
 
     public final static int TOOTHBRUSH_WIFI_BLE = 0x0012;
     private BleDevice mBleDevice = null;
     private volatile static ToothBrushWiFiBleUtilsData bodyFatBle = null;
+    private WifiBleDeviceData mWifiBleDeviceData;
+    private int mMtu = 20;
 
 
-    private ToothBrushWiFiBleUtilsData(BleDevice bleDevice, BleToothBrushCallback bleToothBrushCallback, BleToothBrushWiFiCallback bleToothBrushWiFiCallback) {
+    private ToothBrushWiFiBleUtilsData(BleDevice bleDevice, OnBleToothBrushCallback onBleToothBrushCallback, WifiBleDeviceData.OnWiFiBleCallback onWiFiBleCallback) {
         super(bleDevice);
         mBleDevice = bleDevice;
+        bleDevice.setMtu(517);
         bleDevice.setOnBleOtherDataListener(this);
-        this.bleToothBrushCallback = bleToothBrushCallback;
-        this.bleToothBrushWiFiCallback = bleToothBrushWiFiCallback;
+        bleDevice.setOnBleMtuListener(new OnBleMtuListener() {
+            @Override
+            public void onMtuAvailable(int mtu) {
+                mMtu = mtu;
+            }
+        });
+        mWifiBleDeviceData = WifiBleDeviceData.getInstance(bleDevice);
+        mWifiBleDeviceData.setOnWiFiBleCallback(onWiFiBleCallback);
+        this.mOnBleToothBrushCallback = onBleToothBrushCallback;
 
 
         mBleDevice.setOnBleVersionListener(new OnBleVersionListener() {
             @Override
             public void onBmVersion(String version) {
                 //蓝牙版本号
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onVersion(version);
+                if (onBleToothBrushCallback != null) {
+                    onBleToothBrushCallback.onVersion(version);
                 }
             }
         });
         bleDevice.setOnMcuParameterListener(new OnMcuParameterListener() {
             @Override
             public void onMcuBatteryStatus(int status, int battery) {
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onGetBattery(status, battery);
+                if (onBleToothBrushCallback != null) {
+                    onBleToothBrushCallback.onGetBattery(status, battery);
                 }
             }
         });
-
-        mBleDevice.setOnBleConnectListener(mOnBleConnectStatus);
-        mBleDevice.setOnWifiInfoListener(onWifiInfoListener);
-
 
     }
 
@@ -65,13 +78,12 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
     /**
      * wifi+ble
      *
-     * @param bleDevice                 {@link BleDevice} 蓝牙设备
-     * @param bleCallback               {@link BleToothBrushCallback} 牙刷接口回调
-     * @param bleToothBrushWiFiCallback {@link BleToothBrushWiFiCallback} 牙刷关于wifi部分接口回调
+     * @param bleDevice         {@link BleDevice} 蓝牙设备
+     * @param bleCallback       {@link OnBleToothBrushCallback} 牙刷接口回调
+     * @param onWiFiBleCallback {@link WifiBleDeviceData.OnWiFiBleCallback} 关于wifi配网部分接口回调
      */
-    public static void init(BleDevice bleDevice, BleToothBrushCallback bleCallback, BleToothBrushWiFiCallback bleToothBrushWiFiCallback) {
-
-        bodyFatBle = new ToothBrushWiFiBleUtilsData(bleDevice, bleCallback, bleToothBrushWiFiCallback);
+    public static void init(BleDevice bleDevice, OnBleToothBrushCallback bleCallback, WifiBleDeviceData.OnWiFiBleCallback onWiFiBleCallback) {
+        bodyFatBle = new ToothBrushWiFiBleUtilsData(bleDevice, bleCallback, onWiFiBleCallback);
     }
 
     /**
@@ -80,8 +92,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
      * @param bleDevice   蓝牙操作类
      * @param bleCallback 蓝牙基础回调接口
      */
-    public static void init(BleDevice bleDevice, BleToothBrushCallback bleCallback) {
-
+    public static void init(BleDevice bleDevice, OnBleToothBrushCallback bleCallback) {
         init(bleDevice, bleCallback, null);
     }
 
@@ -108,7 +119,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
     @Override
     public void onNotifyOtherData(String uuid, byte[] data) {
         byte one = data[0];
-        if (one== CmdConfig.SEND_MCU_START){
+        if (one == CmdConfig.SEND_MCU_START) {
             byte sum = 0;
             for (int i = 1; i < data.length - 2; i++) {
                 sum += data[i];
@@ -122,7 +133,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
                     int type = ((data[1] & 0xff) << 8) + (data[2] & 0xff);
                     byte[] returnData = new byte[two];
                     System.arraycopy(data, startIndex, returnData, 0, two);
-                    onNotifyData(returnData,type);
+                    onNotifyData(returnData, type);
                 }
             }
         }
@@ -131,8 +142,8 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
     @Override
     public void onNotifyData(String uuid, byte[] bytes, int type) {
 
-        if (bleToothBrushCallback != null) {
-            bleToothBrushCallback.onShowData("蓝牙返回的A7: " + BleStrUtils.byte2HexStr(bytes));
+        if (mOnBleToothBrushCallback != null) {
+            mOnBleToothBrushCallback.onShowData("蓝牙返回的A7: " + BleStrUtils.byte2HexStr(bytes));
         }
         switch (bytes[0]) {
             case ToothBrushBleCmd.GET_TOOTHBRUSH_TIME_GEARS:
@@ -141,16 +152,16 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
                     int lowTime = bytes[2] & 0xff;
                     int gears = bytes[3] & 0xff;
                     int gearsfrom = bytes[4] & 0xff;
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onGetDefaultGearAndDuration(highTime + lowTime, gears, gearsfrom);
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onGetDefaultGearAndDuration(highTime + lowTime, gears, gearsfrom);
                     }
                 }
                 break;
             case ToothBrushBleCmd.SET_TOOTHBRUSH_TIME_GEARS:
             case ToothBrushBleCmd.SET_MANUAL_MODE:
                 if (bytes.length >= 2) {
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onSetDefaultModeAndManualModeResult(bytes[0], bytes[1] & 0xff);
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onSetDefaultModeAndManualModeResult(bytes[0], bytes[1] & 0xff);
                     }
 
                 }
@@ -162,8 +173,8 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
                     int duty = bytes[4] & 0xff;
                     int timeH = (bytes[5] & 0xff) << 8;
                     int timeL = bytes[6] & 0xff;
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onGetManualParameter(timeH + timeL, hzH + hzl, duty);
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onGetManualParameter(timeH + timeL, hzH + hzl, duty);
                     }
                 }
                 break;
@@ -177,8 +188,8 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
                     int rTimeH = (bytes[6] & 0xff) << 8;
                     int rTimeL = bytes[7] & 0xff;
                     int battery = bytes[8] & 0xff;
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onTestFinish(timeH + timeL, lTimeH + lTimeL, rTimeH + rTimeL, mode, battery);
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onTestFinish(timeH + timeL, lTimeH + lTimeL, rTimeH + rTimeL, mode, battery);
                     }
                 }
 
@@ -186,17 +197,44 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
             case ToothBrushBleCmd.THE_TRIAL_ORDER:
                 //试用指令
                 if (bytes.length >= 2) {
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onTryOutResult(bytes[1] & 0xff);
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onTryOutResult(bytes[1] & 0xff);
                     }
                 }
                 break;
             case ToothBrushBleCmd.GET_SECOND_GEARS:
                 if (bytes.length >= 2) {
-                    if (bleToothBrushCallback != null) {
-                        bleToothBrushCallback.onTwoLevelModeDefault(bytes[1] & 0xff);
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onTwoLevelModeDefault(bytes[1] & 0xff);
                     }
                 }
+
+            case ToothBrushBleCmd.GET_API_KEY:
+                int indexGet = (bytes[1] >> 4) & 0x0F;
+                int sizeGet = bytes[1] & 0x0F;
+                byte[] apiKeyB = new byte[bytes.length - 2];
+                getApiKeyList.add(apiKeyB);
+                if (indexGet == sizeGet) {
+                    //接收完成
+                    String apiKey = new String(BleStrUtils.concatenateByteArrays(getApiKeyList), StandardCharsets.UTF_8);
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onGetApiKey(apiKey);
+                    }
+                    getApiKeyList.clear();
+                }
+                break;
+
+            case ToothBrushBleCmd.SET_API_KEY:
+                int indexSet = (bytes[1] >> 4) & 0x0F;
+                int sizeSet = bytes[1] & 0x0F;
+                if (indexSet == sizeSet) {
+                    //发送完成
+                    if (mOnBleToothBrushCallback != null) {
+                        mOnBleToothBrushCallback.onSetApiKey(true);
+                    }
+                    setApiKeyList.clear();
+                }
+                break;
 
             default:
                 break;
@@ -205,9 +243,9 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
 
 
     @Override
-    public void onNotifyDataA6(byte[] hex) {
-        if (bleToothBrushCallback != null) {
-            bleToothBrushCallback.onShowData("蓝牙返回的A6: " + BleStrUtils.byte2HexStr(hex));
+    public void onNotifyDataA6(String uuid, byte[] hex) {
+        if (mOnBleToothBrushCallback != null) {
+            mOnBleToothBrushCallback.onShowData("蓝牙返回的A6: " + BleStrUtils.byte2HexStr(hex));
         }
         switch (hex[0]) {
             case (byte) ToothBrushBleCmd.GET_TOOTHBRUSH_GEARS:
@@ -215,13 +253,14 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
                 break;
             case ToothBrushBleCmd.REQUEST_TOKEN:
                 int result = hex[1] & 0xff;
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onGetTokenResult(result);
+                if (mOnBleToothBrushCallback != null) {
+                    mOnBleToothBrushCallback.onGetTokenResult(result);
                 }
                 break;
             case (byte) 0x91:
-                if (bleToothBrushCallback != null) {
-                    bleToothBrushCallback.onOTA(hex[1] & 0xff);
+                //响应OTA结果
+                if (mOnBleToothBrushCallback != null) {
+                    mOnBleToothBrushCallback.onOTA(hex[1] & 0xff);
                 }
                 break;
 
@@ -231,6 +270,11 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
         }
     }
 
+    /**
+     * 解析支持的档位
+     *
+     * @param hex 十六进制
+     */
     private void disposeSupportGears(byte[] hex) {
         if (hex.length > 4 && hex[1] == 0x01) {
             int stair = hex[2] & 0xff;
@@ -248,94 +292,19 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
                 }
 
             }
-            if (bleToothBrushCallback != null) {
-                bleToothBrushCallback.onGetSupportGears(stairs, secondLevels);
+            if (mOnBleToothBrushCallback != null) {
+                mOnBleToothBrushCallback.onGetSupportGears(stairs, secondLevels);
             }
         }
 
 
     }
 
-    private BleToothBrushCallback bleToothBrushCallback;
 
-    private OnWifiInfoListener onWifiInfoListener = new OnWifiInfoListener() {
-        @Override
-        public void onScanWiFiStatus(int status) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.OnWifiScanStatus(status);
-            }
-        }
-
-        @Override
-        public void onWifiListName(int no, String name) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.OnWifiListName(no, name);
-            }
-        }
-
-        @Override
-        public void onConnectedWifiName(String name) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.OnWifiCurrentConnect(name);
-            }
-        }
-
-        @Override
-        public void onWifiListInfo(int no, String mac, int db, int type, int wifistatus) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.OnWifiListInfo(no, mac, db, type, wifistatus);
-            }
-        }
-
-        @Override
-        public void onWifiScanFinish(int wifiNum) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.OnWifiScanFinish(wifiNum);
-            }
-
-        }
-
-        @Override
-        public void onSetWifiNameOrPawOrConnectCallback(int type, int status) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.OnSetWifiNameOrPwdOrConnectCallback(type, status);
-            }
-        }
-
-        @Override
-        public void onConnectedWifiMac(String mac) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.getSelectWifiMac(mac);
-            }
-        }
-
-        @Override
-        public void onConnectedWifiPwd(String pwd) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.getSelectWifiPaw(pwd);
-            }
-        }
+    private OnBleToothBrushCallback mOnBleToothBrushCallback;
 
 
-        @Override
-        public void getSN(long sn) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.getDid(sn);
-            }
-        }
-    };
-
-    private OnBleConnectStatus mOnBleConnectStatus = new OnBleConnectStatus() {
-        @Override
-        public void onBleConnectStatus(int bleStatus, int wifiStatus, int workStatus) {
-            if (bleToothBrushWiFiCallback != null) {
-                bleToothBrushWiFiCallback.OnBleAndWifiStatus(bleStatus, wifiStatus, workStatus);
-            }
-        }
-    };
-
-
-    public interface BleToothBrushCallback {
+    public interface OnBleToothBrushCallback {
 
         /**
          * 版本号
@@ -446,12 +415,18 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
         void onOTA(int status);
 
 
+        default void onSetApiKey(boolean result) {
+        }
+
+        default void onGetApiKey(String apiKey) {
+        }
+
     }
 
 
-    private BleToothBrushWiFiCallback bleToothBrushWiFiCallback;
+    private OnBleToothBrushWiFiCallback mOnBleToothBrushWiFiCallback;
 
-    public interface BleToothBrushWiFiCallback {
+    public interface OnBleToothBrushWiFiCallback {
 
 
         /**
@@ -594,25 +569,8 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
 
 
     /**
-     * 设置wifi地址
-     * Set wifi address
-     *
-     * @param mac
-     * @return
+     * 设置OTA
      */
-    public void setWifiMac(String mac) {
-        byte[] bytes = new byte[7];
-        bytes[0] = (byte) 0x84;
-        String[] s = mac.split(":");
-
-        for (int i = 0; i < s.length; i++) {
-            int hex = Integer.parseInt(s[i]);
-            bytes[i + 1] = (byte) hex;
-        }
-        sendA6(bytes);
-
-    }
-
     public void setOta() {
 //        91 01
         byte[] bytes = new byte[2];
@@ -621,89 +579,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
         sendA6(bytes);
     }
 
-    /**
-     * 设置wifi密码
-     * Set wifi password
-     *
-     * @param subpackage
-     * @param password
-     * @return
-     */
-    public void setWifiPwd(int subpackage, byte[] password) {
-        int length = 0;
-        byte[] bytes1;
-//        byte[] password = BleStrUtils.stringToBytes(pwd);
-        if (password != null) {
-            length = password.length + 1;
-            bytes1 = new byte[length + 1];
-            bytes1[0] = (byte) 0x86;
-            bytes1[1] = (byte) subpackage;
-            System.arraycopy(password, 0, bytes1, 2, password.length);
-
-        } else {
-            bytes1 = new byte[1];
-            bytes1[0] = (byte) 0x86;
-        }
-        sendA6(bytes1);
-    }
-
-    /**
-     * 发起连接
-     * Initiate connection
-     *
-     * @return
-     */
-    public void connectWifi() {
-
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) 0x88;
-        bytes[1] = 0x01;
-        sendA6(bytes);
-    }
-
-    /**
-     * 扫描wifi
-     * Scan wifi
-     *
-     * @return
-     */
-    public void scanWifi() {
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) 0x80;
-        bytes[1] = 0x01;
-        sendA6(bytes);
-    }
-
-    public void queryBleStatus() {
-        byte[] bytes = new byte[1];
-        bytes[0] = 0x26;
-        sendA6(bytes);
-
-    }
-
-    /**
-     * 获取到设备id
-     * Get device id
-     *
-     * @return
-     */
-    public void getDevicedid() {
-        byte[] bytes = new byte[1];
-        bytes[0] = (byte) 0x93;
-        sendA6(bytes);
-    }
-
-    /**
-     * 当前连接wifi的名称
-     * The name of the currently connected wifi
-     *
-     * @return
-     */
-    public void getConnectWifiName() {
-        byte[] bytes = new byte[1];
-        bytes[0] = (byte) 0x94;
-        sendA6(bytes);
-    }
 
     /**
      * 设置试用
@@ -789,7 +664,6 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
      * Get the default value of the second gear
      */
     public void starTooth() {
-
         byte[] bytes = new byte[1];
         bytes[0] = ToothBrushBleCmd.Start_Close_ToothBrush;
         sendA7(bytes);
@@ -855,17 +729,109 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
         return byteNum;
     }
 
+    private List<byte[]> setApiKeyList = new ArrayList<>();
+    private List<byte[]> getApiKeyList = new ArrayList<>();
+
+    public void setApiKey(String apiKey) {
+        byte[] bytes = apiKey.getBytes(StandardCharsets.US_ASCII);
+        int lengthAll = mMtu - 8;//减去包头包尾校验和 指令type
+        List<byte[]> apiKeyS = new ArrayList<>();
+        for (int i = 0; i < bytes.length; ) {
+            int size = Math.min(bytes.length - i, lengthAll);
+            byte[] bytes1 = new byte[size];
+            System.arraycopy(bytes, i, bytes1, 0, bytes1.length);
+            apiKeyS.add(bytes1);
+            i += bytes1.length;
+        }
+
+        for (int i = 0; i < apiKeyS.size(); i++) {
+            byte[] bytes1 = apiKeyS.get(i);
+            byte[] sendB = new byte[bytes1.length + 2];
+            sendB[0] = ToothBrushBleCmd.SET_API_KEY;
+            sendB[1] = (byte) (i << 4);
+            System.arraycopy(bytes1, 0, sendB, 2, bytes1.length);
+            sendA7(sendB);
+        }
+    }
+
+    public void getApiKey() {
+        byte[] sendNext = new byte[2];
+        sendNext[0] = ToothBrushBleCmd.GET_API_KEY;
+        sendA7(sendNext);
+    }
+
+    //--------------wifi----------------
 
     /**
-     * 发送A6指令
+     * 设置连接的wifi的mac和密码
      *
-     * @param bytes
+     * @param mac mac
+     * @param pwd 密码
      */
-    public void sendA6(byte[] bytes) {
-        SendBleBean sendBleBean = new SendBleBean();
-        sendBleBean.setHex(bytes);
-        sendData(sendBleBean);
+    public void setConnectWifiMac(String mac, String pwd) {
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.setConnectWifiMac(mac, pwd);
+        }
     }
+
+    /**
+     * 发起连接
+     * Initiate connection
+     *
+     * @return
+     */
+    public void setConnectWifi() {
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.setConnectWifi();
+        }
+    }
+
+    /**
+     * 扫描wifi
+     * Scan wifi
+     *
+     * @return
+     */
+    public void scanWifi() {
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.getWifiList();
+        }
+    }
+
+    /**
+     * 获取wifi当前状态
+     * Get the current status of Wi-Fi
+     */
+    public void getWifiCurrentState() {
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.getWifiCurrentState();
+        }
+    }
+
+    /**
+     * 获取到设备id
+     * Get device id
+     *
+     * @return
+     */
+    public void getDeviceId() {
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.getDeviceSn();
+        }
+    }
+
+    /**
+     * 当前连接wifi的名称
+     * The name of the currently connected wifi
+     *
+     * @return
+     */
+    public void getConnectWifiName() {
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.getConnectWifiSsid();
+        }
+    }
+
 
     /**
      * 断开连接
@@ -874,10 +840,29 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
      * @return SendBleBean
      */
     public void disconnectWifi() {
-        byte[] bytes = new byte[2];
-        bytes[0] = (byte) 0x88;
-        bytes[1] = 0x00;
-        sendA6(bytes);
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.setDisconnectWifi();
+        }
+    }
+
+
+    /**
+     * 设置服务信息
+     *
+     * @param ip   ip 例:www.google.com
+     * @param port 端口 例:80
+     * @param path 路径 :/api/v1/device
+     */
+    public void setServiceInfo(String ip, int port, String path) {
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.setServiceInfo(ip, port, path);
+        }
+    }
+
+    public void getServiceInfo(){
+        if (mWifiBleDeviceData != null) {
+            mWifiBleDeviceData.getServerInfo();
+        }
     }
 
 
@@ -890,5 +875,16 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
         SendMcuBean sendMcuBean = new SendMcuBean();
         sendMcuBean.setHex(TOOTHBRUSH_WIFI_BLE, bytes);
         sendData(sendMcuBean);
+    }
+
+    /**
+     * 发送A6指令
+     *
+     * @param bytes
+     */
+    public void sendA6(byte[] bytes) {
+        SendBleBean sendBleBean = new SendBleBean();
+        sendBleBean.setHex(bytes);
+        sendData(sendBleBean);
     }
 }

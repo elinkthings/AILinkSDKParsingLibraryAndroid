@@ -1,5 +1,6 @@
 package cn.net.aicare.modulelibrary.module.EightDoubleBodyfatScale;
 
+
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 
 import java.util.List;
@@ -97,7 +98,7 @@ public interface OnEightDoubleBodyFatCallback {
      *
      * @param bodyFatBean 体脂数据
      */
-    default void onBodyFat(EightDoubleBodyFatBean bodyFatBean) {
+    default void onBodyFatMcu(EightDoubleMcuBodyFatBean bodyFatBean) {
     }
 
     /**
@@ -126,5 +127,25 @@ public interface OnEightDoubleBodyFatCallback {
      * MCU 请求同步用户
      */
     default void onSyncUser(){}
+
+
+    /**
+     * 体脂数据接口
+     *
+     * @param bodyFatBean 体脂数据 null代表解析数据失败
+     */
+    default void onBodyFatData( EightDoubleDataBodyFatBean bodyFatBean) {
+    }
+
+
+    /**
+     * 体脂数据计算错误
+     *
+     * @param type 类型 0-网络异常,1-没有权限,2-传入数据有误
+     * @param msg  消息
+     */
+    default void onBodyFatDataError(int type, String msg){
+
+    }
 
 }

@@ -8,6 +8,7 @@ import com.pingwang.bluetoothlib.device.BaseBleDeviceData;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.device.SendDataBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
+import com.pingwang.bluetoothlib.device.wifibleDevice.WifiBleDeviceData;
 import com.pingwang.bluetoothlib.listener.OnBleCompanyListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
@@ -17,7 +18,6 @@ import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.Arrays;
 
-import cn.net.aicare.modulelibrary.module.wifibleDevice.WifiBleDeviceData;
 
 /**
  * wifi+ble血压计(sphygmomanometer)

@@ -116,7 +116,7 @@ public class TempDeviceData extends BaseBleDeviceData implements OnBleOtherDataL
 
     @Override
     public void onNotifyOtherData(String uuid, byte[] data) {
-        BleLog.e(TAG,"onNotifyOtherData: " + BleStrUtils.byte2HexStr(data));
+        BleLog.e("ljl", "onNotifyOtherData: " + BleStrUtils.byte2HexStr(data));
     }
 
     //---------------解析数据------

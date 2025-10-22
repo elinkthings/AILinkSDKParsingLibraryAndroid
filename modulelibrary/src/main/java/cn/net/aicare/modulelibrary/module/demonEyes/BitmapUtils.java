@@ -66,9 +66,9 @@ public class BitmapUtils {
                 int red = (pixel >> 16) & 0xFF;
                 int green = (pixel >> 8) & 0xFF;
                 int blue = pixel & 0xFF;
-                int rgb565 = ((red >> 3) << 10) | ((green >> 3) << 5) | (blue >> 3);
-                bmpData[offset++] = (byte) (rgb565 & 0xFF);
-                bmpData[offset++] = (byte) ((rgb565 >> 8) & 0xFF);
+                int rgb555 = ((red >> 3) << 10) | ((green >> 3) << 5) | (blue >> 3);
+                bmpData[offset++] = (byte) (rgb555 & 0xFF);
+                bmpData[offset++] = (byte) ((rgb555 >> 8) & 0xFF);
             }
         }
         //Elink Header

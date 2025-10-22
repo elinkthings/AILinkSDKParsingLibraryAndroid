@@ -61,7 +61,7 @@ public class ByteUtils {
 
     /**
      * 字节数组转 int
-     *
+     * 小端序
      * @param b
      * @return
      */
@@ -75,6 +75,22 @@ public class ByteUtils {
         int s2 = bytes[2] & 0xff;
         int s3 = bytes[3] & 0xff;
 
+        //s0不变
+        s1 <<= 8;
+        s2 <<= 16;
+        s3 <<= 24;
+        s = s0 | s1 | s2 | s3;
+        return s;
+    }
+
+
+    public static int toIntSmall(byte[] b) {
+        int s;
+        //最低位
+        int s0 = b[0] & 0xff;
+        int s1 = b[1] & 0xff;
+        int s2 = b[2] & 0xff;
+        int s3 = b[3] & 0xff;
         //s0不变
         s1 <<= 8;
         s2 <<= 16;

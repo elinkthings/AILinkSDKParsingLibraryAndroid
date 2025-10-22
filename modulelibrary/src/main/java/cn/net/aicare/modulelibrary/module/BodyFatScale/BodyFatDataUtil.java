@@ -1,6 +1,7 @@
 package cn.net.aicare.modulelibrary.module.BodyFatScale;
 
 
+
 import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
 import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
@@ -261,6 +262,9 @@ public class BodyFatDataUtil {
     public BodyFatRecord getBodyFat(byte[] hex, BodyFatRecord bodyFatRecord) {
 
         if ((hex[1] & 0xff) == 1) {
+            if (hex.length < 12) {
+                return null;
+            }
             bodyFatRecord.setBfr((float) ((hex[2] & 0xff) << 8 | (hex[3] & 0xff)) * 0.1f);
             bodyFatRecord.setSfr((float) ((hex[4] & 0xff) << 8 | (hex[5] & 0xff)) * 0.1f);
             bodyFatRecord.setUvi((float) ((hex[6] & 0xff) << 8 | (hex[7] & 0xff)));
@@ -268,6 +272,9 @@ public class BodyFatDataUtil {
             bodyFatRecord.setBmr((float) ((hex[10] & 0xff) << 8 | (hex[11] & 0xff)));
             bodyFatRecord.setBodyAge((float) (hex[12] & 0xff));
         } else {
+            if (hex.length < 8) {
+                return null;
+            }
             bodyFatRecord.setBm(((hex[2] & 0xff) << 8 | (hex[3] & 0xff)) * 0.1f);
             bodyFatRecord.setVwc((float) ((hex[4] & 0xff) << 8 | (hex[5] & 0xff)) * 0.1f);
             bodyFatRecord.setPp((float) ((hex[6] & 0xff) << 8 | (hex[7] & 0xff)) * 0.1f);
@@ -314,16 +321,19 @@ public class BodyFatDataUtil {
     /**
      * 解析muc历史数据  Parsing muc historical data
      */
-    public McuHistoryRecordBean getMcuHistoryRecord(byte[] b,
+    public McuHistoryRecordBean getMcuHistoryRecord(byte[] hex,
                                                     McuHistoryRecordBean mcuHistoryRecordBean) {
-        if (b[2] == 0x01) {
-            int year = (b[3] & 0xff) + 2000;
+        if (hex[2] == 0x01) {
+            if (hex.length < 15) {
+                return null;
+            }
+            int year = (hex[3] & 0xff) + 2000;
 
-            int month = b[4] & 0xff;
-            int day = b[5] & 0xff;
-            int hour = b[6] & 0xff;
-            int min = b[7] & 0xff;
-            int sec = b[8] & 0xff;
+            int month = hex[4] & 0xff;
+            int day = hex[5] & 0xff;
+            int hour = hex[6] & 0xff;
+            int min = hex[7] & 0xff;
+            int sec = hex[8] & 0xff;
 //            StringBuffer stringBuffer = new StringBuffer();
 //            stringBuffer.append(year);
 //            stringBuffer.append(":");
@@ -336,40 +346,46 @@ public class BodyFatDataUtil {
 //            stringBuffer.append(min);
 //            stringBuffer.append(":");
 //            stringBuffer.append(sec);
-            int mode = (b[9] & 0xf0) >> 4;
-            int bodyId = (b[9] & 0x0f);
-            int sex = (b[10] & 0xff) >> 7;
-            int age = (b[10] & 0x7f);
-            int height = b[11] & 0xff;
+            int mode = (hex[9] & 0xf0) >> 4;
+            int bodyId = (hex[9] & 0x0f);
+            int sex = (hex[10] & 0xff) >> 7;
+            int age = (hex[10] & 0x7f);
+            int height = hex[11] & 0xff;
 //            int weight = (b[12] & 0xff) << 16 + (b[13] & 0xff) << 8 + b[14] & 0xff;
-            int weight_hight = (b[12] & 0xff) << 16;
-            int weight_mid = (b[13] & 0xff) << 8;
-            int weight_low = b[14] & 0xff;
+            int weight_hight = (hex[12] & 0xff) << 16;
+            int weight_mid = (hex[13] & 0xff) << 8;
+            int weight_low = hex[14] & 0xff;
             int weight = weight_hight + weight_mid + weight_low;
-            int decimals = (b[15] & 0xf0) >> 4;
-            int unit = (b[15] & 0x0f);
+            int decimals = (hex[15] & 0xf0) >> 4;
+            int unit = (hex[15] & 0x0f);
 
             mcuHistoryRecordBean
                     .setUser(year, month, day, hour, min, sec, sex, mode, bodyId, age, height,
                             weight, unit, decimals);
 
-        } else if (b[2] == 0x02) {
-            int adc = ((b[3] & 0xff) << 8) | (b[4] & 0xff);
-            float bfr = ((b[5] & 0xff) << 8 | (b[6] & 0xff)) * 0.1f;
-            float sfr = (((b[7] & 0xff) << 8) | (b[8] & 0xff)) * 0.1f;
-            float uvi = (((b[9] & 0xff) << 8) | (b[10] & 0xff));
-            float rom = (((b[11] & 0xff) << 8) | (b[12] & 0xff)) * 0.1f;
-            float bmr = ((b[13] & 0xff) << 8) | (b[14] & 0xff);
-            float bodyAge = (b[15] & 0xff);
+        } else if (hex[2] == 0x02) {
+            if (hex.length < 15) {
+                return null;
+            }
+            int adc = ((hex[3] & 0xff) << 8) | (hex[4] & 0xff);
+            float bfr = ((hex[5] & 0xff) << 8 | (hex[6] & 0xff)) * 0.1f;
+            float sfr = (((hex[7] & 0xff) << 8) | (hex[8] & 0xff)) * 0.1f;
+            float uvi = (((hex[9] & 0xff) << 8) | (hex[10] & 0xff));
+            float rom = (((hex[11] & 0xff) << 8) | (hex[12] & 0xff)) * 0.1f;
+            float bmr = ((hex[13] & 0xff) << 8) | (hex[14] & 0xff);
+            float bodyAge = (hex[15] & 0xff);
             mcuHistoryRecordBean.setBodyFatRecord_1(adc, bfr, sfr, uvi, rom, bmr, bodyAge);
 
         } else {
-            float bm = (((b[3] & 0xff) << 8) | (b[4] & 0xff)) * 0.1f;
-            float vwc = ((b[5] & 0xff) << 8 | (b[6] & 0xff)) * 0.1f;
-            float pp = (((b[7] & 0xff) << 8) | (b[8] & 0xff)) * 0.1f;
+            if (hex.length < 8) {
+                return null;
+            }
+            float bm = (((hex[3] & 0xff) << 8) | (hex[4] & 0xff)) * 0.1f;
+            float vwc = ((hex[5] & 0xff) << 8 | (hex[6] & 0xff)) * 0.1f;
+            float pp = (((hex[7] & 0xff) << 8) | (hex[8] & 0xff)) * 0.1f;
             int heart = 0;
-            if (b.length >= 10)
-                heart = (b[9] & 0xff);   //以前的设备没有心率，在这里进行长度判断，否则会出现数组越界的错误
+            if (hex.length >= 10)
+                heart = (hex[9] & 0xff);   //以前的设备没有心率，在这里进行长度判断，否则会出现数组越界的错误
             mcuHistoryRecordBean.setBodyFatRecord_2(bm, vwc, pp, heart);
         }
         return mcuHistoryRecordBean;
@@ -379,15 +395,18 @@ public class BodyFatDataUtil {
      * 解析app历史数据
      * Parse app historical data
      */
-    public AppHistoryRecordBean getAppHistoryRecord(byte[] b,
+    public AppHistoryRecordBean getAppHistoryRecord(byte[] hex,
                                                     AppHistoryRecordBean appHistoryRecordBean) {
-        if (b[2] == 0x01) {
-            int year = (b[3] & 0xff) + 2000; //
-            int month = b[4] & 0xff;
-            int day = b[5] & 0xff;
-            int hour = b[6] & 0xff;
-            int min = b[7] & 0xff;
-            int sec = b[8] & 0xff;
+        if (hex[2] == 0x01) {
+            if (hex.length < 15) {
+                return null;
+            }
+            int year = (hex[3] & 0xff) + 2000; //
+            int month = hex[4] & 0xff;
+            int day = hex[5] & 0xff;
+            int hour = hex[6] & 0xff;
+            int min = hex[7] & 0xff;
+            int sec = hex[8] & 0xff;
 //            StringBuffer stringBuffer = new StringBuffer();
 //            stringBuffer.append(year);
 //            stringBuffer.append(":");
@@ -400,30 +419,33 @@ public class BodyFatDataUtil {
 //            stringBuffer.append(min);
 //            stringBuffer.append(":");
 //            stringBuffer.append(sec);
-            int mode = (b[9] & 0xf0) >> 4;
-            int bodyId = (b[9] & 0x0f);
-            int sex = (b[10] & 0xff) >> 7;
-            int age = (b[10] & 0x7f);
-            int height = b[11] & 0xff;
+            int mode = (hex[9] & 0xf0) >> 4;
+            int bodyId = (hex[9] & 0x0f);
+            int sex = (hex[10] & 0xff) >> 7;
+            int age = (hex[10] & 0x7f);
+            int height = hex[11] & 0xff;
 //            LogUtil.e( ((b[12] & 0xff) << 16 + (b[13] & 0xff) << 8 + b[14] & 0xff)+" "+((b[12]
 //            & 0xff) << 16)+"  "+((b[13] & 0xff) << 8)+" "+( b[14] & 0xff));
-            int weightHigh = (b[12] & 0xff) << 16;
-            int weightMid = (b[13] & 0xff) << 8;
-            int weightLow = b[14] & 0xff;
+            int weightHigh = (hex[12] & 0xff) << 16;
+            int weightMid = (hex[13] & 0xff) << 8;
+            int weightLow = hex[14] & 0xff;
             int weight = weightHigh + weightMid + weightLow;
-            int decimals = (b[15] & 0xf0) >> 4;
-            int unit = (b[15] & 0x0f);
+            int decimals = (hex[15] & 0xf0) >> 4;
+            int unit = (hex[15] & 0x0f);
             appHistoryRecordBean
                     .setUser(year, month, day, hour, min, sec, sex, mode, bodyId, age, height,
                             weight, unit, decimals);
 
         } else {
-            int adc = ((b[3] & 0xff) << 8) | (b[4] & 0xff);
+            if (hex.length < 4) {
+                return null;
+            }
+            int adc = ((hex[3] & 0xff) << 8) | (hex[4] & 0xff);
             int arithmetic = 0;
             int heart = 0;
-            if (b.length >= 7) {
-                arithmetic = b[5] & 0xff;
-                heart = b[6] & 0xff;
+            if (hex.length >= 7) {
+                arithmetic = hex[5] & 0xff;
+                heart = hex[6] & 0xff;
             }
             appHistoryRecordBean.setBodyFatRecord(adc, arithmetic, heart);
         }
@@ -468,9 +490,9 @@ public class BodyFatDataUtil {
      * Muc will send a command, and then send it after receiving the command
      * Passive delivery
      *
-     * @param bodyFatUserBean       用户 bodyFatUserBean
-     * @param deviceType 设置类型 蓝牙体脂秤 0x0e  wifi+ble体脂秤 0x11
-     *                   deviceType Setting type Bluetooth body fat scale 0x0e wifi + ble body fat scale 0x11
+     * @param bodyFatUserBean 用户 bodyFatUserBean
+     * @param deviceType      设置类型 蓝牙体脂秤 0x0e  wifi+ble体脂秤 0x11
+     *                        deviceType Setting type Bluetooth body fat scale 0x0e wifi + ble body fat scale 0x11
      */
     public SendMcuBean setUserInfo(BodyFatUserBean bodyFatUserBean, int deviceType) {
         SendMcuBean sendMcuBean = new SendMcuBean();

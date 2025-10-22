@@ -36,7 +36,6 @@ public class EightDoubleBodyFatBleDeviceData extends BaseEightDoubleBodyFatData 
                     mOnEightDoubleBodyFatCallback.onSupportUnit(list);
             }
         });
-
     }
 
     /**
@@ -73,10 +72,8 @@ public class EightDoubleBodyFatBleDeviceData extends BaseEightDoubleBodyFatData 
     }
 
 
-
     private List<EightDoubleBodyFatAdcBean> mAdcList = null;
     private EightDoubleBodyFatAdcBean mEightDoubleBodyFatAdcBean;
-
 
     @Override
     public void onNotifyData(String uuid, byte[] hex, int type) {

@@ -190,10 +190,10 @@ public class EightDoubleBodyFatBleMcuDeviceData extends BaseEightDoubleBodyFatDa
                 int id = (hex[1] & 0xFF) << 8 | (hex[2] & 0xFF);
                 if (id == 0xFFFF) {
                     //需要补全数据
-                    if (mEightDoubleBodyFatBean == null) {
-                        mEightDoubleBodyFatBean = new EightDoubleBodyFatBean();
+                    if (mEightDoubleMcuBodyFatBean == null) {
+                        mEightDoubleMcuBodyFatBean = new EightDoubleMcuBodyFatBean();
                     }
-                    mEightDoubleBodyFatBean.setAddData(true);
+                    mEightDoubleMcuBodyFatBean.setAddData(true);
                 }
                 break;
 
@@ -201,12 +201,12 @@ public class EightDoubleBodyFatBleMcuDeviceData extends BaseEightDoubleBodyFatDa
             case EightDoubleBodyFatBleConfig.CMD_MEASUREMENT_END:
                 //测量完成
                 if (mOnEightDoubleBodyFatCallback != null) {
-                    if (mEightDoubleBodyFatBean != null) {
-                        mOnEightDoubleBodyFatCallback.onBodyFat(mEightDoubleBodyFatBean.copy());
-                        mEightDoubleBodyFatBean = null;
+                    if (mEightDoubleMcuBodyFatBean != null) {
+                        mOnEightDoubleBodyFatCallback.onBodyFatMcu(mEightDoubleMcuBodyFatBean.copy());
+                        mEightDoubleMcuBodyFatBean = null;
                     } else {
                         BleLog.i("测量完成,但没有体脂数据");
-                        mOnEightDoubleBodyFatCallback.onBodyFat(null);
+                        mOnEightDoubleBodyFatCallback.onBodyFatMcu(null);
                     }
 
                     if (mAdcList == null) {
@@ -239,7 +239,7 @@ public class EightDoubleBodyFatBleMcuDeviceData extends BaseEightDoubleBodyFatDa
     }
 
 
-    private EightDoubleBodyFatBean mEightDoubleBodyFatBean;
+    private EightDoubleMcuBodyFatBean mEightDoubleMcuBodyFatBean;
 
     /**
      * 解析体脂数据
@@ -248,63 +248,63 @@ public class EightDoubleBodyFatBleMcuDeviceData extends BaseEightDoubleBodyFatDa
      */
     private void parseBodyFatData(byte[] hex) {
         int step = hex[1] & 0xFF;
-        if (mEightDoubleBodyFatBean == null) {
-            mEightDoubleBodyFatBean = new EightDoubleBodyFatBean();
+        if (mEightDoubleMcuBodyFatBean == null) {
+            mEightDoubleMcuBodyFatBean = new EightDoubleMcuBodyFatBean();
         }
         switch (step) {
 
             case 0x01:
                 int bmi = (hex[2] & 0xFF) << 8 | (hex[3] & 0xFF);
-                mEightDoubleBodyFatBean.setBmi(bmi * 0.1D);
+                mEightDoubleMcuBodyFatBean.setBmi(bmi * 0.1D);
                 int bfr = (hex[4] & 0xFF) << 8 | (hex[5] & 0xFF);
-                mEightDoubleBodyFatBean.setBodyBfr(bfr * 0.1D);
+                mEightDoubleMcuBodyFatBean.setBodyBfr(bfr * 0.1D);
                 int rom = (hex[6] & 0xFF) << 8 | (hex[7] & 0xFF);
-                mEightDoubleBodyFatBean.setBodyRom(rom * 0.1D);
+                mEightDoubleMcuBodyFatBean.setBodyRom(rom * 0.1D);
                 int lUpperFat = (hex[8] & 0xFF) << 8 | (hex[9] & 0xFF);
-                mEightDoubleBodyFatBean.setLeftUpperFatMass(lUpperFat * 0.1D);
+                mEightDoubleMcuBodyFatBean.setLeftUpperFatMass(lUpperFat * 0.1D);
                 int rUpperFat = (hex[10] & 0xFF) << 8 | (hex[11] & 0xFF);
-                mEightDoubleBodyFatBean.setRightUpperFatMass(rUpperFat * 0.1D);
+                mEightDoubleMcuBodyFatBean.setRightUpperFatMass(rUpperFat * 0.1D);
 
                 break;
 
             case 0x02:
                 int bodyFat = (hex[2] & 0xFF) << 8 | (hex[3] & 0xFF);
-                mEightDoubleBodyFatBean.setBodyFatMass(bodyFat * 0.1D);
+                mEightDoubleMcuBodyFatBean.setBodyFatMass(bodyFat * 0.1D);
                 int lLowerFat = (hex[4] & 0xFF) << 8 | (hex[5] & 0xFF);
-                mEightDoubleBodyFatBean.setLeftLowerFatMass(lLowerFat * 0.1D);
+                mEightDoubleMcuBodyFatBean.setLeftLowerFatMass(lLowerFat * 0.1D);
                 int rLowerFat = (hex[6] & 0xFF) << 8 | (hex[7] & 0xFF);
-                mEightDoubleBodyFatBean.setRightLowerFatMass(rLowerFat * 0.1D);
+                mEightDoubleMcuBodyFatBean.setRightLowerFatMass(rLowerFat * 0.1D);
                 int lUpperMuscle = (hex[8] & 0xFF) << 8 | (hex[9] & 0xFF);
-                mEightDoubleBodyFatBean.setLeftUpperMuscleMass(lUpperMuscle * 0.1D);
+                mEightDoubleMcuBodyFatBean.setLeftUpperMuscleMass(lUpperMuscle * 0.1D);
                 int rUpperMuscle = (hex[10] & 0xFF) << 8 | (hex[11] & 0xFF);
-                mEightDoubleBodyFatBean.setRightUpperMuscleMass(rUpperMuscle * 0.1D);
+                mEightDoubleMcuBodyFatBean.setRightUpperMuscleMass(rUpperMuscle * 0.1D);
                 break;
 
             case 0x03:
                 int bodyMuscle = (hex[2] & 0xFF) << 8 | (hex[3] & 0xFF);
-                mEightDoubleBodyFatBean.setBodyMuscleMass(bodyMuscle * 0.1D);
+                mEightDoubleMcuBodyFatBean.setBodyMuscleMass(bodyMuscle * 0.1D);
                 int lLowerMuscle = (hex[4] & 0xFF) << 8 | (hex[5] & 0xFF);
-                mEightDoubleBodyFatBean.setLeftLowerMuscleMass(lLowerMuscle * 0.1D);
+                mEightDoubleMcuBodyFatBean.setLeftLowerMuscleMass(lLowerMuscle * 0.1D);
                 int rLowerMuscle = (hex[6] & 0xFF) << 8 | (hex[7] & 0xFF);
-                mEightDoubleBodyFatBean.setRightLowerMuscleMass(rLowerMuscle * 0.1D);
+                mEightDoubleMcuBodyFatBean.setRightLowerMuscleMass(rLowerMuscle * 0.1D);
                 int bodyWater = (hex[8] & 0xFF) << 8 | (hex[9] & 0xFF);
-                mEightDoubleBodyFatBean.setBodyWater(bodyWater * 0.1D);
+                mEightDoubleMcuBodyFatBean.setBodyWater(bodyWater * 0.1D);
                 int bm = (hex[10] & 0xFF) << 8 | (hex[11] & 0xFF);
-                mEightDoubleBodyFatBean.setBm(bm * 0.1D);
+                mEightDoubleMcuBodyFatBean.setBm(bm * 0.1D);
                 break;
             case 0x04:
                 int bmr = (hex[2] & 0xFF) << 8 | (hex[3] & 0xFF);
-                mEightDoubleBodyFatBean.setBmr(bmr);
+                mEightDoubleMcuBodyFatBean.setBmr(bmr);
                 int pp = (hex[4] & 0xFF) << 8 | (hex[5] & 0xFF);
-                mEightDoubleBodyFatBean.setPp(pp * 0.1D);
+                mEightDoubleMcuBodyFatBean.setPp(pp * 0.1D);
                 int uvi = (hex[6] & 0xFF) << 8 | (hex[7] & 0xFF);
-                mEightDoubleBodyFatBean.setUvi(uvi);
+                mEightDoubleMcuBodyFatBean.setUvi(uvi);
                 int sfr = (hex[8] & 0xFF) << 8 | (hex[9] & 0xFF);
-                mEightDoubleBodyFatBean.setSfr(sfr * 0.1D);
+                mEightDoubleMcuBodyFatBean.setSfr(sfr * 0.1D);
                 int height = (hex[10] & 0xFF);
-                mEightDoubleBodyFatBean.setHeight(height);
+                mEightDoubleMcuBodyFatBean.setHeight(height);
                 int bodyAge = (hex[11] & 0xFF);
-                mEightDoubleBodyFatBean.setBodyAge(bodyAge);
+                mEightDoubleMcuBodyFatBean.setBodyAge(bodyAge);
                 break;
 
         }

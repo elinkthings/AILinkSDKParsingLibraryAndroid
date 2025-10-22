@@ -2,6 +2,9 @@ package cn.net.aicare.modulelibrary.module.ToothBrush;
 
 public class ToothBrushBleCmd {
 
+
+    public final static int CID=0x0012;
+
     /**
      * 获取牙刷支持的档位
      * Get the gear supported by the toothbrush
@@ -87,6 +90,9 @@ public class ToothBrushBleCmd {
      * APP gets the default value of the second gear
      */
     public  final static int GET_SECOND_GEARS =0x0D;
+
+    public final static byte GET_API_KEY = 0x0E;
+    public final static byte SET_API_KEY = 0x0F;
 
     /**
      * APP 设置二级指令标记

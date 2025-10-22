@@ -573,11 +573,11 @@ public class SkateboardAILinkDevice extends BaseBleDeviceData implements OnBleOt
         this.mOnNotifyChangePaw = mOnNotifyChangePaw;
     }
 
-    public void setOnNotifyDataMap(SkateboardAILinkDevice.onNotifyDataMap onNotifyDataMap) {
+    public void setOnNotifyDataMap(onNotifyDataMap onNotifyDataMap) {
         this.onNotifyDataMap = onNotifyDataMap;
     }
 
-    public void setOnNotifyDataOTA(SkateboardAILinkDevice.onNotifyDataOTA onNotifyDataOTA) {
+    public void setOnNotifyDataOTA(onNotifyDataOTA onNotifyDataOTA) {
         this.onNotifyDataOTA = onNotifyDataOTA;
     }
 
@@ -585,7 +585,7 @@ public class SkateboardAILinkDevice extends BaseBleDeviceData implements OnBleOt
         this.mOnNotifyCheckPaw = mOnNotifyCheckPaw;
     }
 
-    public void setOnNotifyDataDevice(SkateboardAILinkDevice.onNotifyDataDevice onNotifyDataDevice) {
+    public void setOnNotifyDataDevice(onNotifyDataDevice onNotifyDataDevice) {
         this.onNotifyDataDevice = onNotifyDataDevice;
     }
 
