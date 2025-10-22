@@ -344,7 +344,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
          *
          * @param bodyFatBean 体脂数据 null代表解析数据失败
          */
-        default void onBodyFatData(EightOneDataBodyFatBean bodyFatBean) {
+        default void onBodyFatData( EightOneDataBodyFatBean bodyFatBean) {
         }
 
 
@@ -429,19 +429,22 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         if (mEightBodyFatScaleUtils==null) {
             mEightBodyFatScaleUtils = new EightBodyFatScaleUtils();
         }
+        long adcBody = adcBean.getAdcLeftBody()==EightOneBodyFatAdcBean.UNTESTED?adcBean.getAdcRightBody():adcBean.getAdcLeftBody();
+        adcBean.setAdcBody(adcBody);
         UserInfoBean userInfoBean = new UserInfoBean(age,sex,heightCm,weightKg);
         UserAdcBean userAdcBean = new UserAdcBean(adcBean.getAdcBody(), adcBean.getAdcLeftHand(),adcBean.getAdcLeftFoot(), adcBean.getAdcRightHand(), adcBean.getAdcRightFoot());
         mEightBodyFatScaleUtils.getOneEightBodyData(mBleDevice, userInfoBean, userAdcBean, new EightBodyFatScaleUtils.OnOneEightBodyFatListener() {
             @Override
-            public void onBodyFatDataSuccess(ReqOneEightItemBean bean) {
+            public void onBodyFatDataSuccess( ReqOneEightItemBean bean) {
                 EightOneDataBodyFatBean eightOneDataBodyFatBean = getEightOneDataBodyFatBean(adcBean.getAlgorithmsId(), bean);
+                eightOneDataBodyFatBean.setWeightKg(weightKg);
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onBodyFatData(eightOneDataBodyFatBean);
                 }
             }
 
             @Override
-            public void onBodyFatDataError(int code, String msg) {
+            public void onBodyFatDataError(int code,  String msg) {
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onBodyFatDataError(code, msg);
                 }
@@ -476,10 +479,10 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         dataBodyFatBean.setMuscleMassLeftTop(String.valueOf(dataData.getMuscleKgLeftArm()));
         dataBodyFatBean.setMuscleMassLeftBottom(String.valueOf(dataData.getMuscleKgLeftLeg()));
         dataBodyFatBean.setMuscleMassBody(String.valueOf(dataData.getMuscleKgTrunk()));
-        dataBodyFatBean.setAdcLeftHand(dataBodyFatBean.getAdcLeftHand());
-        dataBodyFatBean.setAdcRightHand(dataBodyFatBean.getAdcRightHand());
-        dataBodyFatBean.setAdcLeftFoot(dataBodyFatBean.getAdcLeftFoot());
-        dataBodyFatBean.setAdcRightFoot(dataBodyFatBean.getAdcRightFoot());
+        dataBodyFatBean.setAdcLeftHand(dataData.getZLeftArmDeCode());
+        dataBodyFatBean.setAdcRightHand(dataData.getZRightArmDeCode());
+        dataBodyFatBean.setAdcLeftFoot(dataData.getZLeftLegDeCode());
+        dataBodyFatBean.setAdcRightFoot(dataData.getZRightLegDeCode());
         dataBodyFatBean.setAdcLeftBody(dataData.getZLeftBodyDeCode());
         dataBodyFatBean.setMuscleKg(dataData.getMuscleKg());
         dataBodyFatBean.setBodyFatFreeMassKg(dataData.getBodyFatFreeMassKg());

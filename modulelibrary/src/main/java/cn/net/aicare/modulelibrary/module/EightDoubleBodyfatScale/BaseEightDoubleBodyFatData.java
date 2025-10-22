@@ -122,7 +122,7 @@ public abstract class BaseEightDoubleBodyFatData extends BaseBleDeviceData {
         }
         mEightBodyFatScaleUtils.getDualEightBodyData(mBleDevice, userInfoBean, userAdcBean20, userAdcBean100, new EightBodyFatScaleUtils.OnDualEightBodyFatListener() {
             @Override
-            public void onBodyFatDataSuccess( ReqDualEightItemBean bean) {
+            public void onBodyFatDataSuccess(ReqDualEightItemBean bean) {
                 EightDoubleDataBodyFatBean eightDoubleDataBodyFatBean = getEightDoubleDataBodyFatBean(bean);
                 if (mOnEightDoubleBodyFatCallback != null) {
                     mOnEightDoubleBodyFatCallback.onBodyFatData(eightDoubleDataBodyFatBean);
