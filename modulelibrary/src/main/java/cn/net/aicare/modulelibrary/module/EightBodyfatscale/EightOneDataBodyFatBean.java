@@ -5,61 +5,61 @@ public class EightOneDataBodyFatBean {
     /**
      * 体重公斤
      */
-    private float weightKg;     //体重，
+    private float weightKg;
     /**
      * 身体质量指数
      */
-    private float bmi;     //体质指数，
+    private float bmi;
     /**
      * 体脂率
      */
-    private float bfr;     //体脂率，
+    private float bfr;
     /**
      * 皮下脂肪率
      */
-    private float sfr;     //皮下脂肪率，
+    private float sfr;
     /**
      * 内脏脂肪率
      */
-    private float uvi;     //内脏脂肪率，
+    private float uvi;
     /**
      * 肌肉率
      */
-    private float rom;     //肌肉率，
+    private float rom;
     /**
      * 基础代谢率
      */
-    private float bmr;     //基础代谢率，
+    private float bmr;
     /**
      * 骨量
      */
-    private String bm;     //骨骼质量，
+    private String bm;
     /**
      * 水分
      */
-    private float vwc;     //水含量，
+    private float vwc;
     /**
      * 身体年龄
      */
-    private int bodyAge;     //身体年龄，
+    private int bodyAge;
     /**
      * 蛋白率
      */
-    private float pp;     //蛋白率，
+    private float pp;
 
     /**
      * 阻抗左手
      */
-    private double adcLeftHand; //左手阻抗
+    private double adcLeftHand;
 
     /**
      * 阻抗右手
      */
-    private double adcRightHand; //右手阻抗
+    private double adcRightHand;
     /**
      * 阻抗左脚
      */
-    private double adcLeftFoot;  //左脚阻抗
+    private double adcLeftFoot;
     /**
      * 阻抗右脚
      */
@@ -75,45 +75,45 @@ public class EightOneDataBodyFatBean {
     private int arithmetic;
 
     /**
-     * 体脂-右上
+     * 体脂-右上(kg)
      */
-    private String fatMassRightTop;     //体脂-右上
+    private String fatMassRightTop;
     /**
-     * 体脂-右下
+     * 体脂-右下(kg)
      */
-    private String fatMassRightBottom;     //体脂-右下
+    private String fatMassRightBottom;
     /**
-     * 体脂-左上
+     * 体脂-左上(kg)
      */
-    private String fatMassLeftTop;     //体脂-左上
+    private String fatMassLeftTop;
     /**
-     * 体脂-左下
+     * 体脂-左下(kg)
      */
-    private String fatMassLeftBottom;     //体脂-左下
+    private String fatMassLeftBottom;
     /**
-     * 体脂-躯干
+     * 体脂-躯干(kg)
      */
-    private String fatMassBody;     //体脂-躯干
+    private String fatMassBody;
     /**
-     * 肌肉-右上
+     * 肌肉-右上(kg)
      */
-    private String muscleMassRightTop;     //肌肉-右上
+    private String muscleMassRightTop;
     /**
-     * 肌肉-右下
+     * 肌肉-右下(kg)
      */
-    private String muscleMassRightBottom;     //肌肉-右下
+    private String muscleMassRightBottom;
     /**
-     * 肌肉-左上
+     * 肌肉-左上(kg)
      */
-    private String muscleMassLeftTop;     //肌肉-左上
+    private String muscleMassLeftTop;
     /**
-     * 肌肉-左下
+     * 肌肉-左下(kg)
      */
-    private String muscleMassLeftBottom;     //肌肉-左下
+    private String muscleMassLeftBottom;
     /**
-     * 肌肉-躯干
+     * 肌肉-躯干(kg)
      */
-    private String muscleMassBody;     //肌肉-躯干
+    private String muscleMassBody;
 
     /**
      * 骨骼肌公斤
@@ -133,6 +133,8 @@ public class EightOneDataBodyFatBean {
      * 肌肉公斤
      */
     private float muscleKg;
+    private String bodyType;
+    private float bodyFatKg;
 
 
     public void setBhSkeletalMuscleKg(String bhSkeletalMuscleKg) {
@@ -385,6 +387,22 @@ public class EightOneDataBodyFatBean {
         this.muscleKg = muscleKg;
     }
 
+    public String getBodyType() {
+        return bodyType;
+    }
+
+    public void setBodyType(String bodyType) {
+        this.bodyType = bodyType;
+    }
+
+    public float getBodyFatKg() {
+        return bodyFatKg;
+    }
+
+    public void setBodyFatKg(float bodyFatKg) {
+        this.bodyFatKg = bodyFatKg;
+    }
+
     @Override
     public String toString() {
         return "EightBodyFatBean{" +
@@ -419,6 +437,8 @@ public class EightOneDataBodyFatBean {
                 ", 标准体重='" + idealWeightKg + '\'' +
                 ", 去脂体重='" + bodyFatFreeMassKg + '\'' +
                 ", 肌肉量='" + muscleKg + '\'' +
+                ", 身体类型='" + bodyType + '\'' +
+                ", 脂肪量='" + bodyFatKg + '\'' +
                 '}';
     }
 

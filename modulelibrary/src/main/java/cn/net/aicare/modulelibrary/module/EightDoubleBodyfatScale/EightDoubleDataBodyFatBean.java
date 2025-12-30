@@ -112,7 +112,14 @@ public class EightDoubleDataBodyFatBean {
      * 骨骼肌质量
      */
     private float skeletalMuscleMass = 0;
-
+    /**
+     * 去脂体重-千克
+     */
+    private Float bodyFatFreeMassKg;
+    /**
+     * 脂肪重量-千克
+     */
+    private Float bodyFatKg;
     /**
      * 脂肪控制量-千克
      */
@@ -480,6 +487,21 @@ public class EightDoubleDataBodyFatBean {
         this.skeletalMuscleMass = skeletalMuscleMass;
     }
 
+    public Float getBodyFatFreeMassKg() {
+        return bodyFatFreeMassKg;
+    }
+
+    public void setBodyFatFreeMassKg(Float bodyFatFreeMassKg) {
+        this.bodyFatFreeMassKg = bodyFatFreeMassKg;
+    }
+
+    public Float getBodyFatKg() {
+        return bodyFatKg;
+    }
+
+    public void setBodyFatKg(Float bodyFatKg) {
+        this.bodyFatKg = bodyFatKg;
+    }
 
     public Float getBodyFatKgCon() {
         return bodyFatKgCon;
@@ -790,6 +812,8 @@ public class EightDoubleDataBodyFatBean {
                 ", 肌肉左下=" + muscleMassLeftBottomKg + "kg" +
                 ", 肌肉躯干=" + muscleMassBodyKg + "kg" +
                 ", 骨骼肌质量=" + skeletalMuscleMass + "kg" +
+                ", 去脂体重=" + formatNullableFloat(bodyFatFreeMassKg, "kg") +
+                ", 脂肪量=" + formatNullableFloat(bodyFatKg, "kg") +
                 ", 脂肪控制量=" + formatNullableFloat(bodyFatKgCon, "kg") +
                 ", 肌肉控制量=" + formatNullableFloat(muscleKgCon, "kg") +
                 ", 水分重=" + formatNullableFloat(waterKg, "kg") +

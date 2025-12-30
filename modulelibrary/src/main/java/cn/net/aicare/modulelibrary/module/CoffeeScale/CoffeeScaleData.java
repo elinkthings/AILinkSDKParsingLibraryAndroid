@@ -423,11 +423,18 @@ public class CoffeeScaleData extends BaseBleDeviceData implements OnBleVersionLi
         sendData(sendMcuBean);
     }
 
-    // 退出，进入冲煮模式
-    public void brewMode(int status) {
-        byte[] hex = new byte[2];
+    /**
+     * 退出，进入冲煮模式
+     *
+     * @param status 状态 0：退出；1：进入
+     * @param btn    btn 0-设备上的归零和定时按钮不可用
+     *               1-设备上的归零和定时按钮可用
+     */
+    public void brewMode(int status,int btn) {
+        byte[] hex = new byte[3];
         hex[0] = CoffeeScaleConfig.BREW_MODE;
         hex[1] = (byte) status;
+        hex[2] = (byte) btn;
         SendMcuBean sendMcuBean = new SendMcuBean();
         sendMcuBean.setHex(CID, hex);
         sendData(sendMcuBean);

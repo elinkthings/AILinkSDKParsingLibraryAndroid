@@ -12,6 +12,7 @@ import com.pingwang.bluetoothlib.listener.OnBleMtuListener;
 import com.pingwang.bluetoothlib.listener.OnBleOtherDataListener;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.listener.OnMcuParameterListener;
+import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.lang.ref.WeakReference;
@@ -43,6 +44,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
         bleDevice.setOnBleMtuListener(new OnBleMtuListener() {
             @Override
             public void onMtuAvailable(int mtu) {
+                BleLog.i("请求的MTU="+mtu);
                 mMtu = mtu;
             }
         });

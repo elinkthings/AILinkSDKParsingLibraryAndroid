@@ -425,6 +425,15 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
 
     private EightBodyFatScaleUtils mEightBodyFatScaleUtils;
 
+    /**
+     * 获取单频八电极体脂数据
+     *
+     * @param sex      性别
+     * @param age      年龄
+     * @param weightKg 体重KG
+     * @param heightCm 身高CM
+     * @param adcBean  阻抗bean
+     */
     public void getOneEightBodyData(int sex, int age, float weightKg, int heightCm, EightOneBodyFatAdcBean adcBean) {
         if (mEightBodyFatScaleUtils==null) {
             mEightBodyFatScaleUtils = new EightBodyFatScaleUtils();
@@ -467,7 +476,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         dataBodyFatBean.setVwc(dataData.getWaterRate());
         dataBodyFatBean.setBodyAge(dataData.getBodyAge());
         dataBodyFatBean.setPp(dataData.getProteinRate());
-        dataBodyFatBean.setFatMassBody(String.valueOf(dataData.getBodyFatKg()));
+        dataBodyFatBean.setFatMassBody(String.valueOf(dataData.getBodyFatKgTrunk()));
         dataBodyFatBean.setFatMassLeftTop(String.valueOf(dataData.getBodyFatKgLeftArm()));
         dataBodyFatBean.setFatMassLeftBottom(String.valueOf(dataData.getBodyFatKgLeftLeg()));
         dataBodyFatBean.setFatMassRightTop(String.valueOf(dataData.getBodyFatKgRightArm()));
@@ -487,6 +496,8 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
         dataBodyFatBean.setMuscleKg(dataData.getMuscleKg());
         dataBodyFatBean.setBodyFatFreeMassKg(dataData.getBodyFatFreeMassKg());
         dataBodyFatBean.setIdealWeightKg(dataData.getIdealWeightKg());
+        dataBodyFatBean.setBodyFatKg(dataData.getBodyFatKg());
+        dataBodyFatBean.setBodyType(dataData.getBodyType());
         return dataBodyFatBean;
     }
 }

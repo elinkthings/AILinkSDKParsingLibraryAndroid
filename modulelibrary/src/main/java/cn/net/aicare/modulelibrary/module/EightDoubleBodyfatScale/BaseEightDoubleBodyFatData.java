@@ -11,7 +11,6 @@ import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.utils.BleLog;
 
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -167,6 +166,8 @@ public abstract class BaseEightDoubleBodyFatData extends BaseBleDeviceData {
         dataBodyFatBean.setMuscleMassRightBottomKg(dataData.getMuscleKgRightLeg());
         dataBodyFatBean.setMuscleMassBodyKg(dataData.getMuscleKgTrunk());
         dataBodyFatBean.setSkeletalMuscleMass(dataBodyFatBean.getSkeletalMuscleMass());
+        dataBodyFatBean.setBodyFatFreeMassKg(dataData.getBodyFatFreeMassKg());
+        dataBodyFatBean.setBodyFatKg(dataData.getBodyFatKg());
         dataBodyFatBean.setBodyFatKgCon(dataData.getBodyFatKgCon());
         dataBodyFatBean.setMuscleKgCon(dataData.getMuscleKgCon());
         dataBodyFatBean.setWaterKg(dataData.getWaterKg());
