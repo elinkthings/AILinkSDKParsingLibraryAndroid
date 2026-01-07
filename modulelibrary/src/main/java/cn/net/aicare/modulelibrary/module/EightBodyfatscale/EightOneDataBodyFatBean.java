@@ -135,6 +135,7 @@ public class EightOneDataBodyFatBean {
     private float muscleKg;
     private String bodyType;
     private float bodyFatKg;
+    private int bodyScore;
 
 
     public void setBhSkeletalMuscleKg(String bhSkeletalMuscleKg) {
@@ -403,6 +404,14 @@ public class EightOneDataBodyFatBean {
         this.bodyFatKg = bodyFatKg;
     }
 
+    public int getBodyScore() {
+        return bodyScore;
+    }
+
+    public void setBodyScore(int bodyScore) {
+        this.bodyScore = bodyScore;
+    }
+
     @Override
     public String toString() {
         return "EightBodyFatBean{" +
@@ -439,6 +448,7 @@ public class EightOneDataBodyFatBean {
                 ", 肌肉量='" + muscleKg + '\'' +
                 ", 身体类型='" + bodyType + '\'' +
                 ", 脂肪量='" + bodyFatKg + '\'' +
+                ", 身体得分='" + bodyScore + '\'' +
                 '}';
     }
 
