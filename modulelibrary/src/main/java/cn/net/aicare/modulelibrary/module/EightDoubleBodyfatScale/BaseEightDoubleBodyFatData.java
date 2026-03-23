@@ -11,6 +11,7 @@ import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.utils.BleLog;
 
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -129,7 +130,7 @@ public abstract class BaseEightDoubleBodyFatData extends BaseBleDeviceData {
             }
 
             @Override
-            public void onBodyFatDataError(int code,  String msg) {
+            public void onBodyFatDataError(int code, String msg) {
                 if (mOnEightDoubleBodyFatCallback != null) {
                     mOnEightDoubleBodyFatCallback.onBodyFatDataError(code, msg);
                 }

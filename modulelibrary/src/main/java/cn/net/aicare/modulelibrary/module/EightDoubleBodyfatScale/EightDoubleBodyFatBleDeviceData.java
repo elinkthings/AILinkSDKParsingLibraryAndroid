@@ -3,6 +3,7 @@ package cn.net.aicare.modulelibrary.module.EightDoubleBodyfatScale;
 import com.pingwang.bluetoothlib.bean.SupportUnitBean;
 import com.pingwang.bluetoothlib.device.BleDevice;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
+import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.ArrayList;
@@ -83,6 +84,19 @@ public class EightDoubleBodyFatBleDeviceData extends BaseEightDoubleBodyFatData 
         if (type != mCid) {
             return;
         }
+        try {
+            dataAnalysis(hex);
+        } catch (Exception e) {
+            BleLog.e("八电极数据解析异常:"+BleStrUtils.byte2HexStr(hex));
+        }
+    }
+
+    /**
+     * 数据分析
+     *
+     * @param hex 十六进制
+     */
+    private void dataAnalysis(byte[] hex) {
         int cmd = hex[0] & 0xff;
         int status = hex[1] & 0xff;
 

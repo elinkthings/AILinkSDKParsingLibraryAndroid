@@ -7,6 +7,7 @@ import com.pingwang.bluetoothlib.device.BleSendCmdUtil;
 import com.pingwang.bluetoothlib.device.SendBleBean;
 import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
+import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
 
 import java.util.ArrayList;
@@ -55,6 +56,19 @@ public class EightBodyFatMcuDeviceData extends BaseBleDeviceData {
             mOnEightBodyFatMcuCallback.showData(BleStrUtils.byte2HexStr(hex));
         }
 
+        try {
+            dataAnalysis(hex);
+        } catch (Exception e) {
+            BleLog.e("八电极体脂秤解析异常:"+BleStrUtils.byte2HexStr(hex));
+        }
+    }
+
+    /**
+     * 数据分析
+     *
+     * @param hex 十六进制
+     */
+    private void dataAnalysis(byte[] hex) {
         int cmd = hex[0] & 0xff;
         int status = hex[1] & 0xff;
         switch (cmd) {

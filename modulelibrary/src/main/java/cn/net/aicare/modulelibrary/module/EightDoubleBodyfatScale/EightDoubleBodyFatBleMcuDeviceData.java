@@ -92,6 +92,20 @@ public class EightDoubleBodyFatBleMcuDeviceData extends BaseEightDoubleBodyFatDa
             return;
         }
 
+        try {
+            dataAnalysis(hex);
+        } catch (Exception e) {
+            BleLog.e("八电极数据解析异常:"+BleStrUtils.byte2HexStr(hex));
+        }
+
+    }
+
+    /**
+     * 数据分析
+     *
+     * @param hex 十六进制
+     */
+    private void dataAnalysis(byte[] hex) {
         int cmd = hex[0] & 0xFF;
         int status = hex[1] & 0xFF;
 
@@ -235,7 +249,6 @@ public class EightDoubleBodyFatBleMcuDeviceData extends BaseEightDoubleBodyFatDa
             default:
                 break;
         }
-
     }
 
 
