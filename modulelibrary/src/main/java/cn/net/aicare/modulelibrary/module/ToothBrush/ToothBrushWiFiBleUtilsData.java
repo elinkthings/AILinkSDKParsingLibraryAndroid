@@ -818,7 +818,7 @@ public class ToothBrushWiFiBleUtilsData extends BaseBleDeviceData implements OnB
      */
     public void getDeviceId() {
         if (mWifiBleDeviceData != null) {
-            mWifiBleDeviceData.getDeviceSn();
+            mWifiBleDeviceData.getDeviceId();
         }
     }
 

@@ -79,7 +79,7 @@ public class TpmsDeviceData extends BaseBleDeviceData {
      */
     public void getDeviceInfo() {
         SendBleBean sendBleBean = new SendBleBean();
-        sendBleBean.setHex(BleSendCmdUtil.getInstance().getDeviceInfo());
+        sendBleBean.setHex(BleSendCmdUtil.getInstance().getDeviceSaveCustomData());
         sendData(sendBleBean);
     }
 

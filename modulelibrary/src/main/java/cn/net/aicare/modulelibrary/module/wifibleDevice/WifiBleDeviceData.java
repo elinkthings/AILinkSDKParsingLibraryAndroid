@@ -177,14 +177,14 @@ public class WifiBleDeviceData implements OnWifiInfoListener, OnBleConnectStatus
     }
 
     /**
-     * 获取设备sn号(设备ID?)
+     * 获取设备ID
      * 用于判断设备是否在服务器注册成功
      *
      * @return {@link SendBleBean}
      */
-    public void getDeviceSn() {
+    public void getDeviceId() {
         byte[] bytes = new byte[1];
-        bytes[0] = (byte) CmdConfig.GET_SN;
+        bytes[0] = (byte) CmdConfig.GET_DEVICE_ID;
         sendBleData(bytes);
     }
 
