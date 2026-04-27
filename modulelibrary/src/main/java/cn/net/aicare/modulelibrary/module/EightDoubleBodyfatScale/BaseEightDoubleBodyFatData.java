@@ -166,7 +166,7 @@ public abstract class BaseEightDoubleBodyFatData extends BaseBleDeviceData {
         dataBodyFatBean.setMuscleMassLeftBottomKg(dataData.getMuscleKgLeftLeg());
         dataBodyFatBean.setMuscleMassRightBottomKg(dataData.getMuscleKgRightLeg());
         dataBodyFatBean.setMuscleMassBodyKg(dataData.getMuscleKgTrunk());
-        dataBodyFatBean.setSkeletalMuscleMass(dataBodyFatBean.getSkeletalMuscleMass());
+        dataBodyFatBean.setSkeletalMuscleMass(dataData.getSkeletalMuscleKg());
         dataBodyFatBean.setBodyFatFreeMassKg(dataData.getBodyFatFreeMassKg());
         dataBodyFatBean.setBodyFatKg(dataData.getBodyFatKg());
         dataBodyFatBean.setBodyFatKgCon(dataData.getBodyFatKgCon());
