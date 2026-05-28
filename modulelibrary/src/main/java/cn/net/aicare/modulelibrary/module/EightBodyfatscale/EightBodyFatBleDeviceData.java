@@ -1,6 +1,5 @@
 package cn.net.aicare.modulelibrary.module.EightBodyfatscale;
 
-import androidx.annotation.Nullable;
 
 import com.elinkthings.httplibrary.eightAlgorithm.EightBodyFatScaleUtils;
 import com.elinkthings.httplibrary.eightAlgorithm.UserAdcBean;
@@ -14,8 +13,6 @@ import com.pingwang.bluetoothlib.device.SendMcuBean;
 import com.pingwang.bluetoothlib.listener.OnBleVersionListener;
 import com.pingwang.bluetoothlib.utils.BleLog;
 import com.pingwang.bluetoothlib.utils.BleStrUtils;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -359,7 +356,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
          *
          * @param bodyFatBean 体脂数据 null代表解析数据失败
          */
-        default void onBodyFatData(@Nullable EightOneDataBodyFatBean bodyFatBean) {
+        default void onBodyFatData(EightOneDataBodyFatBean bodyFatBean) {
         }
 
 
@@ -450,17 +447,17 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
      * @param adcBean  阻抗bean
      */
     public void getOneEightBodyData(int sex, int age, float weightKg, int heightCm, EightOneBodyFatAdcBean adcBean) {
-        if (mEightBodyFatScaleUtils==null) {
+        if (mEightBodyFatScaleUtils == null) {
             mEightBodyFatScaleUtils = new EightBodyFatScaleUtils();
         }
-        long adcBody = adcBean.getAdcLeftBody()==EightOneBodyFatAdcBean.UNTESTED?adcBean.getAdcRightBody():adcBean.getAdcLeftBody();
+        long adcBody = adcBean.getAdcLeftBody() == EightOneBodyFatAdcBean.UNTESTED ? adcBean.getAdcRightBody() : adcBean.getAdcLeftBody();
         adcBean.setAdcBody(adcBody);
-        UserInfoBean userInfoBean = new UserInfoBean(age,sex,heightCm,weightKg);
-        UserAdcBean userAdcBean = new UserAdcBean(adcBean.getAdcBody(), adcBean.getAdcLeftHand(),adcBean.getAdcLeftFoot(), adcBean.getAdcRightHand(),
+        UserInfoBean userInfoBean = new UserInfoBean(age, sex, heightCm, weightKg);
+        UserAdcBean userAdcBean = new UserAdcBean(adcBean.getAdcBody(), adcBean.getAdcLeftHand(), adcBean.getAdcLeftFoot(), adcBean.getAdcRightHand(),
                 adcBean.getAdcRightFoot());
         mEightBodyFatScaleUtils.getOneEightBodyData(mBleDevice, userInfoBean, userAdcBean, new EightBodyFatScaleUtils.OnOneEightBodyFatListener() {
             @Override
-            public void onBodyFatDataSuccess(@NotNull ReqOneEightItemBean bean) {
+            public void onBodyFatDataSuccess(ReqOneEightItemBean bean) {
                 EightOneDataBodyFatBean eightOneDataBodyFatBean = getEightOneDataBodyFatBean(adcBean.getAlgorithmsId(), bean);
                 eightOneDataBodyFatBean.setWeightKg(weightKg);
                 if (mEightBodyFatCallback != null) {
@@ -469,7 +466,7 @@ public class EightBodyFatBleDeviceData extends BaseBleDeviceData {
             }
 
             @Override
-            public void onBodyFatDataError(int code, @NotNull String msg) {
+            public void onBodyFatDataError(int code,  String msg) {
                 if (mEightBodyFatCallback != null) {
                     mEightBodyFatCallback.onBodyFatDataError(code, msg);
                 }
