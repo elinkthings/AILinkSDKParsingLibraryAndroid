@@ -137,6 +137,15 @@ public class EightOneDataBodyFatBean {
     private float bodyFatKg;
     private int bodyScore;
 
+    /**
+     * 矿物质重量-千克
+     */
+    private Float mineralKg;
+
+    /**
+     * 矿物质标准区间
+     */
+    private String mineralKgStand;
 
     public void setBhSkeletalMuscleKg(String bhSkeletalMuscleKg) {
         this.bhSkeletalMuscleKg = bhSkeletalMuscleKg;
@@ -412,6 +421,22 @@ public class EightOneDataBodyFatBean {
         this.bodyScore = bodyScore;
     }
 
+    public Float getMineralKg() {
+        return mineralKg;
+    }
+
+    public void setMineralKg(Float mineralKg) {
+        this.mineralKg = mineralKg;
+    }
+
+    public String getMineralKgStand() {
+        return mineralKgStand;
+    }
+
+    public void setMineralKgStand(String mineralKgStand) {
+        this.mineralKgStand = mineralKgStand;
+    }
+
     @Override
     public String toString() {
         return "EightBodyFatBean{" +
@@ -449,7 +474,15 @@ public class EightOneDataBodyFatBean {
                 ", 身体类型='" + bodyType + '\'' +
                 ", 脂肪量='" + bodyFatKg + '\'' +
                 ", 身体得分='" + bodyScore + '\'' +
+                ", 矿物质重量='" + mineralKg + '\'' +
+                ", 矿物质标准区间值='" + formatNullableString(mineralKgStand) + '\'' +
                 '}';
     }
 
+    private String formatNullableString(String value) {
+        if (value == null) {
+            return "未设置";
+        }
+        return value;
+    }
 }
